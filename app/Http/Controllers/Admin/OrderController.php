@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -17,8 +17,8 @@ class OrderController extends Controller
 
     private const TRANSITIONS = [
         'pending' => ['confirmed', 'cancelled'],
-        'confirmed' => ['processing'],
-        'processing' => ['shipped'],
+        'confirmed' => ['processing', 'cancelled'],
+        'processing' => ['shipped', 'cancelled'],
         'shipped' => ['completed'],
         'completed' => [],
         'cancelled' => [],
@@ -97,12 +97,6 @@ class OrderController extends Controller
             if ($nextStatus === 'confirmed' && ! $lockedOrder->payments()->where('status_pembayaran', 'paid')->exists()) {
                 throw ValidationException::withMessages([
                     'status_pesanan' => 'Pesanan hanya dapat dikonfirmasi setelah pembayaran diterima.',
-                ]);
-            }
-
-            if ($nextStatus === 'cancelled' && $lockedOrder->payments()->where('status_pembayaran', 'paid')->exists()) {
-                throw ValidationException::withMessages([
-                    'status_pesanan' => 'Pesanan yang sudah dibayar tidak dapat dibatalkan tanpa proses pengembalian dana.',
                 ]);
             }
 

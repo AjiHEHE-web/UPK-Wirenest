@@ -117,6 +117,14 @@
                             @include('pages.admin.partials.icon', ['name' => 'history', 'class' => 'h-5 w-5 shrink-0'])
                             <span x-show="!sidebarCollapsed">Riwayat Transaksi</span>
                         </a>
+                        <a href="{{ route('admin.refunds.index') }}" aria-label="Pengembalian Dana" @class([
+                            'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition duration-200',
+                            'bg-white/15 font-semibold text-white' => request()->routeIs('admin.refunds.*'),
+                            'text-white/70 hover:bg-white/10 hover:text-white' => ! request()->routeIs('admin.refunds.*'),
+                        ]) :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''" @if(request()->routeIs('admin.refunds.*')) aria-current="page" @endif>
+                            @include('pages.admin.partials.icon', ['name' => 'banknote', 'class' => 'h-5 w-5 shrink-0'])
+                            <span x-show="!sidebarCollapsed">Pengembalian Dana</span>
+                        </a>
                     </div>
                 </div>
             </nav>

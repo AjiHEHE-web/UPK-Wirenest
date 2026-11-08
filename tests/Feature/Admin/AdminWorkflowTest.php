@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Order;
+use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -355,7 +357,7 @@ test('admins cannot skip order processing steps', function () {
     ]);
 });
 
-test('admins cannot cancel an order after payment without a refund process', function () {
+test('admins can cancel an order after payment without automatically refunding it', function () {
     $admin = User::factory()->create();
     $admin->forceFill(['role' => 'admin'])->save();
     $customer = User::factory()->create();
@@ -365,7 +367,7 @@ test('admins cannot cancel an order after payment without a refund process', fun
         'id_user' => $customer->id_user,
         'tanggal_pemesanan' => now(),
         'total_harga' => 150000,
-        'status_pesanan' => 'pending',
+        'status_pesanan' => 'confirmed',
         'created_at' => now(),
     ]);
 
@@ -383,11 +385,42 @@ test('admins cannot cancel an order after payment without a refund process', fun
         ->patch(route('admin.orders.update-status', 'order-1'), [
             'status_pesanan' => 'cancelled',
         ])
-        ->assertSessionHasErrors('status_pesanan');
+        ->assertRedirect();
 
     $this->assertDatabaseHas('pesanan', [
         'id_pesanan' => 'order-1',
-        'status_pesanan' => 'pending',
+        'status_pesanan' => 'cancelled',
+    ]);
+    $this->assertDatabaseHas('pembayaran', [
+        'id_pembayaran' => 'payment-1',
+        'status_pembayaran' => 'paid',
+    ]);
+});
+
+test('admins can cancel a paid processing order before it ships', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['role' => 'admin'])->save();
+    $customer = User::factory()->create();
+    $order = Order::factory()->create([
+        'id_user' => $customer->id_user,
+        'status_pesanan' => 'processing',
+    ]);
+    Payment::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'status_pembayaran' => 'paid',
+        'bukti_pembayaran' => 'accept',
+        'image_bukti' => 'payments/customer-proof.jpg',
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.orders.update-status', $order), [
+            'status_pesanan' => 'cancelled',
+        ])
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('pesanan', [
+        'id_pesanan' => $order->id_pesanan,
+        'status_pesanan' => 'cancelled',
     ]);
 });
 
