@@ -46,6 +46,7 @@ Route::middleware(['auth', 'user'])
         Route::get('/history', [UserOrderController::class, 'index'])->name('orders.index');
         Route::get('/history/{order}', [UserOrderController::class, 'show'])->name('orders.show');
         Route::patch('/history/{order}/cancel', [UserOrderController::class, 'cancel'])->name('orders.cancel');
+        Route::patch('/history/{order}/received', [UserOrderController::class, 'confirmReceived'])->name('orders.confirm-received');
         Route::post('/history/{order}/payment-proof', [UserPaymentProofController::class, 'store'])->name('orders.payment-proof');
         Route::get('/history/{order}/payment-proof/{payment}', [UserPaymentProofController::class, 'show'])->name('orders.payment-proof.show');
 

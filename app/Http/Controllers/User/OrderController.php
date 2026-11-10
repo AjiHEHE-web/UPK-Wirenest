@@ -57,12 +57,9 @@ class OrderController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if (
-                $lockedOrder->status_pesanan !== 'pending'
-                || $lockedOrder->payments()->where('status_pembayaran', 'paid')->exists()
-            ) {
+            if (! in_array($lockedOrder->status_pesanan, ['pending', 'processing'], true)) {
                 throw ValidationException::withMessages([
-                    'order' => 'Pesanan ini tidak dapat dibatalkan. Hubungi toko jika Anda memerlukan bantuan.',
+                    'order' => 'Pesanan hanya dapat dibatalkan sebelum dikirim.',
                 ]);
             }
 
@@ -70,6 +67,35 @@ class OrderController extends Controller
             $lockedOrder->save();
         });
 
-        return redirect()->route('user.orders.show', $order)->with('success', 'Pesanan berhasil dibatalkan.');
+        return redirect()
+            ->route('user.orders.show', $order)
+            ->with('success', 'Pesanan berhasil dibatalkan. Jika pembayaran telah disetujui dan bukti telah diunggah, Admin akan memproses pengembalian dana.');
+    }
+
+    public function confirmReceived(Request $request, Order $order): RedirectResponse
+    {
+        DB::transaction(function () use ($request, $order): void {
+            $lockedOrder = $request->user()
+                ->orders()
+                ->whereKey($order->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if (
+                $lockedOrder->status_pesanan !== 'shipped'
+                || ! $lockedOrder->payments()->paidWithApprovedProof()->exists()
+            ) {
+                throw ValidationException::withMessages([
+                    'order' => 'Pesanan hanya dapat diselesaikan setelah barang dikirim dan pembayaran disetujui.',
+                ]);
+            }
+
+            $lockedOrder->status_pesanan = 'completed';
+            $lockedOrder->save();
+        });
+
+        return redirect()
+            ->route('user.orders.show', $order)
+            ->with('success', 'Penerimaan pesanan berhasil dikonfirmasi.');
     }
 }

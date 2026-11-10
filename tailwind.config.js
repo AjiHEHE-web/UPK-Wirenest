@@ -12,6 +12,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
+                display: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
             colors: {
@@ -26,6 +27,7 @@ export default {
                     700: '#2c4c3b',
                     800: '#243e32',
                     900: '#1e342a',
+                    950: '#16271f',
                 },
                 cream: '#f8f7f1',
                 ink: '#22312a',

@@ -13,13 +13,12 @@ use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
-    private const STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'completed', 'cancelled'];
+    private const STATUSES = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
 
     private const TRANSITIONS = [
-        'pending' => ['confirmed', 'cancelled'],
-        'confirmed' => ['processing', 'cancelled'],
-        'processing' => ['shipped', 'cancelled'],
-        'shipped' => ['completed'],
+        'pending' => ['processing'],
+        'processing' => ['shipped'],
+        'shipped' => [],
         'completed' => [],
         'cancelled' => [],
     ];
@@ -61,16 +60,18 @@ class OrderController extends Controller
     public function show(Order $order): View
     {
         $order->load(['user', 'items.product', 'payments.verifier']);
+        $hasApprovedPayment = $order->payments()->paidWithApprovedProof()->exists();
         $nextStatuses = self::TRANSITIONS[$order->status_pesanan] ?? [];
 
-        if ($order->status_pesanan === 'pending' && ! $order->payments()->where('status_pembayaran', 'paid')->exists()) {
-            $nextStatuses = array_values(array_filter($nextStatuses, fn (string $status): bool => $status !== 'confirmed'));
+        if (! $hasApprovedPayment) {
+            $nextStatuses = [];
         }
 
         return view('pages.admin.orders', [
             'page' => 'show',
             'order' => $order,
             'nextStatuses' => $nextStatuses,
+            'hasApprovedPayment' => $hasApprovedPayment,
         ]);
     }
 
@@ -94,18 +95,13 @@ class OrderController extends Controller
                 ]);
             }
 
-            if ($nextStatus === 'confirmed' && ! $lockedOrder->payments()->where('status_pembayaran', 'paid')->exists()) {
+            if (! $lockedOrder->payments()->paidWithApprovedProof()->exists()) {
                 throw ValidationException::withMessages([
-                    'status_pesanan' => 'Pesanan hanya dapat dikonfirmasi setelah pembayaran diterima.',
+                    'status_pesanan' => 'Status pesanan hanya dapat diubah setelah bukti pembayaran disetujui Admin.',
                 ]);
             }
 
             $lockedOrder->status_pesanan = $nextStatus;
-
-            if ($nextStatus === 'confirmed') {
-                $lockedOrder->confirmed_at = now();
-            }
-
             $lockedOrder->save();
         });
 

@@ -192,6 +192,32 @@ test('customers can upload private payment proof for their own pending order', f
     expect($payment->fresh()->image_bukti)->not->toBeNull()
         ->and($payment->fresh()->status_pembayaran)->toBe('pending');
     Storage::disk('local')->assertExists($payment->fresh()->image_bukti);
+
+    $this->get(route('user.orders.show', $order))
+        ->assertOk()
+        ->assertSee('Lihat bukti pembayaran')
+        ->assertDontSee('Unggah bukti transfer');
+});
+
+test('customers cannot replace an uploaded payment proof', function () {
+    Storage::fake('local');
+    $customer = User::factory()->create();
+    $order = Order::factory()->create(['id_user' => $customer->id_user]);
+    $payment = Payment::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'image_bukti' => 'payments/existing-proof.jpg',
+    ]);
+    Storage::disk('local')->put('payments/existing-proof.jpg', 'existing proof');
+
+    $this->actingAs($customer)
+        ->post(route('user.orders.payment-proof', $order), [
+            'payment_id' => $payment->id_pembayaran,
+            'image_bukti' => UploadedFile::fake()->image('replacement.jpg'),
+        ])
+        ->assertSessionHasErrors('image_bukti');
+
+    expect($payment->fresh()->image_bukti)->toBe('payments/existing-proof.jpg');
+    Storage::disk('local')->assertExists('payments/existing-proof.jpg');
 });
 
 test('customers cannot view another customers order', function () {
@@ -226,11 +252,12 @@ test('customers can cancel pending orders and release reserved stock', function 
         ->and($product->fresh()->stock_produk)->toBe(5);
 });
 
-test('customers cannot cancel an order with a paid payment', function () {
+test('customers can cancel an unshipped paid order in processing and release reserved stock', function () {
     $customer = User::factory()->create();
     $product = Product::factory()->create(['stock_produk' => 3]);
     $order = Order::factory()->create([
         'id_user' => $customer->id_user,
+        'status_pesanan' => 'processing',
         'stock_reserved' => true,
     ]);
     OrderItem::factory()->create([
@@ -241,14 +268,80 @@ test('customers cannot cancel an order with a paid payment', function () {
     Payment::factory()->create([
         'id_pesanan' => $order->id_pesanan,
         'status_pembayaran' => 'paid',
+        'bukti_pembayaran' => 'accept',
+        'image_bukti' => 'payments/customer-proof.jpg',
+    ]);
+
+    $this->actingAs($customer)
+        ->patch(route('user.orders.cancel', $order))
+        ->assertRedirect(route('user.orders.show', $order));
+
+    expect($order->fresh()->status_pesanan)->toBe('cancelled')
+        ->and($order->fresh()->stock_reserved)->toBeFalse()
+        ->and($product->fresh()->stock_produk)->toBe(5);
+});
+
+test('customers cannot cancel an order after it has shipped', function () {
+    $customer = User::factory()->create();
+    $order = Order::factory()->create([
+        'id_user' => $customer->id_user,
+        'status_pesanan' => 'shipped',
     ]);
 
     $this->actingAs($customer)
         ->patch(route('user.orders.cancel', $order))
         ->assertSessionHasErrors('order');
 
-    expect($order->fresh()->status_pesanan)->toBe('pending')
-        ->and($product->fresh()->stock_produk)->toBe(3);
+    expect($order->fresh()->status_pesanan)->toBe('shipped');
+});
+
+test('customers can mark a shipped paid order as received', function () {
+    $customer = User::factory()->create();
+    $order = Order::factory()->create([
+        'id_user' => $customer->id_user,
+        'status_pesanan' => 'shipped',
+    ]);
+    Payment::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'status_pembayaran' => 'paid',
+        'bukti_pembayaran' => 'accept',
+        'image_bukti' => 'payments/customer-proof.jpg',
+    ]);
+
+    $this->actingAs($customer)
+        ->patch(route('user.orders.confirm-received', $order))
+        ->assertRedirect(route('user.orders.show', $order));
+
+    expect($order->fresh()->status_pesanan)->toBe('completed');
+});
+
+test('customers cannot mark an unshipped order as received', function () {
+    $customer = User::factory()->create();
+    $order = Order::factory()->create(['id_user' => $customer->id_user]);
+
+    $this->actingAs($customer)
+        ->patch(route('user.orders.confirm-received', $order))
+        ->assertSessionHasErrors('order');
+
+    expect($order->fresh()->status_pesanan)->toBe('pending');
+});
+
+test('customers cannot mark a shipped order received before payment approval', function () {
+    $customer = User::factory()->create();
+    $order = Order::factory()->create([
+        'id_user' => $customer->id_user,
+        'status_pesanan' => 'shipped',
+    ]);
+    Payment::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'image_bukti' => 'payments/customer-proof.jpg',
+    ]);
+
+    $this->actingAs($customer)
+        ->patch(route('user.orders.confirm-received', $order))
+        ->assertSessionHasErrors('order');
+
+    expect($order->fresh()->status_pesanan)->toBe('shipped');
 });
 
 test('customers can update their profile and password', function () {

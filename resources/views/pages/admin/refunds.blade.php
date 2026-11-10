@@ -7,7 +7,7 @@
 @section('content')
     <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <p class="max-w-3xl text-sm leading-6 text-stone-600">Transfer pengembalian dana dilakukan di luar aplikasi. Untuk pembayaran pending, periksa bukti transfer pelanggan terlebih dahulu dan pastikan dana benar-benar diterima sebelum mengirim pengembalian. Unggah bukti setelah transfer balik berhasil.</p>
+            <p class="max-w-3xl text-sm leading-6 text-stone-600">Transfer pengembalian dana dilakukan di luar aplikasi. Pesanan hanya dapat diproses setelah pembayaran disetujui Admin dan status pesanan dibatalkan sebelum dikirim. Unggah bukti setelah transfer balik berhasil.</p>
         </div>
         <div class="flex gap-3 text-sm">
             <span class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 font-medium text-amber-800">{{ $pendingRefunds->total() }} menunggu</span>
@@ -18,7 +18,7 @@
     <section class="mt-6 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
         <div class="border-b border-line px-5 py-4 sm:px-6">
             <h2 class="text-base font-semibold text-ink">Pesanan menunggu pengembalian</h2>
-            <p class="mt-1 text-sm text-stone-500">Pesanan dibatalkan, bukti transfer pelanggan tersedia, dan belum ada pengembalian dana yang tercatat.</p>
+            <p class="mt-1 text-sm text-stone-500">Pesanan dibatalkan sebelum dikirim, pembayaran telah disetujui, dan belum ada pengembalian dana yang tercatat.</p>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full min-w-[1050px] text-left text-sm">
@@ -73,7 +73,7 @@
                             <td colspan="7" class="px-6 py-14 text-center">
                                 <span class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-botanical-50 text-botanical-700">@include('pages.admin.partials.icon', ['name' => 'check', 'class' => 'h-6 w-6'])</span>
                                 <p class="mt-3 font-semibold text-ink">Tidak ada pengembalian yang menunggu</p>
-                                <p class="mt-1 text-sm text-stone-500">Pesanan dibatalkan yang sudah dibayar akan muncul di sini.</p>
+                                <p class="mt-1 text-sm text-stone-500">Pesanan dibatalkan yang pembayarannya telah disetujui Admin akan muncul di sini.</p>
                             </td>
                         </tr>
                     @endforelse

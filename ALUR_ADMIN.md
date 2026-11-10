@@ -13,7 +13,8 @@ Admin dapat:
 - Mengonfirmasi pembayaran.
 - Mencetak struk.
 - Melihat riwayat transaksi.
-- Melihat, mengonfirmasi, dan memperbarui pesanan.
+- Memperbarui progres pesanan setelah pembayaran disetujui; Admin tidak dapat membatalkan atau menyelesaikan pesanan.
+- Memproses pengembalian dana untuk pembayaran yang memenuhi syarat.
 - Logout.
 
 Admin harus login dan memiliki `users.role = admin`. User biasa tidak boleh mengakses fitur Admin.
@@ -121,7 +122,7 @@ Dashboard menampilkan ringkasan data operasional, misalnya:
 4. Backend mengubah `pembayaran.bukti_pembayaran` menjadi `accept` atau `decline`.
 5. Backend memperbarui `status_pembayaran` sesuai hasil verifikasi.
 6. Backend menyimpan `id_admin_verifikator` dan `verified_at`.
-7. Jika pembayaran diterima, `paid_at` diisi dan status pesanan diperbarui sesuai aturan bisnis.
+7. Jika pembayaran diterima, `paid_at` diisi. Status pesanan tetap `pending` sampai Admin memprosesnya.
 
 **Tabel:** `pembayaran`, `pesanan`, `detail_pesanan`, `users`.
 
@@ -146,29 +147,30 @@ Dashboard menampilkan ringkasan data operasional, misalnya:
 2. Sistem menampilkan nomor pesanan, user, tanggal, total, dan status.
 3. Admin membuka detail pesanan untuk melihat item.
 
-#### Konfirmasi Pesanan
-1. Admin memilih pesanan yang perlu dikonfirmasi.
-2. Admin memeriksa data pesanan dan pembayaran.
-3. Admin mengubah status sesuai alur bisnis, misalnya `pending` → `confirmed`.
-4. Backend menyimpan waktu konfirmasi pada `confirmed_at`.
-
 #### Update Pesanan
 1. Admin membuka detail pesanan.
-2. Admin memperbarui status sesuai tahapan yang diizinkan.
-3. Backend memvalidasi transisi status.
-4. Status disimpan pada `pesanan.status_pesanan`.
+2. Status hanya dapat diproses setelah user mengunggah bukti pembayaran dan Admin menyetujuinya.
+3. Admin hanya dapat mengubah status `pending` → `processing` → `shipped`.
+4. Admin tidak dapat membatalkan pesanan atau menandainya selesai.
+5. Setelah barang diterima, user mengonfirmasi penerimaan dan status menjadi `completed`.
 
-Status yang tersedia:
+Status pesanan:
 - `pending`
-- `confirmed`
 - `processing`
 - `shipped`
 - `completed`
-- `cancelled`
+- `cancelled` (khusus pembatalan oleh user sebelum pesanan dikirim)
 
 **Tabel:** `pesanan`, `detail_pesanan`, `products`, `users`, `pembayaran`.
 
-### 4.8 Logout
+### 4.8 Pengembalian Dana
+1. Pesanan yang dibatalkan user sebelum dikirim masuk ke antrean pengembalian jika pembayaran telah disetujui Admin dan bukti pembayaran tersedia.
+2. Admin mencatat pengembalian setelah transfer balik berhasil dan mengunggah bukti pengembalian.
+3. Pembayaran yang belum disetujui atau pesanan yang tidak dibatalkan tidak dapat diproses.
+
+**Tabel:** `pesanan`, `pembayaran`, `pengembalian_dana`, `users`.
+
+### 4.9 Logout
 1. Admin memilih Logout.
 2. Backend menghapus/invalidate sesi atau token.
 3. Admin diarahkan ke Login.
@@ -186,7 +188,8 @@ Status yang tersedia:
 | Cetak Struk | `pesanan`, `detail_pesanan`, `pembayaran`, `products` | Data struk |
 | Riwayat Transaksi | `pembayaran`, `pesanan` | Riwayat pembayaran/pesanan |
 | Show Pesanan | `pesanan`, `detail_pesanan`, `users` | Daftar dan detail pesanan |
-| Konfirmasi/Update Pesanan | `pesanan` | Perubahan status |
+| Update Pesanan | `pesanan`, `pembayaran` | `pending` → `processing` → `shipped`; selesai dikonfirmasi user |
+| Pengembalian Dana | `pengembalian_dana`, `pembayaran`, `pesanan` | Hanya pesanan dibatalkan yang pembayarannya disetujui |
 | Logout | Session/token | Mengakhiri sesi |
 
 ## 6. Relasi Database

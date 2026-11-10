@@ -12,7 +12,7 @@ User yang sudah login dapat:
 - Mengelola pesanan/keranjang.
 - Melakukan transaksi dan mengonfirmasi pembelian.
 - Melihat serta mencari riwayat pembelian.
-- Mengajukan pembatalan/refund sesuai mekanisme aplikasi.
+- Membatalkan pesanan sebelum dikirim dan mengonfirmasi penerimaan barang.
 - Melihat dan memperbarui profil.
 - Logout.
 
@@ -48,15 +48,21 @@ flowchart TD
     T --> U[Konfirmasi Pembelian]
     U --> V[Pesanan dan Detail Pesanan tersimpan]
     V --> W[Pembayaran]
-    W --> X[Menunggu verifikasi/konfirmasi]
-    X --> L
-    L --> Y[Show History Pembelian]
-    L --> Z[Search History Pembelian]
-    L --> AA[Ajukan Pembatalan/Refund]
-    N --> AB[Show Profile]
-    N --> AC[Update Profile]
-    O --> AD[Hapus sesi login]
-    AD --> AE([Selesai])
+    W --> X[User mengunggah bukti pembayaran]
+    X --> Y[Menunggu verifikasi Admin]
+    Y --> Y1{Bukti disetujui Admin?}
+    Y1 -- Tidak --> L
+    Y1 -- Ya --> Y2[Pesanan menunggu diproses]
+    Y2 --> L
+    L --> Z[Show History Pembelian]
+    L --> AA[Search History Pembelian]
+    L --> AB[Batalkan sebelum dikirim]
+    AB --> AH[Admin memproses refund jika memenuhi syarat]
+    L --> AC[Konfirmasi barang diterima]
+    N --> AD[Show Profile]
+    N --> AE[Update Profile]
+    O --> AF[Hapus sesi login]
+    AF --> AG([Selesai])
 ```
 
 ## 4. Detail Alur per Fitur
@@ -107,8 +113,8 @@ flowchart TD
 7. Stok produk dikurangi pada waktu yang ditentukan oleh aturan bisnis.
 8. User memilih metode pembayaran: `dana`, `gopay`, atau `bank`.
 9. Data pembayaran dibuat di `pembayaran` dengan status awal `pending`.
-10. User menyelesaikan instruksi pembayaran yang ditampilkan aplikasi.
-11. Pembayaran menunggu verifikasi Admin.
+10. User mengunggah bukti pembayaran.
+11. Admin memeriksa dan menyetujui bukti pembayaran sebelum status pesanan dapat diproses.
 
 **Tabel:** `pesanan`, `detail_pesanan`, `pembayaran`, `products`, `users`.
 
@@ -117,7 +123,11 @@ flowchart TD
 2. Sistem menampilkan pesanan milik user yang sedang login.
 3. User dapat mencari riwayat berdasarkan nomor pesanan atau informasi yang relevan.
 4. User membuka detail pesanan untuk melihat item, total, status pesanan, dan status pembayaran.
-5. User dapat mengajukan pembatalan/refund jika memenuhi aturan aplikasi.
+5. User dapat membatalkan pesanan selama statusnya belum `shipped` (yaitu `pending` atau `processing`).
+6. Pembayaran yang telah disetujui Admin untuk pesanan yang dibatalkan sebelum dikirim dapat diproses pengembaliannya oleh Admin.
+7. Setelah pesanan berstatus `shipped` dan barang diterima, user menekan tombol konfirmasi penerimaan agar status menjadi `completed`.
+
+Status pesanan: `pending` (default), `processing`, `shipped`, `completed`, dan `cancelled` untuk pesanan yang dibatalkan user sebelum dikirim. Status `completed` hanya dapat diubah oleh konfirmasi penerimaan dari user setelah pesanan dikirim.
 
 **Tabel:** `pesanan`, `detail_pesanan`, `pembayaran`, `products`.  
 **Aturan keamanan:** query riwayat harus dibatasi dengan `pesanan.id_user` milik user yang login.

@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -20,6 +20,7 @@ class TransactionController extends Controller
         $payments = Payment::query()
             ->with(['order.user'])
             ->where('status_pembayaran', 'pending')
+            ->whereHas('order', fn ($query) => $query->where('status_pesanan', '!=', 'cancelled'))
             ->latest('created_at')
             ->latest('id_pembayaran')
             ->paginate(10);
@@ -79,12 +80,6 @@ class TransactionController extends Controller
 
             if ($validated['decision'] === 'accept') {
                 $lockedPayment->paid_at = $verifiedAt;
-
-                if ($order->status_pesanan === 'pending') {
-                    $order->status_pesanan = 'confirmed';
-                    $order->confirmed_at = $verifiedAt;
-                    $order->save();
-                }
             }
 
             $lockedPayment->save();
@@ -93,7 +88,7 @@ class TransactionController extends Controller
         return back()->with(
             'success',
             $validated['decision'] === 'accept'
-                ? 'Pembayaran berhasil diterima dan pesanan dikonfirmasi.'
+                ? 'Pembayaran berhasil disetujui. Pesanan menunggu untuk diproses.'
                 : 'Pembayaran ditolak.',
         );
     }

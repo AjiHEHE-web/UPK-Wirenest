@@ -23,9 +23,7 @@ class RefundController extends Controller
     {
         $pendingRefunds = Payment::query()
             ->with(['order.user'])
-            ->whereIn('status_pembayaran', ['pending', 'paid'])
-            ->whereNotNull('image_bukti')
-            ->where('image_bukti', '!=', '')
+            ->paidWithApprovedProof()
             ->whereHas('order', fn ($query) => $query->where('status_pesanan', 'cancelled'))
             ->whereDoesntHave('refund')
             ->latest('paid_at')
@@ -70,9 +68,10 @@ class RefundController extends Controller
                     ->firstOrFail();
 
                 if (
-                    ! in_array($lockedPayment->status_pembayaran, ['pending', 'paid'], true)
-                    || $lockedPayment->image_bukti === null
-                    || $lockedPayment->image_bukti === ''
+                    ! $order->payments()
+                        ->paidWithApprovedProof()
+                        ->whereKey($lockedPayment->getKey())
+                        ->exists()
                     || $order->status_pesanan !== 'cancelled'
                     || $lockedPayment->refund()->exists()
                 ) {

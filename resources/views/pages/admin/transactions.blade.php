@@ -76,7 +76,7 @@
                             <td class="px-6 py-4"><x-admin.status-badge :status="$payment->status_pembayaran" /></td>
                             <td class="px-6 py-4">
                                 <div class="flex justify-end gap-2">
-                                    <form method="POST" action="{{ route('admin.transactions.verify', $payment) }}" x-data @submit.prevent="if (window.confirm('Terima pembayaran ini? Pesanan akan dikonfirmasi.')) $el.submit()">
+                                    <form method="POST" action="{{ route('admin.transactions.verify', $payment) }}" x-data @submit.prevent="if (window.confirm('Terima pembayaran ini? Pesanan akan menunggu untuk diproses.')) $el.submit()">
                                         @csrf
                                         <input type="hidden" name="decision" value="accept">
                                         <button type="submit" @disabled(! $payment->image_bukti) class="inline-flex min-h-10 items-center gap-2 rounded-lg bg-botanical-700 px-3 text-xs font-semibold text-white transition hover:bg-botanical-800 disabled:cursor-not-allowed disabled:opacity-40">Terima</button>

@@ -7,7 +7,7 @@
         <title>@yield('title', 'Toko Bunga') · E-Commerce Bunga</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body x-data="{ menuOpen: false }" x-on:keydown.escape.window="menuOpen = false" class="min-h-screen bg-white text-ink">
+    <body x-data="{ menuOpen: false }" x-on:keydown.escape.window="menuOpen = false" class="storefront min-h-screen bg-cream text-ink">
         <a href="#main-content" class="sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:not-sr-only focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:text-ink">Lewati ke konten utama</a>
         <header class="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur">
             <nav class="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8" aria-label="Navigasi utama">
@@ -21,23 +21,23 @@
                     </span>
                 </a>
 
-                <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-line text-ink lg:hidden" aria-label="Buka menu" aria-expanded="false" x-on:click="menuOpen = !menuOpen" x-bind:aria-expanded="menuOpen.toString()">
+                <button type="button" class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-line text-ink transition hover:bg-cream lg:hidden" aria-label="Buka menu" aria-expanded="false" x-on:click="menuOpen = !menuOpen" x-bind:aria-expanded="menuOpen.toString()" x-bind:aria-label="menuOpen ? 'Tutup menu' : 'Buka menu'">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
 
                 <div class="hidden items-center gap-7 lg:flex">
-                    <a href="{{ route('user.home') }}" @class(['text-sm font-semibold text-botanical-800' => request()->routeIs('user.home'), 'text-sm font-medium text-stone-600 transition hover:text-botanical-800' => ! request()->routeIs('user.home')])>Beranda</a>
-                    <a href="{{ route('user.catalog.index') }}" @class(['text-sm font-semibold text-botanical-800' => request()->routeIs('user.catalog.*'), 'text-sm font-medium text-stone-600 transition hover:text-botanical-800' => ! request()->routeIs('user.catalog.*')])>Katalog</a>
-                    <a href="{{ route('user.favorites.index') }}" class="text-sm font-medium text-stone-600 transition hover:text-botanical-800">Favorit</a>
-                    <a href="{{ route('user.orders.index') }}" class="text-sm font-medium text-stone-600 transition hover:text-botanical-800">Pesanan</a>
+                    <a href="{{ route('user.home') }}" @class(['text-sm font-semibold text-botanical-900' => request()->routeIs('user.home'), 'text-sm font-medium text-stone-600 transition hover:text-botanical-800' => ! request()->routeIs('user.home')]) @if (request()->routeIs('user.home')) aria-current="page" @endif>Beranda</a>
+                    <a href="{{ route('user.catalog.index') }}" @class(['text-sm font-semibold text-botanical-900' => request()->routeIs('user.catalog.*'), 'text-sm font-medium text-stone-600 transition hover:text-botanical-800' => ! request()->routeIs('user.catalog.*')]) @if (request()->routeIs('user.catalog.*')) aria-current="page" @endif>Katalog</a>
+                    <a href="{{ route('user.favorites.index') }}" @class(['text-sm font-semibold text-botanical-900' => request()->routeIs('user.favorites.*'), 'text-sm font-medium text-stone-600 transition hover:text-botanical-800' => ! request()->routeIs('user.favorites.*')]) @if (request()->routeIs('user.favorites.*')) aria-current="page" @endif>Favorit</a>
+                    <a href="{{ route('user.orders.index') }}" @class(['text-sm font-semibold text-botanical-900' => request()->routeIs('user.orders.*'), 'text-sm font-medium text-stone-600 transition hover:text-botanical-800' => ! request()->routeIs('user.orders.*')]) @if (request()->routeIs('user.orders.*')) aria-current="page" @endif>Pesanan</a>
                 </div>
 
                 <div class="hidden items-center gap-3 lg:flex">
-                    <a href="{{ route('user.cart.index') }}" class="inline-flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-sm font-semibold text-ink transition hover:border-botanical-300 hover:bg-botanical-50">
+                    <a href="{{ route('user.cart.index') }}" @class(['inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-semibold transition', 'border-botanical-300 bg-botanical-50 text-botanical-900' => request()->routeIs('user.cart.*'), 'border-line text-ink hover:border-botanical-300 hover:bg-botanical-50' => ! request()->routeIs('user.cart.*')]) @if (request()->routeIs('user.cart.*')) aria-current="page" @endif>
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2 12h11l2-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg>
                         Keranjang
                     </a>
-                    <a href="{{ route('user.profile.show') }}" class="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-botanical-100 text-sm font-semibold text-botanical-800" aria-label="Profil {{ auth()->user()->nama }}">
+                    <a href="{{ route('user.profile.show') }}" class="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-botanical-100 text-sm font-semibold text-botanical-800 ring-1 ring-botanical-200 transition hover:ring-botanical-400" aria-label="Profil {{ auth()->user()->nama }}" @if (request()->routeIs('user.profile.*')) aria-current="page" @endif>
                         @if (auth()->user()->profil_user)
                             <img src="{{ Storage::disk('public')->url(auth()->user()->profil_user) }}" alt="" class="h-full w-full object-cover">
                         @else
@@ -53,12 +53,12 @@
 
             <div x-cloak x-show="menuOpen" x-transition class="border-t border-line bg-white px-4 py-4 lg:hidden">
                 <div class="mx-auto flex max-w-7xl flex-col gap-1">
-                    <a href="{{ route('user.home') }}" class="rounded-xl px-4 py-3 text-sm font-semibold text-botanical-800 hover:bg-botanical-50">Beranda</a>
-                    <a href="{{ route('user.catalog.index') }}" class="rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-botanical-50">Katalog</a>
-                    <a href="{{ route('user.favorites.index') }}" class="rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-botanical-50">Favorit</a>
-                    <a href="{{ route('user.cart.index') }}" class="rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-botanical-50">Keranjang</a>
-                    <a href="{{ route('user.orders.index') }}" class="rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-botanical-50">Pesanan</a>
-                    <a href="{{ route('user.profile.show') }}" class="rounded-xl px-4 py-3 text-sm font-medium text-stone-700 hover:bg-botanical-50">Profil</a>
+                    <a href="{{ route('user.home') }}" @class(['rounded-lg px-4 py-3 text-sm font-semibold', 'bg-botanical-50 text-botanical-900' => request()->routeIs('user.home'), 'text-stone-700 hover:bg-cream' => ! request()->routeIs('user.home')]) @if (request()->routeIs('user.home')) aria-current="page" @endif>Beranda</a>
+                    <a href="{{ route('user.catalog.index') }}" @class(['rounded-lg px-4 py-3 text-sm font-medium', 'bg-botanical-50 text-botanical-900' => request()->routeIs('user.catalog.*'), 'text-stone-700 hover:bg-cream' => ! request()->routeIs('user.catalog.*')]) @if (request()->routeIs('user.catalog.*')) aria-current="page" @endif>Katalog</a>
+                    <a href="{{ route('user.favorites.index') }}" @class(['rounded-lg px-4 py-3 text-sm font-medium', 'bg-botanical-50 text-botanical-900' => request()->routeIs('user.favorites.*'), 'text-stone-700 hover:bg-cream' => ! request()->routeIs('user.favorites.*')]) @if (request()->routeIs('user.favorites.*')) aria-current="page" @endif>Favorit</a>
+                    <a href="{{ route('user.cart.index') }}" @class(['rounded-lg px-4 py-3 text-sm font-medium', 'bg-botanical-50 text-botanical-900' => request()->routeIs('user.cart.*'), 'text-stone-700 hover:bg-cream' => ! request()->routeIs('user.cart.*')]) @if (request()->routeIs('user.cart.*')) aria-current="page" @endif>Keranjang</a>
+                    <a href="{{ route('user.orders.index') }}" @class(['rounded-lg px-4 py-3 text-sm font-medium', 'bg-botanical-50 text-botanical-900' => request()->routeIs('user.orders.*'), 'text-stone-700 hover:bg-cream' => ! request()->routeIs('user.orders.*')]) @if (request()->routeIs('user.orders.*')) aria-current="page" @endif>Pesanan</a>
+                    <a href="{{ route('user.profile.show') }}" @class(['rounded-lg px-4 py-3 text-sm font-medium', 'bg-botanical-50 text-botanical-900' => request()->routeIs('user.profile.*'), 'text-stone-700 hover:bg-cream' => ! request()->routeIs('user.profile.*')]) @if (request()->routeIs('user.profile.*')) aria-current="page" @endif>Profil</a>
                     <form method="POST" action="{{ route('logout') }}" class="px-4 pt-2">
                         @csrf
                         <button type="submit" class="min-h-11 text-sm font-semibold text-stone-600">Keluar</button>
@@ -89,10 +89,10 @@
             @yield('content')
         </main>
 
-        <footer class="border-t border-line bg-cream/60">
-            <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 text-sm text-stone-600 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-                <p class="font-semibold text-botanical-900">E-Commerce Bunga</p>
-                <p>Bunga segar untuk setiap momen istimewa.</p>
+        <footer class="border-t border-botanical-900 bg-botanical-950 text-white">
+            <div class="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 text-sm text-botanical-100 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+                <p class="font-display text-lg font-medium text-white">Bunga</p>
+                <p>Bunga segar untuk momen yang berarti.</p>
             </div>
         </footer>
     </body>

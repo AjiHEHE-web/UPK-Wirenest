@@ -70,7 +70,7 @@ test('admins can open each product order and transaction page', function () {
             'id_user' => $customer->id_user,
             'tanggal_pemesanan' => now(),
             'total_harga' => 75000,
-            'status_pesanan' => 'confirmed',
+            'status_pesanan' => 'pending',
             'created_at' => now(),
         ],
     ]);
@@ -136,6 +136,35 @@ test('admins can open each product order and transaction page', function () {
     $this->get(route('admin.transactions.show', 'payment-paid'))->assertOk();
     $this->get(route('admin.transactions.proof', 'payment-pending'))->assertOk();
     $this->get(route('admin.transactions.receipt', 'payment-paid'))->assertOk();
+});
+
+test('cancelled orders disappear from the payment verification queue', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['role' => 'admin'])->save();
+    $customer = User::factory()->create();
+
+    $cancelledOrder = Order::factory()->create([
+        'id_user' => $customer->id_user,
+        'status_pesanan' => 'cancelled',
+    ]);
+    Payment::factory()->create([
+        'id_pembayaran' => 'cancelled-payment',
+        'id_pesanan' => $cancelledOrder->id_pesanan,
+        'image_bukti' => 'payments/cancelled-proof.jpg',
+    ]);
+
+    $activeOrder = Order::factory()->create(['id_user' => $customer->id_user]);
+    Payment::factory()->create([
+        'id_pembayaran' => 'active-payment',
+        'id_pesanan' => $activeOrder->id_pesanan,
+        'image_bukti' => 'payments/active-proof.jpg',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.transactions.pending'))
+        ->assertOk()
+        ->assertDontSee('cancelled-pa')
+        ->assertSee('active-payme');
 });
 
 test('admins see dashboard statistics from stored records', function () {
@@ -357,7 +386,7 @@ test('admins cannot skip order processing steps', function () {
     ]);
 });
 
-test('admins can cancel an order after payment without automatically refunding it', function () {
+test('admins cannot cancel an order', function () {
     $admin = User::factory()->create();
     $admin->forceFill(['role' => 'admin'])->save();
     $customer = User::factory()->create();
@@ -367,7 +396,7 @@ test('admins can cancel an order after payment without automatically refunding i
         'id_user' => $customer->id_user,
         'tanggal_pemesanan' => now(),
         'total_harga' => 150000,
-        'status_pesanan' => 'confirmed',
+        'status_pesanan' => 'pending',
         'created_at' => now(),
     ]);
 
@@ -385,11 +414,11 @@ test('admins can cancel an order after payment without automatically refunding i
         ->patch(route('admin.orders.update-status', 'order-1'), [
             'status_pesanan' => 'cancelled',
         ])
-        ->assertRedirect();
+        ->assertSessionHasErrors('status_pesanan');
 
     $this->assertDatabaseHas('pesanan', [
         'id_pesanan' => 'order-1',
-        'status_pesanan' => 'cancelled',
+        'status_pesanan' => 'pending',
     ]);
     $this->assertDatabaseHas('pembayaran', [
         'id_pembayaran' => 'payment-1',
@@ -397,7 +426,7 @@ test('admins can cancel an order after payment without automatically refunding i
     ]);
 });
 
-test('admins can cancel a paid processing order before it ships', function () {
+test('admins cannot cancel a paid processing order before it ships', function () {
     $admin = User::factory()->create();
     $admin->forceFill(['role' => 'admin'])->save();
     $customer = User::factory()->create();
@@ -416,15 +445,15 @@ test('admins can cancel a paid processing order before it ships', function () {
         ->patch(route('admin.orders.update-status', $order), [
             'status_pesanan' => 'cancelled',
         ])
-        ->assertRedirect();
+        ->assertSessionHasErrors('status_pesanan');
 
     $this->assertDatabaseHas('pesanan', [
         'id_pesanan' => $order->id_pesanan,
-        'status_pesanan' => 'cancelled',
+        'status_pesanan' => 'processing',
     ]);
 });
 
-test('admins can accept a pending payment and confirm its order atomically', function () {
+test('admins can accept a pending payment without advancing its order', function () {
     $admin = User::factory()->create();
     $admin->forceFill(['role' => 'admin'])->save();
     $customer = User::factory()->create();
@@ -463,7 +492,112 @@ test('admins can accept a pending payment and confirm its order atomically', fun
 
     $this->assertDatabaseHas('pesanan', [
         'id_pesanan' => 'order-1',
-        'status_pesanan' => 'confirmed',
+        'status_pesanan' => 'pending',
+    ]);
+});
+
+test('admins cannot process an order until its payment proof is accepted', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['role' => 'admin'])->save();
+    $customer = User::factory()->create();
+    $order = Order::factory()->create(['id_user' => $customer->id_user]);
+    Payment::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'image_bukti' => 'payments/customer-proof.jpg',
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.orders.update-status', $order), [
+            'status_pesanan' => 'processing',
+        ])
+        ->assertSessionHasErrors('status_pesanan');
+
+    $this->assertDatabaseHas('pesanan', [
+        'id_pesanan' => $order->id_pesanan,
+        'status_pesanan' => 'pending',
+    ]);
+});
+
+test('admins cannot process a paid order without uploaded payment proof', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['role' => 'admin'])->save();
+    $customer = User::factory()->create();
+    $order = Order::factory()->create(['id_user' => $customer->id_user]);
+    Payment::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'status_pembayaran' => 'paid',
+        'bukti_pembayaran' => 'accept',
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.orders.update-status', $order), [
+            'status_pesanan' => 'processing',
+        ])
+        ->assertSessionHasErrors('status_pesanan');
+
+    $this->assertDatabaseHas('pesanan', [
+        'id_pesanan' => $order->id_pesanan,
+        'status_pesanan' => 'pending',
+    ]);
+});
+
+test('admins can progress a paid order from pending to processing and shipped', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['role' => 'admin'])->save();
+    $customer = User::factory()->create();
+    $order = Order::factory()->create(['id_user' => $customer->id_user]);
+    Payment::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'status_pembayaran' => 'paid',
+        'bukti_pembayaran' => 'accept',
+        'image_bukti' => 'payments/customer-proof.jpg',
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.orders.update-status', $order), [
+            'status_pesanan' => 'processing',
+        ])
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('pesanan', [
+        'id_pesanan' => $order->id_pesanan,
+        'status_pesanan' => 'processing',
+    ]);
+
+    $this->patch(route('admin.orders.update-status', $order), [
+        'status_pesanan' => 'shipped',
+    ])->assertRedirect();
+
+    $this->assertDatabaseHas('pesanan', [
+        'id_pesanan' => $order->id_pesanan,
+        'status_pesanan' => 'shipped',
+    ]);
+});
+
+test('admins cannot mark a shipped order completed', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['role' => 'admin'])->save();
+    $customer = User::factory()->create();
+    $order = Order::factory()->create([
+        'id_user' => $customer->id_user,
+        'status_pesanan' => 'shipped',
+    ]);
+    Payment::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'status_pembayaran' => 'paid',
+        'bukti_pembayaran' => 'accept',
+        'image_bukti' => 'payments/customer-proof.jpg',
+    ]);
+
+    $this->actingAs($admin)
+        ->patch(route('admin.orders.update-status', $order), [
+            'status_pesanan' => 'completed',
+        ])
+        ->assertSessionHasErrors('status_pesanan');
+
+    $this->assertDatabaseHas('pesanan', [
+        'id_pesanan' => $order->id_pesanan,
+        'status_pesanan' => 'shipped',
     ]);
 });
 
@@ -576,7 +710,7 @@ test('admins can view a printable receipt for paid transactions', function () {
         'id_user' => $customer->id_user,
         'tanggal_pemesanan' => now(),
         'total_harga' => 150000,
-        'status_pesanan' => 'confirmed',
+        'status_pesanan' => 'pending',
         'created_at' => now(),
     ]);
 

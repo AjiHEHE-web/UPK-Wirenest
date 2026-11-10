@@ -70,7 +70,7 @@
 
                 <div>
                     <p x-show="!sidebarCollapsed" class="mb-3 px-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">Katalog</p>
-                    <div class="space-y-1">
+                    <div>
                         <a href="{{ route('admin.products.index') }}" aria-label="Manajemen Produk" @class([
                             'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition duration-200',
                             'bg-white/15 font-semibold text-white' => request()->routeIs('admin.products.*'),
@@ -79,8 +79,6 @@
                             @include('pages.admin.partials.icon', ['name' => 'package', 'class' => 'h-5 w-5 shrink-0'])
                             <span x-show="!sidebarCollapsed">Manajemen Produk</span>
                         </a>
-                        <a x-show="!sidebarCollapsed" href="{{ route('admin.products.index') }}" class="ml-11 block rounded-lg px-3 py-2 text-sm text-white/60 transition hover:bg-white/10 hover:text-white">Semua Produk</a>
-                        <a x-show="!sidebarCollapsed" href="{{ route('admin.products.create') }}" class="ml-11 block rounded-lg px-3 py-2 text-sm text-white/60 transition hover:bg-white/10 hover:text-white">Tambah Produk</a>
                     </div>
                 </div>
 

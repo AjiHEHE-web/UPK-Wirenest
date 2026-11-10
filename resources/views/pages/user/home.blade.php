@@ -3,28 +3,26 @@
 @section('title', 'Bunga segar untuk momen istimewa')
 
 @section('content')
-    <section class="relative isolate overflow-hidden bg-cream">
+    <section class="relative isolate overflow-hidden border-b border-line bg-[#f3f1e8]">
         <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-24">
             <div class="relative z-10">
-                <p class="inline-flex items-center gap-2 rounded-full border border-botanical-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-botanical-800">
-                    <span class="h-2 w-2 rounded-full bg-botanical-500"></span>
-                    Dirangkai dengan sepenuh hati
+                <p class="store-eyebrow inline-flex items-center gap-3">
+                    <span class="h-px w-8 bg-botanical-500"></span>
+                    Rangkaian bunga pilihan
                 </p>
-                <h1 class="mt-6 max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-botanical-950 sm:text-5xl lg:text-6xl">Kirim bunga, sampaikan rasa yang tak terucap.</h1>
-                <p class="mt-5 max-w-xl text-base leading-7 text-stone-600 sm:text-lg">Temukan rangkaian bunga pilihan untuk merayakan momen kecil maupun hari paling istimewa.</p>
+                <h1 class="store-title mt-5 max-w-2xl text-5xl sm:text-6xl lg:text-7xl">Kirim bunga,<br><span class="italic text-botanical-700">sampaikan rasa.</span></h1>
+                <p class="mt-6 max-w-lg text-base leading-7 text-stone-600 sm:text-lg">Temukan rangkaian bunga pilihan untuk merayakan momen kecil maupun hari paling istimewa.</p>
                 <div class="mt-8 flex flex-wrap gap-3">
-                    <a href="{{ route('user.catalog.index') }}" class="inline-flex min-h-12 items-center justify-center rounded-full bg-botanical-800 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-botanical-900">Jelajahi koleksi</a>
-                    <a href="#kategori" class="inline-flex min-h-12 items-center justify-center rounded-full border border-botanical-200 bg-white px-6 text-sm font-semibold text-botanical-900 transition hover:bg-botanical-50">Lihat kategori</a>
+                    <a href="{{ route('user.catalog.index') }}" class="store-action store-action-primary min-h-12 px-6">Jelajahi koleksi</a>
+                    <a href="#kategori" class="store-action store-action-secondary min-h-12 px-6">Lihat kategori</a>
                 </div>
-                <div class="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-sm text-stone-600">
-                    <span class="inline-flex items-center gap-2"><span class="text-botanical-700">✳</span> Dirangkai segar</span>
-                    <span class="inline-flex items-center gap-2"><span class="text-botanical-700">✳</span> Pilihan penuh makna</span>
+                <div class="mt-10 flex flex-wrap gap-x-8 gap-y-3 border-t border-botanical-200 pt-5 text-sm text-stone-600">
+                    <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-botanical-600"></span> Dirangkai segar</span>
+                    <span class="inline-flex items-center gap-2"><span class="h-1.5 w-1.5 rounded-full bg-botanical-600"></span> Pilihan penuh makna</span>
                 </div>
             </div>
             <div class="relative mx-auto w-full max-w-xl">
-                <div class="absolute -left-4 top-12 h-32 w-32 rounded-full bg-botanical-200/70 blur-3xl"></div>
-                <div class="absolute -right-4 bottom-6 h-40 w-40 rounded-full bg-rose-100/80 blur-3xl"></div>
-                <div class="relative aspect-[4/3] overflow-hidden rounded-[2rem] border-[10px] border-white bg-gradient-to-br from-botanical-200 via-cream to-rose-100 shadow-xl">
+                <div class="relative aspect-[4/3] overflow-hidden rounded-xl border-4 border-white bg-botanical-100 shadow-[0_24px_60px_-38px_rgba(34,49,42,0.55)] ring-1 ring-botanical-200">
                     @if ($featuredProducts->first()?->image)
                         <img src="{{ Storage::disk('public')->url($featuredProducts->first()->image) }}" alt="{{ $featuredProducts->first()->name_produk }}" class="h-full w-full object-cover">
                     @else
@@ -38,9 +36,9 @@
                             </svg>
                         </div>
                     @endif
-                    <div class="absolute bottom-4 left-4 rounded-2xl bg-white/90 px-4 py-3 shadow-sm backdrop-blur">
-                        <p class="text-xs font-medium text-stone-500">Dirangkai untuk</p>
-                        <p class="text-sm font-semibold text-botanical-900">Momen yang berarti</p>
+                    <div class="absolute bottom-4 left-4 border-l-2 border-botanical-600 bg-white/95 px-4 py-3 shadow-sm">
+                        <p class="store-eyebrow">Untuk setiap momen</p>
+                        <p class="mt-1 font-display text-lg text-botanical-900">Momen yang berarti</p>
                     </div>
                 </div>
             </div>
@@ -51,13 +49,13 @@
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
                 <p class="text-sm font-semibold text-botanical-700">Temukan favoritmu</p>
-                <h2 class="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Jelajahi berdasarkan kategori</h2>
+                <h2 class="mt-2 font-display text-3xl font-medium tracking-tight text-botanical-950 sm:text-4xl">Jelajahi berdasarkan kategori</h2>
             </div>
-            <a href="{{ route('user.catalog.index') }}" class="text-sm font-semibold text-botanical-800 hover:text-botanical-950">Semua koleksi <span aria-hidden="true">→</span></a>
+            <a href="{{ route('user.catalog.index') }}" class="text-sm font-semibold text-botanical-800 transition hover:text-botanical-950">Semua koleksi <span aria-hidden="true">→</span></a>
         </div>
         <div class="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             @forelse ($categories as $category)
-                <a href="{{ route('user.catalog.index', ['category' => $category->id_kategori]) }}" class="group rounded-2xl border border-line bg-white p-5 transition duration-200 hover:-translate-y-1 hover:border-botanical-200 hover:shadow-md">
+                <a href="{{ route('user.catalog.index', ['category' => $category->id_kategori]) }}" class="group rounded-xl border border-line bg-white p-5 transition duration-200 hover:-translate-y-0.5 hover:border-botanical-300 hover:shadow-md">
                     <span class="flex h-12 w-12 items-center justify-center rounded-full bg-botanical-50 text-botanical-800">
                         <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 12c-2-2-2-5 0-7 2 2 2 5 0 7Zm0 0c2-2 5-2 7 0-2 2-5 2-7 0Zm0 0c2 2 2 5 0 7-2-2-2-5 0-7Zm0 0c-2 2-5 2-7 0 2-2 5-2 7 0Z"/><circle cx="12" cy="12" r="1.4"/></svg>
                     </span>
@@ -75,13 +73,13 @@
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <p class="text-sm font-semibold text-botanical-700">Pilihan untukmu</p>
-                    <h2 class="mt-2 text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Rangkaian bunga pilihan</h2>
+                    <h2 class="mt-2 font-display text-3xl font-medium tracking-tight text-botanical-950 sm:text-4xl">Rangkaian bunga pilihan</h2>
                 </div>
-                <a href="{{ route('user.catalog.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-full border border-botanical-200 bg-white px-5 text-sm font-semibold text-botanical-900 transition hover:bg-botanical-50">Lihat semua</a>
+                <a href="{{ route('user.catalog.index') }}" class="store-action store-action-secondary">Lihat semua</a>
             </div>
             <div class="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 @forelse ($featuredProducts as $product)
-                    <article class="group overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                    <article class="store-card group hover:-translate-y-0.5 hover:border-botanical-200 hover:shadow-md">
                         <a href="{{ route('user.catalog.show', $product) }}" class="block">
                             <div class="aspect-[4/3] overflow-hidden bg-botanical-50">
                                 @if ($product->image)

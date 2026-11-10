@@ -22,6 +22,45 @@
     textarea {
         @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-botanical-500 focus-visible:ring-offset-2;
     }
+
+    .storefront a,
+    .storefront button:not(:disabled) {
+        @apply cursor-pointer;
+    }
+}
+
+@layer components {
+    .store-title {
+        @apply font-display font-medium leading-tight tracking-tight text-botanical-950;
+    }
+
+    .store-eyebrow {
+        @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-botanical-700;
+    }
+
+    .store-card {
+        @apply overflow-hidden rounded-xl border border-line bg-white shadow-sm transition duration-200;
+    }
+
+    .store-action {
+        @apply inline-flex min-h-11 items-center justify-center rounded-lg px-5 text-sm font-semibold transition duration-200;
+    }
+
+    .store-action-primary {
+        @apply bg-botanical-800 text-white hover:bg-botanical-900;
+    }
+
+    .store-action-secondary {
+        @apply border border-line bg-white text-ink hover:border-botanical-300 hover:bg-botanical-50;
+    }
+
+    .store-field {
+        @apply h-12 w-full rounded-lg border-line bg-white text-sm text-ink placeholder:text-stone-400 focus:border-botanical-500 focus:ring-botanical-500;
+    }
+
+    .storefront h1 {
+        @apply font-display font-medium tracking-tight text-botanical-950;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

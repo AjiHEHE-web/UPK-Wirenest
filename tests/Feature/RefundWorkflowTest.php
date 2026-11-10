@@ -7,7 +7,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-test('admins see cancelled orders with paid or pending payments and uploaded payment proof in the refund queue', function () {
+test('admins see only cancelled and approved payments with uploaded proof in the refund queue', function () {
     $admin = User::factory()->create();
     $admin->forceFill(['role' => 'admin'])->save();
     $customer = User::factory()->create(['nama' => 'Pelanggan Refund']);
@@ -47,7 +47,7 @@ test('admins see cancelled orders with paid or pending payments and uploaded pay
 
     $activeOrder = Order::factory()->create([
         'id_user' => $customer->id_user,
-        'status_pesanan' => 'confirmed',
+        'status_pesanan' => 'processing',
     ]);
     Payment::factory()->create([
         'id_pesanan' => $activeOrder->id_pesanan,
@@ -60,7 +60,7 @@ test('admins see cancelled orders with paid or pending payments and uploaded pay
         ->get('/admin/refunds')
         ->assertOk()
         ->assertSee($eligibleOrder->id_pesanan)
-        ->assertSee($pendingOrder->id_pesanan)
+        ->assertDontSee($pendingOrder->id_pesanan)
         ->assertDontSee($pendingOrderWithoutProof->id_pesanan)
         ->assertDontSee($activeOrder->id_pesanan);
 });
@@ -140,7 +140,7 @@ test('admins can record a manual refund without overwriting the original payment
     $this->get("/admin/refunds/{$refund->id_pengembalian_dana}/proof")->assertOk();
 });
 
-test('admins can refund a cancelled pending payment after checking its uploaded payment proof', function () {
+test('admins cannot refund a cancelled payment before an admin approves it', function () {
     Storage::fake('local');
     $admin = User::factory()->create();
     $admin->forceFill(['role' => 'admin'])->save();
@@ -164,21 +164,14 @@ test('admins can refund a cancelled pending payment after checking its uploaded 
         ->post("/admin/refunds/{$payment->id_pembayaran}", [
             'bukti_pengembalian' => UploadedFile::fake()->image('refund.png'),
         ])
-        ->assertRedirect();
+        ->assertSessionHasErrors('bukti_pengembalian');
 
-    $this->assertDatabaseHas('pengembalian_dana', [
+    $this->assertDatabaseMissing('pengembalian_dana', [
         'id_pembayaran' => $payment->id_pembayaran,
-        'jumlah' => '85000.00',
-        'id_admin_pemroses' => $admin->id_user,
     ]);
     $this->assertDatabaseHas('pembayaran', [
         'id_pembayaran' => $payment->id_pembayaran,
-        'status_pembayaran' => 'refunded',
-        'bukti_pembayaran' => null,
-        'image_bukti' => 'payments/unverified-customer-proof.jpg',
-        'id_admin_verifikator' => null,
-        'verified_at' => null,
-        'paid_at' => null,
+        'status_pembayaran' => 'pending',
     ]);
 });
 
@@ -215,7 +208,7 @@ test('admins cannot refund failed payments, active orders, or cancelled orders w
         'image_bukti' => 'payments/proof.jpg',
     ]);
 
-    $activeOrder = Order::factory()->create(['status_pesanan' => 'confirmed']);
+    $activeOrder = Order::factory()->create(['status_pesanan' => 'processing']);
     $paidPayment = Payment::factory()->create([
         'id_pesanan' => $activeOrder->id_pesanan,
         'status_pembayaran' => 'paid',

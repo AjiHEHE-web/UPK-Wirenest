@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Database\Factories\PaymentFactory;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,6 +43,15 @@ class Payment extends Model
             'paid_at' => 'datetime',
             'verified_at' => 'datetime',
         ];
+    }
+
+    #[Scope]
+    protected function paidWithApprovedProof(Builder $query): void
+    {
+        $query->where('status_pembayaran', 'paid')
+            ->where('bukti_pembayaran', 'accept')
+            ->whereNotNull('image_bukti')
+            ->where('image_bukti', '!=', '');
     }
 
     public function order(): BelongsTo

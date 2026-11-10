@@ -5,39 +5,39 @@
 @section('content')
     <section class="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
         <div>
-            <p class="text-sm font-semibold text-botanical-700">Akun Anda</p>
-            <h1 class="mt-2 text-3xl font-semibold tracking-tight text-ink">Profil dan keamanan</h1>
-            <p class="mt-2 text-sm text-stone-600">Perbarui informasi kontak agar pesanan dapat dikirim dengan tepat.</p>
+            <p class="store-eyebrow">Akun Anda</p>
+            <h1 class="store-title mt-2 text-4xl sm:text-5xl">Profil dan keamanan</h1>
+            <p class="mt-3 text-sm leading-6 text-stone-600">Perbarui informasi kontak agar pesanan dapat dikirim dengan tepat.</p>
         </div>
 
-        <form method="POST" action="{{ route('user.profile.update') }}" enctype="multipart/form-data" class="mt-7 rounded-2xl border border-line bg-white p-5 shadow-sm sm:p-7">
+        <form method="POST" action="{{ route('user.profile.update') }}" enctype="multipart/form-data" class="store-card mt-8 p-5 sm:p-7">
             @csrf
             @method('PUT')
-            <h2 class="text-lg font-semibold text-ink">Informasi profil</h2>
+            <h2 class="font-display text-xl font-medium text-botanical-950">Informasi profil</h2>
             <div class="mt-5 grid gap-5 sm:grid-cols-2">
                 <div>
                     <label for="name" class="mb-2 block text-sm font-semibold text-ink">Nama lengkap</label>
-                    <input id="name" name="name" value="{{ old('name', $user->nama ?: $user->name) }}" required maxlength="100" class="h-11 w-full rounded-xl border-line text-sm focus:border-botanical-500 focus:ring-botanical-500">
+                    <input id="name" name="name" value="{{ old('name', $user->nama ?: $user->name) }}" required maxlength="100" class="store-field">
                     @error('name') <p class="mt-1 text-sm text-rose-700">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label for="username" class="mb-2 block text-sm font-semibold text-ink">Username</label>
-                    <input id="username" name="username" value="{{ old('username', $user->username) }}" required maxlength="50" autocomplete="username" class="h-11 w-full rounded-xl border-line text-sm focus:border-botanical-500 focus:ring-botanical-500">
+                    <input id="username" name="username" value="{{ old('username', $user->username) }}" required maxlength="50" autocomplete="username" class="store-field">
                     @error('username') <p class="mt-1 text-sm text-rose-700">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label for="email" class="mb-2 block text-sm font-semibold text-ink">Email</label>
-                    <input id="email" name="email" type="email" value="{{ old('email', $user->email) }}" required autocomplete="email" maxlength="100" class="h-11 w-full rounded-xl border-line text-sm focus:border-botanical-500 focus:ring-botanical-500">
+                    <input id="email" name="email" type="email" value="{{ old('email', $user->email) }}" required autocomplete="email" maxlength="100" class="store-field">
                     @error('email') <p class="mt-1 text-sm text-rose-700">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label for="no_hp" class="mb-2 block text-sm font-semibold text-ink">Nomor telepon</label>
-                    <input id="no_hp" name="no_hp" type="tel" value="{{ old('no_hp', $user->no_hp) }}" required maxlength="20" class="h-11 w-full rounded-xl border-line text-sm focus:border-botanical-500 focus:ring-botanical-500">
+                    <input id="no_hp" name="no_hp" type="tel" value="{{ old('no_hp', $user->no_hp) }}" required maxlength="20" class="store-field">
                     @error('no_hp') <p class="mt-1 text-sm text-rose-700">{{ $message }}</p> @enderror
                 </div>
                 <div class="sm:col-span-2">
                     <label for="alamat" class="mb-2 block text-sm font-semibold text-ink">Alamat utama</label>
-                    <textarea id="alamat" name="alamat" rows="3" required maxlength="5000" class="w-full rounded-xl border-line text-sm focus:border-botanical-500 focus:ring-botanical-500">{{ old('alamat', $user->alamat) }}</textarea>
+                    <textarea id="alamat" name="alamat" rows="3" required maxlength="5000" class="w-full rounded-lg border-line bg-white text-sm focus:border-botanical-500 focus:ring-botanical-500">{{ old('alamat', $user->alamat) }}</textarea>
                     @error('alamat') <p class="mt-1 text-sm text-rose-700">{{ $message }}</p> @enderror
                 </div>
                 <div class="sm:col-span-2">
@@ -48,31 +48,31 @@
                 </div>
             </div>
             <div class="mt-6 flex justify-end">
-                <button type="submit" class="min-h-11 rounded-xl bg-botanical-800 px-5 text-sm font-semibold text-white hover:bg-botanical-900">Simpan perubahan</button>
+                <button type="submit" class="store-action store-action-primary">Simpan perubahan</button>
             </div>
         </form>
 
-        <form method="POST" action="{{ route('user.profile.password') }}" class="mt-6 rounded-2xl border border-line bg-white p-5 shadow-sm sm:p-7">
+        <form method="POST" action="{{ route('user.profile.password') }}" class="store-card mt-5 p-5 sm:p-7">
             @csrf
             @method('PUT')
-            <h2 class="text-lg font-semibold text-ink">Ubah password</h2>
+            <h2 class="font-display text-xl font-medium text-botanical-950">Ubah password</h2>
             <div class="mt-5 grid gap-5 sm:grid-cols-2">
                 <div class="sm:col-span-2">
                     <label for="current_password" class="mb-2 block text-sm font-semibold text-ink">Password saat ini</label>
-                    <input id="current_password" name="current_password" type="password" required autocomplete="current-password" class="h-11 w-full rounded-xl border-line text-sm focus:border-botanical-500 focus:ring-botanical-500">
+                    <input id="current_password" name="current_password" type="password" required autocomplete="current-password" class="store-field">
                     @error('current_password') <p class="mt-1 text-sm text-rose-700">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label for="password" class="mb-2 block text-sm font-semibold text-ink">Password baru</label>
-                    <input id="password" name="password" type="password" required autocomplete="new-password" class="h-11 w-full rounded-xl border-line text-sm focus:border-botanical-500 focus:ring-botanical-500">
+                    <input id="password" name="password" type="password" required autocomplete="new-password" class="store-field">
                 </div>
                 <div>
                     <label for="password_confirmation" class="mb-2 block text-sm font-semibold text-ink">Konfirmasi password baru</label>
-                    <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password" class="h-11 w-full rounded-xl border-line text-sm focus:border-botanical-500 focus:ring-botanical-500">
+                    <input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password" class="store-field">
                 </div>
             </div>
             <div class="mt-6 flex justify-end">
-                <button type="submit" class="min-h-11 rounded-xl border border-botanical-300 px-5 text-sm font-semibold text-botanical-800 hover:bg-botanical-50">Perbarui password</button>
+                <button type="submit" class="store-action store-action-secondary">Perbarui password</button>
             </div>
         </form>
     </section>

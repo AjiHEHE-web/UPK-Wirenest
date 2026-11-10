@@ -6,16 +6,16 @@
     <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
-                <p class="text-sm font-semibold text-botanical-700">Koleksi pribadi</p>
-                <h1 class="mt-2 text-3xl font-semibold tracking-tight text-ink">Produk favorit</h1>
+                <p class="store-eyebrow">Koleksi pribadi</p>
+                <h1 class="store-title mt-2 text-4xl sm:text-5xl">Produk favorit</h1>
             </div>
-            <a href="{{ route('user.catalog.index') }}" class="text-sm font-semibold text-botanical-800 hover:underline">Jelajahi katalog →</a>
+            <a href="{{ route('user.catalog.index') }}" class="text-sm font-semibold text-botanical-800 transition hover:underline">Jelajahi katalog →</a>
         </div>
         <div class="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @forelse ($favorites as $favorite)
                 @if ($favorite->product && $favorite->product->stock_produk > 0)
                     @php($product = $favorite->product)
-                    <article class="group overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                    <article class="store-card group hover:-translate-y-0.5 hover:border-botanical-200 hover:shadow-md">
                         <a href="{{ route('user.catalog.show', $product) }}" class="block">
                             <div class="aspect-[4/3] overflow-hidden bg-botanical-50">
                                 @if ($product->image)
@@ -38,14 +38,14 @@
                                 <form method="POST" action="{{ route('user.favorites.destroy', $product) }}">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="inline-flex h-10 w-10 items-center justify-center rounded-full text-rose-600 hover:bg-rose-50" aria-label="Hapus {{ $product->name_produk }} dari favorit">
+                                    <button type="submit" class="inline-flex h-11 w-11 items-center justify-center rounded-full text-rose-700 transition hover:bg-rose-50" aria-label="Hapus {{ $product->name_produk }} dari favorit">
                                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg>
                                     </button>
                                 </form>
                                 <form method="POST" action="{{ route('user.cart.store', $product) }}">
                                     @csrf
                                     <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="inline-flex min-h-10 items-center rounded-full bg-botanical-800 px-4 text-xs font-semibold text-white hover:bg-botanical-900">Keranjang</button>
+                                    <button type="submit" class="store-action store-action-primary min-h-10 px-4 text-xs">Keranjang</button>
                                 </form>
                             </div>
                         </div>
@@ -67,7 +67,7 @@
                 <div class="col-span-full rounded-2xl border border-dashed border-botanical-200 bg-cream/50 px-6 py-16 text-center">
                     <h2 class="font-semibold text-ink">Belum ada produk favorit</h2>
                     <p class="mt-2 text-sm text-stone-600">Simpan rangkaian yang Anda sukai agar mudah ditemukan nanti.</p>
-                    <a href="{{ route('user.catalog.index') }}" class="mt-5 inline-flex min-h-11 items-center rounded-full bg-botanical-800 px-5 text-sm font-semibold text-white hover:bg-botanical-900">Lihat katalog</a>
+                    <a href="{{ route('user.catalog.index') }}" class="store-action store-action-primary mt-5">Lihat katalog</a>
                 </div>
             @endforelse
         </div>

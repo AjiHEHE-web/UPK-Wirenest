@@ -16,6 +16,16 @@
 @endsection
 
 @section('content')
+@php
+    $statusLabels = [
+        'pending' => 'Pending',
+        'processing' => 'Diproses',
+        'shipped' => 'Dikirim',
+        'completed' => 'Selesai',
+        'cancelled' => 'Dibatalkan',
+    ];
+@endphp
+
 @if ($page === 'index')
     <div>
         <p class="text-sm text-stone-500">Tinjau detail dan proses pesanan pelanggan sesuai tahapannya.</p>
@@ -35,7 +45,7 @@
                 <select id="order-status" name="status" class="h-11 w-full rounded-xl border-line bg-white text-sm focus:border-botanical-500 focus:ring-botanical-500">
                     <option value="">Semua status</option>
                     @foreach ($statuses as $status)
-                        <option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ ucfirst($status) }}</option>
+                        <option value="{{ $status }}" @selected(($filters['status'] ?? '') === $status)>{{ $statusLabels[$status] ?? ucfirst($status) }}</option>
                     @endforeach
                 </select>
             </div>
@@ -162,8 +172,8 @@
                         <dd class="mt-1 text-sm text-ink">{{ $order->tanggal_pemesanan?->format('d M Y, H:i') ?? '—' }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Konfirmasi pesanan</dt>
-                        <dd class="mt-1 text-sm text-ink">{{ $order->confirmed_at?->format('d M Y, H:i') ?? 'Belum dikonfirmasi' }}</dd>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Pembayaran</dt>
+                        <dd class="mt-1 text-sm text-ink">{{ $hasApprovedPayment ? 'Bukti disetujui Admin' : 'Menunggu bukti atau verifikasi Admin' }}</dd>
                     </div>
                 </dl>
             </section>
@@ -178,7 +188,7 @@
                         <select id="status_pesanan" name="status_pesanan" required class="min-h-11 w-full rounded-xl border-line bg-white text-sm focus:border-botanical-500 focus:ring-botanical-500">
                             <option value="">Pilih status</option>
                             @foreach ($nextStatuses as $status)
-                                <option value="{{ $status }}">{{ ucfirst($status) }}</option>
+                                <option value="{{ $status }}">{{ $statusLabels[$status] ?? ucfirst($status) }}</option>
                             @endforeach
                         </select>
                         @error('status_pesanan') <p class="text-sm text-rose-700">{{ $message }}</p> @enderror
@@ -188,7 +198,15 @@
                         </button>
                     </form>
                 @else
-                    <p class="mt-3 rounded-xl bg-stone-50 p-3 text-sm leading-6 text-stone-600">Pesanan berada pada status akhir dan tidak dapat diubah lagi.</p>
+                    <p class="mt-3 rounded-xl bg-stone-50 p-3 text-sm leading-6 text-stone-600">
+                        @if (! $hasApprovedPayment)
+                            Status baru dapat diproses setelah user mengunggah bukti pembayaran dan Admin menyetujuinya.
+                        @elseif ($order->status_pesanan === 'shipped')
+                            Menunggu user mengonfirmasi bahwa barang telah diterima.
+                        @else
+                            Pesanan berada pada status akhir dan tidak dapat diubah lagi.
+                        @endif
+                    </p>
                 @endif
             </section>
         </div>

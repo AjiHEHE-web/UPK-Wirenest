@@ -31,6 +31,12 @@ class PaymentProofController extends Controller
             ]);
         }
 
+        if ($payment->image_bukti !== null) {
+            throw ValidationException::withMessages([
+                'image_bukti' => 'Bukti pembayaran sudah diunggah dan menunggu verifikasi Admin.',
+            ]);
+        }
+
         $path = $request->file('image_bukti')->store('payments', 'local');
 
         if ($path === false) {
@@ -38,7 +44,7 @@ class PaymentProofController extends Controller
         }
 
         try {
-            [$ownedOrder, $previousPath] = DB::transaction(function () use ($request, $order, $validated, $path): array {
+            $ownedOrder = DB::transaction(function () use ($request, $order, $validated, $path): Order {
                 $lockedPayment = Payment::query()
                     ->whereKey($validated['payment_id'])
                     ->lockForUpdate()
@@ -62,19 +68,20 @@ class PaymentProofController extends Controller
                     ]);
                 }
 
-                $previousPath = $lockedPayment->image_bukti;
+                if ($lockedPayment->image_bukti !== null) {
+                    throw ValidationException::withMessages([
+                        'image_bukti' => 'Bukti pembayaran sudah diunggah dan menunggu verifikasi Admin.',
+                    ]);
+                }
+
                 $lockedPayment->update(['image_bukti' => $path]);
 
-                return [$lockedOrder, $previousPath];
+                return $lockedOrder;
             }, attempts: 3);
         } catch (\Throwable $exception) {
             Storage::disk('local')->delete($path);
 
             throw $exception;
-        }
-
-        if ($previousPath !== null) {
-            Storage::disk('local')->delete($previousPath);
         }
 
         return redirect()
