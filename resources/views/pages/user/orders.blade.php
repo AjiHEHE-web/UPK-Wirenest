@@ -20,7 +20,10 @@
                     <p class="store-eyebrow">Semua momen istimewa</p>
                     <h1 class="store-title mt-2 text-4xl sm:text-5xl">Riwayat pesanan</h1>
                 </div>
-                <a href="{{ route('user.catalog.index') }}" class="text-sm font-semibold text-botanical-800 hover:underline">Belanja lagi →</a>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" data-ar-open-scanner class="inline-flex min-h-11 items-center justify-center rounded-xl bg-botanical-700 px-4 text-sm font-semibold text-white transition hover:bg-botanical-800">Scan QR AR</button>
+                    <a href="{{ route('user.catalog.index') }}" class="inline-flex min-h-11 items-center justify-center rounded-xl border border-line px-4 text-sm font-semibold text-botanical-800 transition hover:bg-botanical-50">Belanja lagi</a>
+                </div>
             </div>
             <form method="GET" action="{{ route('user.orders.index') }}" class="mt-8 flex flex-col gap-3 rounded-xl border border-line bg-white p-3 shadow-sm sm:flex-row">
                 <label for="order-search" class="sr-only">Cari berdasarkan ID pesanan</label>
@@ -64,6 +67,8 @@
                 <div class="mt-8">{{ $orders->links() }}</div>
             @endif
         </section>
+
+        @include('pages.ar.partials.scanner-dialog')
     @else
         <section class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
             <a href="{{ route('user.orders.index') }}" class="text-sm font-semibold text-botanical-800 hover:underline">← Kembali ke riwayat</a>

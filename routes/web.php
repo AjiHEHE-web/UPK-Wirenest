@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\ArModelController as AdminArModelController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
+use App\Http\Controllers\ArExperienceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\User\CartController as UserCartController;
 use App\Http\Controllers\User\CatalogController as UserCatalogController;
@@ -16,7 +18,17 @@ use App\Http\Controllers\User\PaymentProofController as UserPaymentProofControll
 use App\Http\Controllers\User\ProfileController as UserProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/login');
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+
+    return view('pages.landing');
+})->name('landing');
+
+Route::get('/ar/{arModel}', [ArExperienceController::class, 'show'])
+    ->whereUuid('arModel')
+    ->name('ar.show');
 
 Route::get('/dashboard', function () {
     return redirect()->route(auth()->user()->role === 'admin' ? 'admin.dashboard' : 'user.home');
@@ -66,6 +78,7 @@ Route::prefix('admin')
     ->middleware(['auth', 'admin'])
     ->group(function (): void {
         Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
+        Route::resource('ar-models', AdminArModelController::class)->except(['show']);
         Route::resource('products', AdminProductController::class);
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');

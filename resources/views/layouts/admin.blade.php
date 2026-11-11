@@ -79,6 +79,14 @@
                             @include('pages.admin.partials.icon', ['name' => 'package', 'class' => 'h-5 w-5 shrink-0'])
                             <span x-show="!sidebarCollapsed">Manajemen Produk</span>
                         </a>
+                        <a href="{{ route('admin.ar-models.index') }}" aria-label="Manajemen AR" @class([
+                            'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition duration-200',
+                            'bg-white/15 font-semibold text-white' => request()->routeIs('admin.ar-models.*'),
+                            'text-white/70 hover:bg-white/10 hover:text-white' => ! request()->routeIs('admin.ar-models.*'),
+                        ]) :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''" @if(request()->routeIs('admin.ar-models.*')) aria-current="page" @endif>
+                            @include('pages.admin.partials.icon', ['name' => 'cube', 'class' => 'h-5 w-5 shrink-0'])
+                            <span x-show="!sidebarCollapsed">Manajemen AR</span>
+                        </a>
                     </div>
                 </div>
 

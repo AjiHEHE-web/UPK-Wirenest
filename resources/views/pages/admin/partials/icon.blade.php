@@ -13,6 +13,9 @@
         @case('package')
             <path d="m12 3 8.5 4.5v9L12 21l-8.5-4.5v-9L12 3Z"/><path d="m3.8 7.6 8.2 4.5 8.2-4.5M12 12v9"/><path d="m7.5 5.4 8.5 4.7"/>
             @break
+        @case('cube')
+            <path d="m12 3 8.5 4.5v9L12 21l-8.5-4.5v-9L12 3Z"/><path d="m3.8 7.6 8.2 4.5 8.2-4.5M12 12v9"/>
+            @break
         @case('orders')
             <path d="M5 8h14l1 12H4L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>
             @break

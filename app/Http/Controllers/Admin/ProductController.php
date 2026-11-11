@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
-use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
@@ -132,10 +132,15 @@ class ProductController extends Controller
         }
 
         $image = $product->image;
+        $arModelPath = $product->arModel?->image_ar;
         $product->delete();
 
         if ($image !== null) {
             Storage::disk('public')->delete($image);
+        }
+
+        if ($arModelPath !== null) {
+            Storage::disk('public')->delete($arModelPath);
         }
 
         return redirect()

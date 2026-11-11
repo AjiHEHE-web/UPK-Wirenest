@@ -28,6 +28,40 @@ test('customers can search available products by name and category', function ()
         ->assertDontSee('Mawar Habis');
 });
 
+test('storefront assets use the forwarded HTTPS host when served through a local proxy', function () {
+    $customer = User::factory()->create();
+
+    $this->actingAs($customer)
+        ->withServerVariables([
+            'HTTP_HOST' => 'store.example.test',
+            'HTTPS' => 'off',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SERVER_PORT' => '80',
+            'HTTP_X_FORWARDED_HOST' => 'store.example.test',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+            'HTTP_X_FORWARDED_PORT' => '443',
+        ])
+        ->get('http://store.example.test/user/katalog')
+        ->assertOk()
+        ->assertSee('https://store.example.test/build/', false)
+        ->assertDontSee('http://store.example.test/build/', false);
+});
+
+test('product images use same-origin URLs when the application URL changes', function () {
+    $customer = User::factory()->create();
+    Product::factory()->create([
+        'image' => 'products/mawar.webp',
+        'stock_produk' => 1,
+    ]);
+
+    config(['app.url' => 'https://changed.example.test']);
+
+    $this->actingAs($customer)
+        ->get('http://catalog.example.test/user/katalog')
+        ->assertOk()
+        ->assertSee('src="/storage/products/mawar.webp"', false);
+});
+
 test('customers can open the catalog detail favorites cart checkout order history and profile pages', function () {
     $customer = User::factory()->create();
     $product = Product::factory()->create(['stock_produk' => 3]);
