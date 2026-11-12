@@ -1,174 +1,166 @@
 @extends('layouts.user')
 
-@section('title', $page === 'index' ? 'Katalog bunga' : $product->name_produk)
+@section('title', $page === 'index' ? 'Katalog buket' : $product->name_produk)
 
 @section('content')
     @if ($page === 'index')
-        <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
-            <div class="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                    <p class="store-eyebrow">Koleksi kami</p>
-                    <h1 class="store-title mt-2 text-4xl sm:text-5xl">Temukan rangkaian yang tepat</h1>
-                    <p class="mt-3 text-sm leading-6 text-stone-600">Bunga pilihan untuk menyampaikan perasaan di setiap momen.</p>
+        <section class="bg-transparent px-4 pb-14 pt-10 sm:px-6 sm:pb-16 sm:pt-12 lg:px-8">
+            <div class="mx-auto max-w-7xl">
+                <div class="mx-auto max-w-2xl text-center">
+                    <p class="inline-flex items-center gap-2 rounded-full bg-matcha px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#a8942f] shadow-sm">
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 12c-2-2-2-5 0-7 2 2 2 5 0 7Zm0 0c2-2 5-2 7 0-2 2-5 2-7 0Zm0 0c2 2 2 5 0 7-2-2-2-5 0-7Zm0 0c-2-2-5-2-7 0 2 2 5 2 7 0Z"/><circle cx="12" cy="12" r="1.4"/></svg>
+                        Koleksi artisan WireNest
+                    </p>
+                    <h1 class="mt-3 font-display text-4xl font-semibold leading-tight text-[#34873a] sm:text-5xl">Buket handmade kami</h1>
+                    <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-stone-600 sm:text-base">Setiap kelopak dirangkai dengan teliti dari batang chenille yang lembut dan tahan lama.</p>
                 </div>
-                <a href="{{ route('user.cart.index') }}" class="store-action store-action-secondary gap-2">
-                    Keranjang <span aria-hidden="true">→</span>
-                </a>
-            </div>
 
-            <form method="GET" action="{{ route('user.catalog.index') }}" class="mt-8 grid gap-3 rounded-xl border border-line bg-white p-3 shadow-sm sm:grid-cols-[1fr_240px_auto]">
-                <div>
-                    <label for="catalog-search" class="sr-only">Cari bunga atau kategori</label>
-                    <input id="catalog-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari nama bunga atau kategori..." class="store-field">
-                </div>
-                <div>
-                    <label for="catalog-category" class="sr-only">Kategori</label>
-                    <select id="catalog-category" name="category" class="store-field">
-                        <option value="">Semua kategori</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id_kategori }}" @selected(($filters['category'] ?? '') === $category->id_kategori)>{{ $category->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <button type="submit" class="store-action store-action-primary min-h-12">Cari produk</button>
-            </form>
-
-            <div class="mt-8 flex items-center justify-between gap-4">
-                <p class="text-sm text-stone-600">{{ $products->total() }} produk ditemukan</p>
-                @if (($filters['search'] ?? false) || ($filters['category'] ?? false))
-                    <a href="{{ route('user.catalog.index') }}" class="text-sm font-semibold text-botanical-800 hover:underline">Hapus filter</a>
-                @endif
-            </div>
-            <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                @forelse ($products as $product)
-                    <article class="store-card group hover:-translate-y-0.5 hover:border-botanical-200 hover:shadow-md">
-                        <a href="{{ route('user.catalog.show', $product) }}" class="block">
-                            <div class="aspect-[4/3] overflow-hidden bg-botanical-50">
-                                @if ($product->image)
-                                    <img src="{{ Storage::disk('public')->url($product->image) }}" alt="{{ $product->name_produk }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy">
-                                @else
-                                    <div class="flex h-full items-center justify-center text-botanical-300" aria-hidden="true">
-                                        <svg class="h-14 w-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 12c-2-2-2-5 0-7 2 2 2 5 0 7Zm0 0c2-2 5-2 7 0-2 2-5 2-7 0Zm0 0c2 2 2 5 0 7-2-2-2-5 0-7Zm0 0c-2 2-5-2-7 0 2-2 5-2 7 0Z"/><circle cx="12" cy="12" r="1.4"/></svg>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="p-4">
-                                <p class="text-xs font-medium text-stone-500">{{ $product->category?->name ?? 'Rangkaian bunga' }}</p>
-                                <h2 class="mt-1 truncate font-semibold text-ink">{{ $product->name_produk }}</h2>
-                                <p class="mt-2 font-semibold text-botanical-900">Rp {{ number_format((float) $product->harga_produk, 2, ',', '.') }}</p>
-                            </div>
-                        </a>
-                        <div class="flex items-center justify-between border-t border-line px-4 py-3">
-                            <span class="text-xs text-stone-500">{{ $product->stock_produk }} tersedia</span>
-                            <div class="flex items-center gap-2">
-                                @if (in_array($product->id_produk, $favoriteIds, true))
-                                    <form method="POST" action="{{ route('user.favorites.destroy', $product) }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="inline-flex h-11 w-11 items-center justify-center rounded-full text-rose-700 transition hover:bg-rose-50" aria-label="Hapus {{ $product->name_produk }} dari favorit">
-                                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg>
-                                        </button>
-                                    </form>
-                                @else
-                                    <form method="POST" action="{{ route('user.favorites.store', $product) }}">
-                                        @csrf
-                                        <button type="submit" class="inline-flex h-11 w-11 items-center justify-center rounded-full text-stone-500 transition hover:bg-rose-50 hover:text-rose-700" aria-label="Tambahkan {{ $product->name_produk }} ke favorit">
-                                            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg>
-                                        </button>
-                                    </form>
-                                @endif
-                                <form method="POST" action="{{ route('user.cart.store', $product) }}">
-                                    @csrf
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="store-action store-action-primary min-h-11 gap-2 px-4 text-xs"><span aria-hidden="true">+</span> Keranjang</button>
-                                </form>
-                            </div>
-                        </div>
-                    </article>
-                @empty
-                    <div class="col-span-full rounded-2xl border border-dashed border-botanical-200 bg-cream/50 px-6 py-16 text-center">
-                        <h2 class="font-semibold text-ink">Produk belum ditemukan</h2>
-                        <p class="mt-2 text-sm text-stone-600">Coba kata kunci atau kategori yang berbeda.</p>
+                <form method="GET" action="{{ route('user.catalog.index') }}" class="mx-auto mt-6 grid max-w-2xl gap-2 rounded-full bg-matcha p-2 shadow-[0_8px_24px_rgba(49,79,56,.09)] sm:grid-cols-[1fr_190px_auto]">
+                    <div class="flex min-w-0 items-center gap-3 px-3">
+                        <svg class="h-5 w-5 shrink-0 text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+                        <label for="catalog-search" class="sr-only">Cari buket</label>
+                        <input id="catalog-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari nama buket..." class="h-11 w-full min-w-0 border-0 bg-transparent text-sm placeholder:text-stone-400 focus:ring-0">
                     </div>
-                @endforelse
-            </div>
-            @if ($products->hasPages())
-                <div class="mt-8">{{ $products->links() }}</div>
-            @endif
-        </section>
-    @else
-        <section class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-            <a href="{{ route('user.catalog.index') }}" class="text-sm font-semibold text-botanical-800 hover:underline">← Kembali ke katalog</a>
-            <div class="mt-5 grid gap-8 lg:grid-cols-2 lg:gap-12">
-                <div class="aspect-square overflow-hidden rounded-3xl bg-botanical-50">
-                    @if ($product->image)
-                        <img src="{{ Storage::disk('public')->url($product->image) }}" alt="{{ $product->name_produk }}" class="h-full w-full object-cover">
-                    @else
-                        <div class="flex h-full items-center justify-center text-botanical-300" aria-hidden="true">
-                            <svg class="h-28 w-28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M12 12c-2-2-2-5 0-7 2 2 2 5 0 7Zm0 0c2-2 5-2 7 0-2 2-5 2-7 0Zm0 0c2 2 2 5 0 7-2-2-2-5 0-7Zm0 0c-2 2-5-2-7 0 2-2 5-2 7 0Z"/><circle cx="12" cy="12" r="1.4"/></svg>
-                        </div>
+                    <div class="border-t border-line px-2 sm:border-l sm:border-t-0">
+                        <label for="catalog-category" class="sr-only">Kategori buket</label>
+                        <select id="catalog-category" name="category" class="h-11 w-full rounded-full border-0 bg-transparent text-sm text-stone-600 focus:ring-0">
+                            <option value="">Semua kategori</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id_kategori }}" @selected(($filters['category'] ?? '') === $category->id_kategori)>{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-full bg-[#34873a] px-6 text-sm font-semibold text-white transition hover:bg-botanical-800">Cari buket</button>
+                </form>
+
+                <div class="mt-7 flex items-center justify-between gap-4 text-sm">
+                    <p class="text-stone-600"><span class="font-semibold text-botanical-800">{{ $products->total() }}</span> buket ditemukan</p>
+                    @if (($filters['search'] ?? false) || ($filters['category'] ?? false))
+                        <a href="{{ route('user.catalog.index') }}" class="font-semibold text-botanical-800 underline decoration-botanical-300 underline-offset-4">Hapus filter</a>
                     @endif
                 </div>
-                <div class="flex flex-col justify-center">
-                    <p class="text-sm font-semibold text-botanical-700">{{ $product->category?->name ?? 'Rangkaian bunga' }}</p>
-                    <h1 class="store-title mt-3 text-4xl sm:text-5xl">{{ $product->name_produk }}</h1>
-                    <p class="mt-5 font-display text-3xl font-medium text-botanical-800">Rp {{ number_format((float) $product->harga_produk, 2, ',', '.') }}</p>
-                    <p class="mt-4 text-sm leading-7 text-stone-600">{{ $product->deskripsi_produk ?: 'Rangkaian bunga pilihan, dirangkai dengan penuh perhatian.' }}</p>
-                    <p class="mt-5 text-sm text-stone-600">Stok tersedia: <span class="font-semibold text-ink">{{ $product->stock_produk }} unit</span></p>
-                    <div class="mt-7 flex flex-wrap gap-3">
-                        @if ($product->stock_produk > 0)
-                            <form method="POST" action="{{ route('user.cart.store', $product) }}" class="flex flex-wrap gap-2">
-                                @csrf
-                                <label for="quantity" class="sr-only">Jumlah</label>
-                                <input id="quantity" type="number" name="quantity" min="1" max="{{ min(99, $product->stock_produk) }}" value="1" class="h-12 w-24 rounded-xl border-line text-center text-sm focus:border-botanical-500 focus:ring-botanical-500">
-                                <button type="submit" class="store-action store-action-primary min-h-12 px-6">Tambah ke keranjang</button>
-                            </form>
-                        @else
-                            <span class="rounded-xl bg-stone-100 px-5 py-3 text-sm font-semibold text-stone-500">Stok habis</span>
-                        @endif
-                        @if ($isFavorite)
-                            <form method="POST" action="{{ route('user.favorites.destroy', $product) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="store-action min-h-12 border border-rose-200 px-5 text-rose-700 hover:bg-rose-50">Hapus favorit</button>
-                            </form>
-                        @else
-                            <form method="POST" action="{{ route('user.favorites.store', $product) }}">
-                                @csrf
-                                <button type="submit" class="store-action store-action-secondary min-h-12">Simpan favorit</button>
-                            </form>
-                        @endif
-                    </div>
-                </div>
-            </div>
 
-            @if ($relatedProducts->isNotEmpty())
-                <div class="mt-16">
-                    <h2 class="font-display text-3xl font-medium text-botanical-950">Pilihan serupa</h2>
-                    <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                        @foreach ($relatedProducts as $relatedProduct)
-                            <article class="store-card group hover:-translate-y-0.5 hover:border-botanical-200 hover:shadow-md">
-                                <a href="{{ route('user.catalog.show', $relatedProduct) }}" class="block">
-                                    <div class="aspect-[4/3] overflow-hidden bg-botanical-50">
-                                        @if ($relatedProduct->image)
-                                            <img src="{{ Storage::disk('public')->url($relatedProduct->image) }}" alt="{{ $relatedProduct->name_produk }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy">
-                                        @else
-                                            <div class="flex h-full items-center justify-center text-botanical-300" aria-hidden="true">
-                                                <svg class="h-14 w-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 12c-2-2-2-5 0-7 2 2 2 5 0 7Zm0 0c2-2 5-2 7 0-2 2-5 2-7 0Zm0 0c2 2 2 5 0 7-2-2-2-5 0-7Zm0 0c-2 2-5 2-7 0 2-2 5-2 7 0Z"/><circle cx="12" cy="12" r="1.4"/></svg>
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <div class="p-4">
-                                        <p class="text-xs font-medium text-stone-500">{{ $relatedProduct->category?->name ?? 'Rangkaian bunga' }}</p>
-                                        <h3 class="mt-1 truncate font-semibold text-ink">{{ $relatedProduct->name_produk }}</h3>
-                                        <p class="mt-2 font-semibold text-botanical-900">Rp {{ number_format((float) $relatedProduct->harga_produk, 2, ',', '.') }}</p>
-                                    </div>
-                                </a>
-                            </article>
-                        @endforeach
-                    </div>
+                <div class="motion-stagger mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    @forelse ($products as $product)
+                        <article class="product-card group relative isolate min-h-[390px] overflow-hidden rounded-[26px] bg-botanical-900 shadow-[0_10px_28px_rgba(31,59,42,.16)] transition duration-300 sm:min-h-[420px]">
+                            <a href="{{ route('user.catalog.show', $product) }}" class="absolute inset-0 flex flex-col justify-end overflow-hidden rounded-[inherit] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-botanical-700">
+                                @if ($product->image)
+                                    <img src="{{ Storage::disk('public')->url($product->image) }}" alt="{{ $product->name_produk }}" class="product-card-photo absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out" loading="lazy" decoding="async">
+                                @else
+                                    <div class="absolute inset-0 flex items-center justify-center text-white/50"><x-application-logo class="h-20 w-20 fill-current" /></div>
+                                @endif
+                                <span class="product-card-shade absolute inset-0 bg-gradient-to-t from-[#14271b]/95 via-[#14271b]/35 to-black/10 transition-colors duration-500" aria-hidden="true"></span>
+                                <span class="absolute left-4 top-4 rounded-full border border-white/30 bg-matcha/90 px-3 py-1.5 text-[11px] font-semibold text-botanical-900 shadow-lg backdrop-blur-sm">Stok: {{ $product->stock_produk }}</span>
+                                @auth
+                                <span class="absolute right-4 top-4 z-20" onclick="event.stopPropagation()">
+                                    @if (in_array($product->id_produk, $favoriteIds, true))
+                                        <form method="POST" action="{{ route('user.favorites.destroy', $product) }}">@csrf @method('DELETE')<button type="submit" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-matcha text-rose-600 shadow-sm" aria-label="Hapus {{ $product->name_produk }} dari favorit"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg></button></form>
+                                    @else
+                                        <form method="POST" action="{{ route('user.favorites.store', $product) }}">@csrf<button type="submit" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-matcha text-stone-500 shadow-sm transition hover:text-rose-600" aria-label="Tambahkan {{ $product->name_produk }} ke favorit"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg></button></form>
+                                    @endif
+                                </span>
+                                @endauth
+                                <span class="product-card-copy relative block p-5 text-white sm:p-6">
+                                    <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-white/75">{{ $product->category?->name ?? 'Buket pilihan' }}</span>
+                                    <span class="block font-display text-2xl font-semibold leading-tight sm:text-[26px]">{{ $product->name_produk }}</span>
+                                    <span class="mt-2 block text-lg font-bold">Rp {{ number_format((float) $product->harga_produk, 0, ',', '.') }}</span>
+                                    <span class="product-card-cta mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/35 bg-matcha/15 px-5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition duration-300 ease-out">Lihat produk</span>
+                                </span>
+                            </a>
+                            @auth
+                            <form method="POST" action="{{ route('user.cart.store', $product) }}" class="absolute bottom-5 right-5 z-20 sm:bottom-6 sm:right-6">
+                                @csrf
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-matcha/20 text-white shadow-lg backdrop-blur-md transition hover:scale-110 hover:bg-matcha/35" aria-label="Tambah {{ $product->name_produk }} ke keranjang"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2 12h11l2-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg></button>
+                            </form>
+                            @endauth
+                        </article>
+                    @empty
+                        <div class="col-span-full rounded-[26px] border border-dashed border-botanical-300 bg-matcha/80 px-6 py-16 text-center">
+                            <h2 class="font-display text-2xl font-semibold text-[#34873a]">Buket belum ditemukan</h2>
+                            <p class="mt-2 text-sm text-stone-600">Coba kata kunci atau kategori yang berbeda.</p>
+                        </div>
+                    @endforelse
                 </div>
-            @endif
+                @if ($products->hasPages())
+                    <div class="mt-8">{{ $products->links() }}</div>
+                @endif
+            </div>
+        </section>
+    @else
+        <section class="bg-transparent px-4 pb-14 pt-8 sm:px-6 sm:pb-16 lg:px-8">
+            <div class="mx-auto max-w-7xl">
+                <a href="{{ route('user.catalog.index') }}" class="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-botanical-800 transition hover:text-botanical-950"><span aria-hidden="true">←</span> Kembali ke buket</a>
+                <div class="mt-3 grid items-start gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
+                    <div class="overflow-hidden rounded-[30px] border-[10px] border-white bg-botanical-100 shadow-[0_18px_48px_rgba(42,67,48,.12)]">
+                        <div class="aspect-[0.95/1]">
+                            @if ($product->image)
+                                <img src="{{ Storage::disk('public')->url($product->image) }}" alt="{{ $product->name_produk }}" class="h-full w-full object-cover" loading="eager" fetchpriority="high" decoding="async">
+                            @else
+                                <div class="flex h-full items-center justify-center text-botanical-300"><x-application-logo class="h-40 w-40 fill-current" /></div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <section class="rounded-[30px] bg-matcha p-6 shadow-[0_12px_34px_rgba(47,75,55,.08)] sm:p-8">
+                        <p class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#a8942f]"><span aria-hidden="true">✦</span>{{ $product->category?->name ?? 'Koleksi pilihan' }}</p>
+                        <h1 class="mt-3 font-display text-4xl font-semibold leading-tight text-[#34873a] sm:text-[44px]">{{ $product->name_produk }}</h1>
+                        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+                            <p class="font-display text-2xl font-semibold text-[#34873a]">Rp {{ number_format((float) $product->harga_produk, 0, ',', '.') }}</p>
+                            <span @class(['rounded-full px-3 py-1.5 text-xs font-semibold', 'bg-[#f8e5eb] text-rose-800' => $product->stock_produk <= 5, 'bg-[#e2f4dd] text-botanical-800' => $product->stock_produk > 5])><span class="mr-1 inline-block h-2 w-2 rounded-full bg-current"></span> Stok {{ $product->stock_produk }} tersedia</span>
+                        </div>
+                        <p class="mt-5 text-sm leading-7 text-stone-600">{{ $product->deskripsi_produk ?: 'Buket chenille handmade yang dirangkai dengan penuh perhatian. Hadiah lembut dan tahan lama untuk momen yang berarti.' }}</p>
+
+                        <div class="mt-6 border-t border-line pt-5">
+                            <div class="flex items-center justify-between gap-3">
+                                <h2 class="text-sm font-semibold text-ink">Detail rangkaian</h2>
+                                <span class="text-sm text-stone-500">Chenille lembut</span>
+                            </div>
+                            <ul class="mt-3 space-y-2 text-sm text-stone-600">
+                                <li class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-botanical-600"></span> Dirangkai manual dengan teliti</li>
+                                <li class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-botanical-600"></span> Tidak memerlukan perawatan khusus</li>
+                            </ul>
+                        </div>
+
+                        <div class="mt-6 flex flex-wrap items-center gap-3">
+                            @guest
+                                <a href="{{ route('login') }}" class="inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-[#34873a] px-5 text-sm font-semibold text-white transition hover:bg-botanical-800">Masuk untuk memesan</a>
+                            @else
+                            @if ($product->stock_produk > 0)
+                                <form method="POST" action="{{ route('user.cart.store', $product) }}" class="flex min-w-0 flex-1 flex-wrap gap-2">
+                                    @csrf
+                                    <label for="quantity" class="sr-only">Jumlah</label>
+                                    <input id="quantity" type="number" name="quantity" min="1" max="{{ min(99, $product->stock_produk) }}" value="1" class="h-12 w-20 rounded-full border-line bg-[#fff9fb] text-center text-sm focus:border-botanical-500 focus:ring-botanical-500">
+                                    <button type="submit" class="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[#34873a] px-4 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(65,95,72,.18)] transition hover:bg-botanical-800"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 4h2l2 12h11l2-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg> Tambah ke keranjang</button>
+                                </form>
+                            @else
+                                <span class="inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-stone-100 px-5 text-sm font-semibold text-stone-500">Stok habis</span>
+                            @endif
+
+                            @if ($isFavorite)
+                                <form method="POST" action="{{ route('user.favorites.destroy', $product) }}">@csrf @method('DELETE')<button type="submit" class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#f8e5eb] text-rose-600" aria-label="Hapus dari favorit"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg></button></form>
+                            @else
+                                <form method="POST" action="{{ route('user.favorites.store', $product) }}">@csrf<button type="submit" class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-line text-stone-500 transition hover:bg-[#f8e5eb] hover:text-rose-600" aria-label="Tambahkan ke favorit"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg></button></form>
+                            @endif
+                            @endguest
+                        </div>
+                    </section>
+                </div>
+
+                @if ($relatedProducts->isNotEmpty())
+                    <div class="mt-14">
+                        <div class="flex flex-wrap items-end justify-between gap-4">
+                            <div><p class="text-xs font-semibold uppercase tracking-[0.14em] text-[#a8942f]">Masih dari koleksi ini</p><h2 class="mt-2 font-display text-3xl font-semibold text-[#34873a]">Buket serupa</h2></div>
+                            <a href="{{ route('user.catalog.index') }}" class="text-sm font-semibold text-botanical-800 hover:underline">Semua buket →</a>
+                        </div>
+                        <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                            @foreach ($relatedProducts as $relatedProduct)
+                                <x-user.product-card :product="$relatedProduct" />
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
         </section>
     @endif
 @endsection

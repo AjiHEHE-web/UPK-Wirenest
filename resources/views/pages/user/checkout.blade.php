@@ -15,12 +15,12 @@
                     <h2 class="font-display text-xl font-medium text-botanical-950">Informasi pengiriman</h2>
                     <div class="mt-5">
                         <label for="alamat_pengiriman" class="mb-2 block text-sm font-semibold text-ink">Alamat lengkap <span class="text-rose-600">*</span></label>
-                        <textarea id="alamat_pengiriman" name="alamat_pengiriman" rows="4" required maxlength="5000" class="w-full rounded-lg border-line bg-white text-sm focus:border-botanical-500 focus:ring-botanical-500" placeholder="Jalan, nomor rumah, kelurahan, kecamatan, kota, kode pos">{{ old('alamat_pengiriman', auth()->user()->alamat) }}</textarea>
+                        <textarea id="alamat_pengiriman" name="alamat_pengiriman" rows="4" required maxlength="5000" class="w-full rounded-lg border-line bg-matcha text-sm focus:border-botanical-500 focus:ring-botanical-500" placeholder="Jalan, nomor rumah, kelurahan, kecamatan, kota, kode pos">{{ old('alamat_pengiriman', auth()->user()->alamat) }}</textarea>
                         @error('alamat_pengiriman') <p class="mt-1 text-sm text-rose-700">{{ $message }}</p> @enderror
                     </div>
                     <div class="mt-4">
                         <label for="catatan" class="mb-2 block text-sm font-semibold text-ink">Catatan untuk toko <span class="font-normal text-stone-500">(opsional)</span></label>
-                        <textarea id="catatan" name="catatan" rows="3" maxlength="2000" class="w-full rounded-lg border-line bg-white text-sm focus:border-botanical-500 focus:ring-botanical-500" placeholder="Instruksi khusus untuk pesanan Anda">{{ old('catatan') }}</textarea>
+                        <textarea id="catatan" name="catatan" rows="3" maxlength="2000" class="w-full rounded-lg border-line bg-matcha text-sm focus:border-botanical-500 focus:ring-botanical-500" placeholder="Instruksi khusus untuk pesanan Anda">{{ old('catatan') }}</textarea>
                         @error('catatan') <p class="mt-1 text-sm text-rose-700">{{ $message }}</p> @enderror
                     </div>
                 </section>

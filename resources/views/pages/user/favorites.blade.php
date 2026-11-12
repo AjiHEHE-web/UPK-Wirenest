@@ -11,7 +11,7 @@
             </div>
             <a href="{{ route('user.catalog.index') }}" class="text-sm font-semibold text-botanical-800 transition hover:underline">Jelajahi katalog →</a>
         </div>
-        <div class="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div class="motion-stagger mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             @forelse ($favorites as $favorite)
                 @if ($favorite->product && $favorite->product->stock_produk > 0)
                     @php($product = $favorite->product)
@@ -19,7 +19,7 @@
                         <a href="{{ route('user.catalog.show', $product) }}" class="block">
                             <div class="aspect-[4/3] overflow-hidden bg-botanical-50">
                                 @if ($product->image)
-                                    <img src="{{ Storage::disk('public')->url($product->image) }}" alt="{{ $product->name_produk }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy">
+                                    <img src="{{ Storage::disk('public')->url($product->image) }}" alt="{{ $product->name_produk }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" decoding="async">
                                 @else
                                     <div class="flex h-full items-center justify-center text-botanical-300" aria-hidden="true">
                                         <svg class="h-14 w-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 12c-2-2-2-5 0-7 2 2 2 5 0 7Zm0 0c2-2 5-2 7 0-2 2-5 2-7 0Zm0 0c2 2 2 5 0 7-2-2-2-5 0-7Zm0 0c-2-2-5-2-7 0 2-2 5-2 7 0Z"/><circle cx="12" cy="12" r="1.4"/></svg>
@@ -51,7 +51,7 @@
                         </div>
                     </article>
                 @else
-                    <article class="rounded-2xl border border-line bg-white p-5">
+                    <article class="rounded-2xl border border-line bg-matcha p-5">
                         <p class="font-semibold text-ink">{{ $favorite->product?->name_produk ?? 'Produk tidak tersedia' }}</p>
                         <p class="mt-2 text-sm text-stone-500">Produk ini sedang tidak tersedia.</p>
                         @if ($favorite->product)

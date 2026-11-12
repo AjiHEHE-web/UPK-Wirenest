@@ -18,17 +18,20 @@ use App\Http\Controllers\User\PaymentProofController as UserPaymentProofControll
 use App\Http\Controllers\User\ProfileController as UserProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/', function (UserHomeController $homeController) {
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
 
-    return view('pages.landing');
+    return $homeController()->with('landingToast', 'Selamat datang di WireNest. Jelajahi buket pilihan kami.');
 })->name('landing');
 
 Route::get('/ar/{arModel}', [ArExperienceController::class, 'show'])
     ->whereUuid('arModel')
     ->name('ar.show');
+
+Route::get('/user/katalog', [UserCatalogController::class, 'index'])->name('user.catalog.index');
+Route::get('/user/katalog/{product}', [UserCatalogController::class, 'show'])->name('user.catalog.show');
 
 Route::get('/dashboard', function () {
     return redirect()->route(auth()->user()->role === 'admin' ? 'admin.dashboard' : 'user.home');
@@ -39,9 +42,6 @@ Route::middleware(['auth', 'user'])
     ->name('user.')
     ->group(function (): void {
         Route::get('/', UserHomeController::class)->name('home');
-        Route::get('/katalog', [UserCatalogController::class, 'index'])->name('catalog.index');
-        Route::get('/katalog/{product}', [UserCatalogController::class, 'show'])->name('catalog.show');
-
         Route::get('/favorit', [UserFavoriteController::class, 'index'])->name('favorites.index');
         Route::post('/favorit/{product}', [UserFavoriteController::class, 'store'])->name('favorites.store');
         Route::delete('/favorit/{product}', [UserFavoriteController::class, 'destroy'])->name('favorites.destroy');

@@ -16,12 +16,14 @@ class HomeController extends Controller
                 ->whereHas('products', fn ($query) => $query->where('stock_produk', '>', 0))
                 ->withCount(['products as available_products_count' => fn ($query) => $query->where('stock_produk', '>', 0)])
                 ->orderBy('name')
+                ->limit(8)
                 ->get(),
             'featuredProducts' => Product::query()
-                ->with('category')
+                ->select('id_produk', 'id_kategori', 'name_produk', 'harga_produk', 'stock_produk', 'image', 'created_at')
+                ->with('category:id_kategori,name')
                 ->where('stock_produk', '>', 0)
                 ->latest('created_at')
-                ->limit(8)
+                ->limit(4)
                 ->get(),
         ]);
     }

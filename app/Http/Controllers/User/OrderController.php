@@ -8,6 +8,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
@@ -16,12 +17,23 @@ class OrderController extends Controller
     {
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', Rule::in(['all', 'active', 'archived'])],
         ]);
 
-        $orders = $request->user()
+        $ordersQuery = $request->user()
             ->orders()
-            ->with('payments')
-            ->when($filters['search'] ?? null, fn ($query, string $search) => $query->where('id_pesanan', 'like', '%'.$search.'%'))
+            ->when($filters['search'] ?? null, fn ($query, string $search) => $query->where('id_pesanan', 'like', '%'.$search.'%'));
+
+        $orderCounts = [
+            'all' => (clone $ordersQuery)->count(),
+            'active' => (clone $ordersQuery)->whereIn('status_pesanan', ['pending', 'processing', 'shipped'])->count(),
+            'archived' => (clone $ordersQuery)->whereIn('status_pesanan', ['completed', 'cancelled'])->count(),
+        ];
+
+        $orders = (clone $ordersQuery)
+            ->with(['payments', 'items.product.category'])
+            ->when(($filters['status'] ?? 'all') === 'active', fn ($query) => $query->whereIn('status_pesanan', ['pending', 'processing', 'shipped']))
+            ->when(($filters['status'] ?? null) === 'archived', fn ($query) => $query->whereIn('status_pesanan', ['completed', 'cancelled']))
             ->orderByDesc('tanggal_pemesanan')
             ->orderByDesc('created_at')
             ->paginate(10)
@@ -31,6 +43,7 @@ class OrderController extends Controller
             'page' => 'index',
             'orders' => $orders,
             'filters' => $filters,
+            'orderCounts' => $orderCounts,
         ]);
     }
 

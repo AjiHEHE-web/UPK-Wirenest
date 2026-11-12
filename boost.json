@@ -1,6 +1,6 @@
 {
     "agents": [
-        "claude_code"
+        "codex"
     ],
     "cloud": false,
     "guidelines": true,
@@ -8,6 +8,9 @@
     "nightwatch": false,
     "sail": false,
     "skills": [
-        "infer-conventions"
+        "infer-conventions",
+        "laravel-best-practices",
+        "testing-best-practices",
+        "tailwindcss-development"
     ]
 }

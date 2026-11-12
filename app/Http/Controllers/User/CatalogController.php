@@ -19,7 +19,8 @@ class CatalogController extends Controller
         ]);
 
         $products = Product::query()
-            ->with('category')
+            ->select('id_produk', 'id_kategori', 'name_produk', 'harga_produk', 'stock_produk', 'image', 'created_at')
+            ->with('category:id_kategori,name')
             ->where('stock_produk', '>', 0)
             ->when($filters['search'] ?? null, function ($query, string $search): void {
                 $query->where(function ($query) use ($search): void {
@@ -34,12 +35,19 @@ class CatalogController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $favoriteIds = $request->user()
+            ? $request->user()->favoriteRecords()
+                ->whereIn('id_produk', $products->getCollection()->pluck('id_produk'))
+                ->pluck('id_produk')
+                ->all()
+            : [];
+
         return view('pages.user.catalog', [
             'page' => 'index',
             'products' => $products,
-            'categories' => Category::query()->orderBy('name')->get(),
+            'categories' => Category::query()->select('id_kategori', 'name')->orderBy('name')->get(),
             'filters' => $filters,
-            'favoriteIds' => $request->user()->favoriteRecords()->pluck('id_produk')->all(),
+            'favoriteIds' => $favoriteIds,
         ]);
     }
 
@@ -50,10 +58,10 @@ class CatalogController extends Controller
         return view('pages.user.catalog', [
             'page' => 'show',
             'product' => $product,
-            'isFavorite' => $request->user()->favoriteRecords()->where('id_produk', $product->id_produk)->exists(),
-            'favoriteIds' => $request->user()->favoriteRecords()->pluck('id_produk')->all(),
+            'isFavorite' => $request->user()?->favoriteRecords()->where('id_produk', $product->id_produk)->exists() ?? false,
             'relatedProducts' => Product::query()
-                ->with('category')
+                ->select('id_produk', 'id_kategori', 'name_produk', 'harga_produk', 'stock_produk', 'image', 'created_at')
+                ->with('category:id_kategori,name')
                 ->where('id_kategori', $product->id_kategori)
                 ->where('stock_produk', '>', 0)
                 ->whereKeyNot($product->getKey())
