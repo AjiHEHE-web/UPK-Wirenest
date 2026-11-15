@@ -45,6 +45,10 @@
             @yield('content')
         </main>
 
+        <div data-cart-notice hidden role="status" aria-live="polite" class="fixed bottom-5 right-5 z-50 max-w-sm rounded-2xl border bg-matcha px-5 py-4 text-sm font-semibold shadow-xl">
+            <span data-cart-notice-message></span>
+        </div>
+
         <footer class="border-t border-line bg-matcha">
             <div class="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-9 sm:px-6 lg:px-8">
                 <div class="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">

@@ -32,7 +32,7 @@
     </div>
 
     <section class="mt-6 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-        <form method="GET" action="{{ route('admin.orders.index') }}" class="grid gap-3 border-b border-line p-4 sm:grid-cols-[1fr_220px_auto] sm:items-end sm:px-6">
+        <form method="GET" action="{{ route('admin.orders.index') }}" data-ajax-search data-ajax-results="admin-orders-results" class="grid gap-3 border-b border-line p-4 sm:grid-cols-[1fr_220px_auto] sm:items-end sm:px-6">
             <div>
                 <label for="order-search" class="mb-1.5 block text-xs font-semibold text-stone-600">Cari pesanan atau pelanggan</label>
                 <div class="relative">
@@ -52,6 +52,7 @@
             <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-xl bg-botanical-700 px-5 text-sm font-semibold text-white transition hover:bg-botanical-800">Terapkan</button>
         </form>
 
+        <div id="admin-orders-results" data-ajax-results aria-live="polite">
         <div class="flex items-center justify-between px-5 py-4 sm:px-6">
             <div>
                 <h2 class="text-base font-semibold text-ink">Daftar pesanan</h2>
@@ -107,6 +108,7 @@
         @if ($orders->hasPages())
             <div class="border-t border-line px-5 py-4 sm:px-6">{{ $orders->links() }}</div>
         @endif
+        </div>
     </section>
 @elseif ($page === 'show')
     <a href="{{ route('admin.orders.index') }}" class="inline-flex min-h-10 items-center gap-2 rounded-lg text-sm font-semibold text-stone-600 transition hover:text-botanical-700">

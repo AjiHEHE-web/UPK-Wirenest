@@ -115,7 +115,7 @@
     </div>
 
     <section class="mt-6 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-        <form method="GET" action="{{ route('admin.transactions.history') }}" class="grid gap-3 border-b border-line p-4 sm:grid-cols-2 lg:grid-cols-[minmax(220px,1fr)_160px_160px_160px_auto] sm:px-6">
+        <form method="GET" action="{{ route('admin.transactions.history') }}" data-ajax-search data-ajax-results="admin-transactions-results" class="grid gap-3 border-b border-line p-4 sm:grid-cols-2 lg:grid-cols-[minmax(220px,1fr)_160px_160px_160px_auto] sm:px-6">
             <div>
                 <label for="transaction-search" class="mb-1.5 block text-xs font-semibold text-stone-600">Cari transaksi</label>
                 <div class="relative">
@@ -143,6 +143,7 @@
             <button type="submit" class="inline-flex min-h-11 items-center justify-center self-end rounded-xl bg-botanical-700 px-4 text-sm font-semibold text-white transition hover:bg-botanical-800">Terapkan</button>
         </form>
 
+        <div id="admin-transactions-results" data-ajax-results aria-live="polite">
         <div class="flex items-center justify-between px-5 py-4 sm:px-6">
             <div>
                 <h2 class="text-base font-semibold text-ink">Semua transaksi</h2>
@@ -201,6 +202,7 @@
         @if ($payments->hasPages())
             <div class="border-t border-line px-5 py-4 sm:px-6">{{ $payments->links() }}</div>
         @endif
+        </div>
     </section>
 @elseif ($page === 'show')
     <div class="flex flex-wrap items-center justify-between gap-3">

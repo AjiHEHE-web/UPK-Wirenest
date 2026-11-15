@@ -1,12 +1,17 @@
 
 
 import Alpine from 'alpinejs';
+import './ajax-cart.js';
 
 window.Alpine = Alpine;
 
 Alpine.start();
 
-if (document.querySelector('[data-ar-qr-value]')) {
+if (document.querySelector('[data-ajax-search]')) {
+    import('./ajax-search.js');
+}
+
+if (document.querySelector('[data-ar-qr-value], form[data-ajax-results="admin-ar-results"]')) {
     import('./ar-qr.js');
 }
 

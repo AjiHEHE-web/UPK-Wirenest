@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\User\CartService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -23,13 +24,20 @@ class CartController extends Controller
         ]);
     }
 
-    public function store(Request $request, Product $product, CartService $cart): RedirectResponse
+    public function store(Request $request, Product $product, CartService $cart): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
             'quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
         $cart->add($product, (int) $validated['quantity']);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Produk berhasil ditambahkan ke keranjang.',
+                'cartCount' => array_sum($cart->quantities()),
+            ]);
+        }
 
         return redirect()->route('user.cart.index')->with('success', 'Produk ditambahkan ke keranjang.');
     }

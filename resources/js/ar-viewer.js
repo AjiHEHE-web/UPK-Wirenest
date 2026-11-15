@@ -21,9 +21,17 @@ const loaderFor = async (format, url) => {
     switch (format) {
         case 'glb':
         case 'gltf': {
-            const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+            const [gltfModule, dracoModule] = await Promise.all([
+                import('three/addons/loaders/GLTFLoader.js'),
+                import('three/addons/loaders/DRACOLoader.js'),
+            ]);
+            const dracoLoader = new dracoModule.DRACOLoader();
+            dracoLoader.setDecoderPath(dracoModule.DRACO_GLTF_CONFIG);
 
-            return loadWith(new GLTFLoader(), url, (result) => result.scene);
+            const gltfLoader = new gltfModule.GLTFLoader();
+            gltfLoader.setDRACOLoader(dracoLoader);
+
+            return loadWith(gltfLoader, url, (result) => result.scene);
         }
         case 'obj': {
             const { OBJLoader } = await import('three/addons/loaders/OBJLoader.js');

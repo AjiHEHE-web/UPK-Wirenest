@@ -42,7 +42,7 @@
                                         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg>
                                     </button>
                                 </form>
-                                <form method="POST" action="{{ route('user.cart.store', $product) }}">
+                                <form method="POST" action="{{ route('user.cart.store', $product) }}" data-ajax-cart>
                                     @csrf
                                     <input type="hidden" name="quantity" value="1">
                                     <button type="submit" class="store-action store-action-primary min-h-10 px-4 text-xs">Keranjang</button>

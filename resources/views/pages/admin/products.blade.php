@@ -30,10 +30,10 @@
     </div>
 
     <section class="mt-6 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-        <form method="GET" action="{{ route('admin.products.index') }}" class="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                    <form method="GET" action="{{ route('admin.products.index') }}" data-ajax-search data-ajax-results="admin-products-results" class="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <div>
                 <h2 class="text-base font-semibold text-ink">Daftar produk</h2>
-                <p class="mt-1 text-sm text-stone-500">{{ $products->total() }} produk terdaftar</p>
+                <p id="admin-products-total" data-ajax-refresh class="mt-1 text-sm text-stone-500">{{ $products->total() }} produk terdaftar</p>
             </div>
             <div class="flex w-full gap-2 sm:max-w-md">
                 <label for="search-products" class="sr-only">Cari nama atau kategori produk</label>
@@ -47,6 +47,7 @@
             </div>
         </form>
 
+        <div id="admin-products-results" data-ajax-results aria-live="polite">
         <div class="overflow-x-auto">
             <table class="w-full min-w-[760px] text-left text-sm">
                 <thead class="bg-stone-50/80 text-xs uppercase tracking-wide text-stone-500">
@@ -113,6 +114,7 @@
         @if ($products->hasPages())
             <div class="border-t border-line px-5 py-4 sm:px-6">{{ $products->links() }}</div>
         @endif
+        </div>
     </section>
 @elseif ($page === 'create')
     <div class="mx-auto max-w-4xl">

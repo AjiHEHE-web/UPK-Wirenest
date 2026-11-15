@@ -29,7 +29,7 @@
                 </div>
 
                 <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-                    <nav aria-label="Filter status pesanan" class="inline-flex flex-wrap gap-1 rounded-full bg-[#fff5f8] p-1.5">
+                    <nav id="user-order-status-filters" data-ajax-refresh aria-label="Filter status pesanan" class="inline-flex flex-wrap gap-1 rounded-full bg-[#fff5f8] p-1.5">
                         @foreach (['all' => 'Semua', 'active' => 'Aktif', 'archived' => 'Selesai'] as $status => $label)
                             <a href="{{ route('user.orders.index', array_filter(['search' => $filters['search'] ?? null, 'status' => $status === 'all' ? null : $status])) }}" @class(['inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition', 'bg-matcha text-botanical-800 shadow-sm' => ($filters['status'] ?? 'all') === $status, 'text-stone-600 hover:bg-matcha/70' => ($filters['status'] ?? 'all') !== $status]) @if (($filters['status'] ?? 'all') === $status) aria-current="page" @endif>
                                 {{ $label }} <span class="text-xs opacity-75">{{ $orderCounts[$status] }}</span>
@@ -39,13 +39,14 @@
                     <span class="inline-flex items-center gap-2 text-xs text-stone-600"><svg class="h-4 w-4 text-botanical-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg> Pengiriman standar: 2–3 hari kerja</span>
                 </div>
 
-                <form method="GET" action="{{ route('user.orders.index') }}" class="mt-5 flex max-w-xl gap-2 rounded-full bg-matcha p-2 shadow-sm">
+                <form method="GET" action="{{ route('user.orders.index') }}" data-ajax-search data-ajax-results="user-orders-results" class="mt-5 flex max-w-xl gap-2 rounded-full bg-matcha p-2 shadow-sm">
                     <label for="order-search" class="sr-only">Cari berdasarkan ID pesanan</label>
                     <input id="order-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari nomor pesanan..." class="h-10 min-w-0 flex-1 rounded-full border-0 bg-transparent px-3 text-sm focus:ring-0">
                     @if (($filters['status'] ?? 'all') !== 'all')<input type="hidden" name="status" value="{{ $filters['status'] }}">@endif
                     <button type="submit" class="inline-flex min-h-10 items-center justify-center rounded-full bg-[#34873a] px-5 text-sm font-semibold text-white transition hover:bg-botanical-800">Cari</button>
                 </form>
 
+                <div id="user-orders-results" data-ajax-results aria-live="polite">
                 <div class="motion-stagger mt-5 space-y-4">
                     @forelse ($orders as $order)
                         @php
@@ -96,6 +97,7 @@
                 </div>
 
                 @if ($orders->hasPages())<div class="mt-7">{{ $orders->links() }}</div>@endif
+                </div>
 
                 <div class="mt-10 flex flex-col items-start justify-between gap-5 rounded-[28px] bg-[#84a587] p-6 text-white sm:flex-row sm:items-center sm:px-8 sm:py-7">
                     <div class="flex items-center gap-4">

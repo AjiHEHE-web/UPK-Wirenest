@@ -33,7 +33,7 @@
         <section class="mt-6 grid gap-4 sm:grid-cols-3" aria-label="Ringkasan model AR">
             <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
                 <p class="text-sm font-medium text-stone-600">Model AR terdaftar</p>
-                <p class="mt-2 text-3xl font-semibold tracking-tight text-ink">{{ number_format($arModels->total()) }}</p>
+                <p id="admin-ar-summary-total" data-ajax-refresh class="mt-2 text-3xl font-semibold tracking-tight text-ink">{{ number_format($arModels->total()) }}</p>
                 <p class="mt-1 text-xs text-stone-500">Berkas model yang sudah tersimpan</p>
             </article>
             <article class="rounded-2xl border border-line bg-white p-5 shadow-sm">
@@ -49,10 +49,10 @@
         </section>
 
         <section class="mt-6 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-            <form method="GET" action="{{ route('admin.ar-models.index') }}" class="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <form method="GET" action="{{ route('admin.ar-models.index') }}" data-ajax-search data-ajax-results="admin-ar-results" class="flex flex-col gap-3 border-b border-line p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                 <div>
                     <h2 class="text-base font-semibold text-ink">Daftar model AR</h2>
-                    <p class="mt-1 text-sm text-stone-500">{{ $arModels->total() }} model terdaftar</p>
+                    <p id="admin-ar-total" data-ajax-refresh class="mt-1 text-sm text-stone-500">{{ $arModels->total() }} model terdaftar</p>
                 </div>
                 <div class="flex w-full gap-2 sm:max-w-md">
                     <label for="search-ar-models" class="sr-only">Cari nama model</label>
@@ -61,6 +61,7 @@
                 </div>
             </form>
 
+            <div id="admin-ar-results" data-ajax-results aria-live="polite">
             <div class="overflow-x-auto">
                 <table class="w-full min-w-[760px] text-left text-sm">
                     <thead class="bg-stone-50/80 text-xs uppercase tracking-wide text-stone-500">
@@ -133,6 +134,7 @@
             @if ($arModels->hasPages())
                 <div class="border-t border-line px-5 py-4 sm:px-6">{{ $arModels->links() }}</div>
             @endif
+            </div>
         </section>
     @else
         <div class="mx-auto max-w-4xl">

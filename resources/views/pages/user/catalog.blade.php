@@ -15,7 +15,7 @@
                     <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-stone-600 sm:text-base">Setiap kelopak dirangkai dengan teliti dari batang chenille yang lembut dan tahan lama.</p>
                 </div>
 
-                <form method="GET" action="{{ route('user.catalog.index') }}" class="mx-auto mt-6 grid max-w-2xl gap-2 rounded-full bg-matcha p-2 shadow-[0_8px_24px_rgba(49,79,56,.09)] sm:grid-cols-[1fr_190px_auto]">
+                <form method="GET" action="{{ route('user.catalog.index') }}" data-ajax-search data-ajax-results="catalog-results" class="mx-auto mt-6 grid max-w-2xl gap-2 rounded-full bg-matcha p-2 shadow-[0_8px_24px_rgba(49,79,56,.09)] sm:grid-cols-[1fr_190px_auto]">
                     <div class="flex min-w-0 items-center gap-3 px-3">
                         <svg class="h-5 w-5 shrink-0 text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
                         <label for="catalog-search" class="sr-only">Cari buket</label>
@@ -33,10 +33,11 @@
                     <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-full bg-[#34873a] px-6 text-sm font-semibold text-white transition hover:bg-botanical-800">Cari buket</button>
                 </form>
 
+                <div id="catalog-results" data-ajax-results aria-live="polite">
                 <div class="mt-7 flex items-center justify-between gap-4 text-sm">
-                    <p class="text-stone-600"><span class="font-semibold text-botanical-800">{{ $products->total() }}</span> buket ditemukan</p>
+                    <p data-ajax-result-count class="text-stone-600"><span class="font-semibold text-botanical-800">{{ $products->total() }}</span> buket ditemukan</p>
                     @if (($filters['search'] ?? false) || ($filters['category'] ?? false))
-                        <a href="{{ route('user.catalog.index') }}" class="font-semibold text-botanical-800 underline decoration-botanical-300 underline-offset-4">Hapus filter</a>
+                        <a href="{{ route('user.catalog.index') }}" data-ajax-search-link class="font-semibold text-botanical-800 underline decoration-botanical-300 underline-offset-4">Hapus filter</a>
                     @endif
                 </div>
 
@@ -68,7 +69,7 @@
                                 </span>
                             </a>
                             @auth
-                            <form method="POST" action="{{ route('user.cart.store', $product) }}" class="absolute bottom-5 right-5 z-20 sm:bottom-6 sm:right-6">
+                            <form method="POST" action="{{ route('user.cart.store', $product) }}" data-ajax-cart class="absolute bottom-5 right-5 z-20 sm:bottom-6 sm:right-6">
                                 @csrf
                                 <input type="hidden" name="quantity" value="1">
                                 <button type="submit" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-matcha/20 text-white shadow-lg backdrop-blur-md transition hover:scale-110 hover:bg-matcha/35" aria-label="Tambah {{ $product->name_produk }} ke keranjang"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2 12h11l2-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg></button>
@@ -85,6 +86,7 @@
                 @if ($products->hasPages())
                     <div class="mt-8">{{ $products->links() }}</div>
                 @endif
+                </div>
             </div>
         </section>
     @else
@@ -127,7 +129,7 @@
                                 <a href="{{ route('login') }}" class="inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-[#34873a] px-5 text-sm font-semibold text-white transition hover:bg-botanical-800">Masuk untuk memesan</a>
                             @else
                             @if ($product->stock_produk > 0)
-                                <form method="POST" action="{{ route('user.cart.store', $product) }}" class="flex min-w-0 flex-1 flex-wrap gap-2">
+                                <form method="POST" action="{{ route('user.cart.store', $product) }}" data-ajax-cart class="flex min-w-0 flex-1 flex-wrap gap-2">
                                     @csrf
                                     <label for="quantity" class="sr-only">Jumlah</label>
                                     <input id="quantity" type="number" name="quantity" min="1" max="{{ min(99, $product->stock_produk) }}" value="1" class="h-12 w-20 rounded-full border-line bg-[#fff9fb] text-center text-sm focus:border-botanical-500 focus:ring-botanical-500">
