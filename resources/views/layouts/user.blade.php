@@ -49,25 +49,36 @@
             <span data-cart-notice-message></span>
         </div>
 
-        <footer class="border-t border-line bg-matcha">
-            <div class="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-9 sm:px-6 lg:px-8">
-                <div class="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
-                    <div class="max-w-md">
-                        <a href="{{ route('user.home') }}" class="inline-flex items-center gap-3 text-botanical-800">
-                            <x-application-logo class="h-9 w-9 fill-current" />
-                            <span class="font-display text-xl font-semibold">WireNest</span>
-                        </a>
-                        <p class="mt-2 text-sm leading-6 text-stone-600">Buket chenille buatan tangan, dirangkai dengan sabar untuk menemani momen yang berarti.</p>
-                    </div>
-                    <nav aria-label="Navigasi footer" class="flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-stone-600">
-                        <a href="{{ route('user.home') }}" class="transition hover:text-botanical-800">Beranda</a>
-                        <a href="{{ route('user.catalog.index') }}" class="transition hover:text-botanical-800">Katalog</a>
-                        <a href="{{ route('user.orders.index') }}" class="transition hover:text-botanical-800">Riwayat pesanan</a>
-                    </nav>
+        <footer class="border-t border-line bg-white">
+            <div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-5 lg:gap-14 lg:px-8">
+                <div class="flex flex-col items-start lg:col-span-2">
+                    <a href="{{ route('user.home') }}" class="inline-flex items-center gap-3 text-botanical-800" aria-label="WireNest, kembali ke beranda">
+                        <x-application-logo class="h-12 w-12 fill-current" />
+                        <span>
+                            <span class="block font-display text-xl font-semibold leading-none">WireNest</span>
+                            <span class="mt-1 block text-[9px] font-medium tracking-[0.13em] text-stone-600">ARTISANAL CHENILLE STEMS</span>
+                        </span>
+                    </a>
+                    <p class="mt-5 max-w-lg text-base leading-7 text-stone-600">Rangkaian buket estetis buatan tangan dari kawat bulu (chenille stems) berkualitas tinggi. Pilihan sempurna untuk momen wisuda, kado ulang tahun, anniversary, dan hadiah selamanya.</p>
+                    <p class="mt-auto pt-8 text-xs leading-5 text-stone-500">© {{ now()->year }} WireNest. Dibuat dengan perhatian, dirangkai untuk bertahan lama.</p>
                 </div>
-                <div class="flex flex-col justify-between gap-3 border-t border-line pt-5 text-xs text-stone-500 sm:flex-row sm:items-center">
-                    <span>© {{ now()->year }} WireNest. Dibuat dengan perhatian, dirangkai untuk bertahan lama.</span>
-                    <span class="inline-flex items-center gap-2 font-semibold tracking-wide text-[#a8942f]"><span aria-hidden="true">✦</span> Bunga kenang-kenangan yang abadi</span>
+
+                <nav aria-label="Kategori bunga" class="lg:justify-self-center">
+                    <h2 class="text-lg font-semibold text-stone-900">Kategori Bunga</h2>
+                    <ul class="mt-3 space-y-2 text-base text-stone-600">
+                        @foreach (['Lily', 'Tulip', 'Mawar', 'Matahari'] as $categoryName)
+                            <li><a href="{{ route('user.catalog.index', ['search' => $categoryName]) }}" class="transition hover:text-botanical-800">Bunga {{ $categoryName }}</a></li>
+                        @endforeach
+                    </ul>
+                </nav>
+
+                <div class="lg:col-span-2">
+                    <h2 class="text-lg font-semibold text-stone-900">Terhubung Dengan Kami</h2>
+                    <p class="mt-3 text-base leading-6 text-stone-600">Ikuti media sosial kami untuk koleksi rilis musiman dan diskon khusus.</p>
+                    <a href="https://www.instagram.com/wirenest.flower/" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex min-h-11 items-center gap-4 rounded-lg text-base text-stone-700 transition hover:text-botanical-800">
+                        <svg class="h-8 w-8 shrink-0 text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".75" fill="currentColor" stroke="none"/></svg>
+                        <span>Instagram: @wirenest.flower</span>
+                    </a>
                 </div>
             </div>
         </footer>

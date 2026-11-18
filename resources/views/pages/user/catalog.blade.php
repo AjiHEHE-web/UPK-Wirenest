@@ -15,24 +15,20 @@
                     <p class="mx-auto mt-2 max-w-xl text-sm leading-6 text-stone-600 sm:text-base">Setiap kelopak dirangkai dengan teliti dari batang chenille yang lembut dan tahan lama.</p>
                 </div>
 
-                <form method="GET" action="{{ route('user.catalog.index') }}" data-ajax-search data-ajax-results="catalog-results" class="mx-auto mt-6 grid max-w-2xl gap-2 rounded-full bg-matcha p-2 shadow-[0_8px_24px_rgba(49,79,56,.09)] sm:grid-cols-[1fr_190px_auto]">
-                    <div class="flex min-w-0 items-center gap-3 px-3">
+                <form method="GET" action="{{ route('user.catalog.index') }}" data-ajax-search data-ajax-results="catalog-results" class="mx-auto mt-6 max-w-5xl">
+                    <div class="flex min-h-[54px] min-w-0 items-center gap-3 rounded-full border border-white/70 bg-white px-5 shadow-[0_8px_24px_rgba(49,79,56,.09)]">
                         <svg class="h-5 w-5 shrink-0 text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
                         <label for="catalog-search" class="sr-only">Cari buket</label>
-                        <input id="catalog-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari nama buket..." class="h-11 w-full min-w-0 border-0 bg-transparent text-sm placeholder:text-stone-400 focus:ring-0">
+                        <input id="catalog-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari bunga ....." class="h-12 w-full min-w-0 border-0 bg-transparent text-sm placeholder:text-stone-400 focus:ring-0">
                     </div>
-                    <div class="border-t border-line px-2 sm:border-l sm:border-t-0">
-                        <label for="catalog-category" class="sr-only">Kategori buket</label>
-                        <select id="catalog-category" name="category" class="h-11 w-full rounded-full border-0 bg-transparent text-sm text-stone-600 focus:ring-0">
-                            <option value="">Semua kategori</option>
-                            @foreach ($categories as $category)
-                                <option value="{{ $category->id_kategori }}" @selected(($filters['category'] ?? '') === $category->id_kategori)>{{ $category->name }}</option>
-                            @endforeach
-                        </select>
+                    <input type="hidden" name="category" value="{{ $filters['category'] ?? '' }}" data-catalog-category>
+                    <div class="mt-3 flex flex-wrap justify-center gap-2" aria-label="Pilih kategori buket">
+                        <button type="button" data-catalog-category-option="" aria-pressed="{{ empty($filters['category']) ? 'true' : 'false' }}" @class(['inline-flex min-h-9 items-center rounded-full px-4 text-sm font-medium transition', 'bg-[#356b50] text-white' => empty($filters['category']), 'bg-white text-[#356b50] hover:bg-white/80' => ! empty($filters['category'])])>All</button>
+                        @foreach ($categories as $category)
+                            <button type="button" data-catalog-category-option="{{ $category->id_kategori }}" aria-pressed="{{ ($filters['category'] ?? '') === $category->id_kategori ? 'true' : 'false' }}" @class(['inline-flex min-h-9 items-center rounded-full px-4 text-sm font-medium transition', 'bg-[#356b50] text-white' => ($filters['category'] ?? '') === $category->id_kategori, 'bg-white text-[#356b50] hover:bg-white/80' => ($filters['category'] ?? '') !== $category->id_kategori])>{{ $category->name }}</button>
+                        @endforeach
                     </div>
-                    <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-full bg-[#34873a] px-6 text-sm font-semibold text-white transition hover:bg-botanical-800">Cari buket</button>
                 </form>
-
                 <div id="catalog-results" data-ajax-results aria-live="polite">
                 <div class="mt-7 flex items-center justify-between gap-4 text-sm">
                     <p data-ajax-result-count class="text-stone-600"><span class="font-semibold text-botanical-800">{{ $products->total() }}</span> buket ditemukan</p>
@@ -41,7 +37,7 @@
                     @endif
                 </div>
 
-                <div class="motion-stagger mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="motion-stagger mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     @forelse ($products as $product)
                         <article class="product-card group relative isolate min-h-[390px] overflow-hidden rounded-[26px] bg-botanical-900 shadow-[0_10px_28px_rgba(31,59,42,.16)] transition duration-300 sm:min-h-[420px]">
                             <a href="{{ route('user.catalog.show', $product) }}" class="absolute inset-0 flex flex-col justify-end overflow-hidden rounded-[inherit] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-botanical-700">
@@ -152,7 +148,7 @@
                 @if ($relatedProducts->isNotEmpty())
                     <div class="mt-14">
                         <div class="flex flex-wrap items-end justify-between gap-4">
-                            <div><p class="text-xs font-semibold uppercase tracking-[0.14em] text-[#a8942f]">Masih dari koleksi ini</p><h2 class="mt-2 font-display text-3xl font-semibold text-[#34873a]">Buket serupa</h2></div>
+                            <div><p class="text-xs font-semibold uppercase tracking-[0.14em] text-[#a8942f]">Pilihan untuk Anda</p><h2 class="mt-2 font-display text-3xl font-semibold text-[#34873a]">Rekomendasi Bunga</h2></div>
                             <a href="{{ route('user.catalog.index') }}" class="text-sm font-semibold text-botanical-800 hover:underline">Semua buket →</a>
                         </div>
                         <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

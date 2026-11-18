@@ -30,6 +30,25 @@ searchForms.forEach((form) => {
 
             control.value = params.get(control.name) || '';
         }
+
+        const categoryInput = form.querySelector('[data-catalog-category]');
+
+        if (categoryInput) {
+            categoryInput.value = params.get(categoryInput.name) || '';
+            updateCategoryOptions(form, categoryInput.value);
+        }
+    };
+
+    const updateCategoryOptions = (searchForm, selectedCategory) => {
+        searchForm.querySelectorAll('[data-catalog-category-option]').forEach((button) => {
+            const isSelected = button.dataset.catalogCategoryOption === selectedCategory;
+            button.setAttribute('aria-pressed', String(isSelected));
+            button.classList.toggle('bg-[#356b50]', isSelected);
+            button.classList.toggle('text-white', isSelected);
+            button.classList.toggle('bg-white', !isSelected);
+            button.classList.toggle('text-[#356b50]', !isSelected);
+            button.classList.toggle('hover:bg-white/80', !isSelected);
+        });
     };
 
     const refreshRelatedElements = (nextDocument) => {
@@ -137,6 +156,25 @@ searchForms.forEach((form) => {
             window.clearTimeout(debounceTimer);
             submitSearch();
         }
+    });
+
+    form.addEventListener('click', (event) => {
+        const categoryOption = event.target.closest('[data-catalog-category-option]');
+
+        if (!categoryOption) {
+            return;
+        }
+
+        const categoryInput = form.querySelector('[data-catalog-category]');
+
+        if (!categoryInput) {
+            return;
+        }
+
+        categoryInput.value = categoryOption.dataset.catalogCategoryOption;
+        updateCategoryOptions(form, categoryInput.value);
+        window.clearTimeout(debounceTimer);
+        submitSearch();
     });
 
     results.addEventListener('click', (event) => {

@@ -24,18 +24,45 @@
                         @error('catatan') <p class="mt-1 text-sm text-rose-700">{{ $message }}</p> @enderror
                     </div>
                 </section>
-                <section class="store-card p-5 sm:p-6">
-                    <h2 class="font-display text-xl font-medium text-botanical-950">Metode pembayaran</h2>
-                    <div class="mt-4 grid gap-3 sm:grid-cols-3">
-                        @foreach ($methods as $value => $label)
-                            <label class="flex min-h-14 cursor-pointer items-center gap-3 rounded-lg border border-line p-4 transition has-[:checked]:border-botanical-500 has-[:checked]:bg-botanical-50">
-                                <input type="radio" name="metode_pembayaran" value="{{ $value }}" @checked(old('metode_pembayaran', 'bank') === $value) required class="border-stone-300 text-botanical-700 focus:ring-botanical-500">
-                                <span class="text-sm font-semibold text-ink">{{ $label }}</span>
-                            </label>
-                        @endforeach
+                <section class="rounded-2xl border border-white/80 bg-[#eff6f0] p-3.5 shadow-sm sm:p-4">
+                    <h2 class="mb-2 text-[10px] font-normal text-[#45654e]">Pilih metode pembayaran yang akan digunakan</h2>
+                    @php($selectedMethod = old('metode_pembayaran', 'tunai'))
+                    <div class="grid gap-1.5">
+                        <details @if (in_array($selectedMethod, array_keys($walletMethods), true)) open @endif class="group rounded-xl bg-[#d7e9dc]">
+                            <summary class="flex min-h-9 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-2.5 py-1 text-xs font-semibold text-[#244d3c] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-botanical-600">
+                                <span class="flex items-center gap-3"><svg aria-hidden="true" class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M16 14h2" stroke-linecap="round"/></svg>E-Wallet</span>
+                                <svg aria-hidden="true" class="h-4 w-4 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="none"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </summary>
+                            <div class="grid gap-1 px-2 pb-2">
+                                @foreach ($walletMethods as $value => $label)
+                                    <label class="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-lg bg-white/70 px-3 py-1.5 text-xs text-ink transition hover:bg-white has-[:checked]:bg-white has-[:checked]:font-semibold">
+                                        <span>{{ $label }}</span>
+                                        <input type="radio" name="metode_pembayaran" value="{{ $value }}" @checked($selectedMethod === $value) required class="border-stone-300 text-botanical-700 focus:ring-botanical-500">
+                                    </label>
+                                @endforeach
+                            </div>
+                        </details>
+                        <label class="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-xl bg-[#d7e9dc] px-2.5 py-1 text-xs font-semibold text-[#244d3c] transition hover:bg-[#cfe4d4] has-[:checked]:ring-1 has-[:checked]:ring-inset has-[:checked]:ring-botanical-600">
+                            <span class="flex items-center gap-3"><svg aria-hidden="true" class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5h.01M17.5 14.5h.01" stroke-linecap="round"/></svg>Tunai</span>
+                            <input type="radio" name="metode_pembayaran" value="tunai" @checked($selectedMethod === 'tunai') required class="border-stone-300 text-botanical-700 focus:ring-botanical-500">
+                        </label>
+                        <details @if (in_array($selectedMethod, array_keys($bankMethods), true)) open @endif class="group rounded-xl bg-[#d7e9dc]">
+                            <summary class="flex min-h-9 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-2.5 py-1 text-xs font-semibold text-[#244d3c] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-botanical-600">
+                                <span class="flex items-center gap-3"><svg aria-hidden="true" class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-5 9 5H3ZM5 19h14M4 21h16M7 10v8m5-8v8m5-8v8"/></svg>Bank</span>
+                                <svg aria-hidden="true" class="h-4 w-4 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="none"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </summary>
+                            <div class="grid gap-1 px-2 pb-2">
+                                @foreach ($bankMethods as $value => $label)
+                                    <label class="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-lg bg-white/70 px-3 py-1.5 text-xs text-ink transition hover:bg-white has-[:checked]:bg-white has-[:checked]:font-semibold">
+                                        <span>{{ $label }}</span>
+                                        <input type="radio" name="metode_pembayaran" value="{{ $value }}" @checked($selectedMethod === $value) required class="border-stone-300 text-botanical-700 focus:ring-botanical-500">
+                                    </label>
+                                @endforeach
+                            </div>
+                        </details>
                     </div>
                     @error('metode_pembayaran') <p class="mt-2 text-sm text-rose-700">{{ $message }}</p> @enderror
-                    <p class="mt-4 text-xs leading-5 text-stone-500">Pesanan dibuat dengan status menunggu pembayaran. Unggah bukti transfer di halaman detail pesanan agar dapat diverifikasi.</p>
+                    <p class="sr-only">Pesanan dibuat dengan status menunggu pembayaran. Unggah bukti transfer di halaman detail pesanan agar dapat diverifikasi.</p>
                 </section>
             </div>
             <aside class="h-fit rounded-xl border border-botanical-200 bg-[#f3f1e8] p-5 sm:p-6">

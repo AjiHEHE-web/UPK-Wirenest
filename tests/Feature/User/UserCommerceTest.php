@@ -28,6 +28,26 @@ test('customers can search available products by name and category', function ()
         ->assertDontSee('Mawar Habis');
 });
 
+test('product detail recommendations include products from other categories', function () {
+    $currentCategory = Category::factory()->create(['name' => 'Mawar']);
+    $otherCategory = Category::factory()->create(['name' => 'Tulip']);
+    $product = Product::factory()->for($currentCategory, 'category')->create(['stock_produk' => 3]);
+    $sameCategoryRecommendation = Product::factory()->for($currentCategory, 'category')->create([
+        'name_produk' => 'Mawar Rekomendasi',
+        'stock_produk' => 3,
+    ]);
+    $otherCategoryRecommendation = Product::factory()->for($otherCategory, 'category')->create([
+        'name_produk' => 'Tulip Rekomendasi',
+        'stock_produk' => 3,
+    ]);
+
+    $this->get(route('user.catalog.show', $product))
+        ->assertOk()
+        ->assertSee('Rekomendasi Bunga')
+        ->assertSee($sameCategoryRecommendation->name_produk)
+        ->assertSee($otherCategoryRecommendation->name_produk);
+});
+
 test('storefront assets use the forwarded HTTPS host when served through a local proxy', function () {
     $customer = User::factory()->create();
 
@@ -157,6 +177,19 @@ test('the cart displays current database prices and recalculates quantity totals
         ->assertSee('Rp 25.001,50');
 });
 
+test('storefront navigation shows a favorites icon and the current cart quantity', function () {
+    $customer = User::factory()->create();
+
+    $this->actingAs($customer)
+        ->withSession(['cart' => ['product-one' => 1, 'product-two' => 2]])
+        ->get(route('user.home'))
+        ->assertOk()
+        ->assertSee('data-favorites-link', false)
+        ->assertSee('data-cart-count', false)
+        ->assertSee('aria-label="Keranjang belanja, 3 item"', false)
+        ->assertSee('>3</span>', false);
+});
+
 test('checkout creates a pending order at database prices and reserves stock atomically', function () {
     $customer = User::factory()->create();
     $product = Product::factory()->create([
@@ -189,6 +222,40 @@ test('checkout creates a pending order at database prices and reserves stock ato
         ->and($payment->metode_pembayaran)->toBe('bank')
         ->and($payment->status_pembayaran)->toBe('pending')
         ->and($product->fresh()->stock_produk)->toBe(2);
+});
+
+test('checkout accepts every displayed payment method', function (string $method) {
+    $customer = User::factory()->create();
+    $product = Product::factory()->create(['stock_produk' => 2]);
+
+    $this->actingAs($customer)
+        ->withSession(['cart' => [$product->id_produk => 1]])
+        ->post(route('user.checkout.store'), [
+            'alamat_pengiriman' => 'Jalan Melati 10',
+            'metode_pembayaran' => $method,
+        ])
+        ->assertSessionHasNoErrors()
+        ->assertRedirect();
+
+    $this->assertDatabaseHas('pembayaran', [
+        'metode_pembayaran' => $method,
+    ]);
+})->with(['dana', 'gopay', 'shopee_pay', 'bri', 'bca', 'tunai']);
+
+test('checkout presents payment methods grouped by wallet, cash, and bank', function () {
+    $customer = User::factory()->create();
+    $product = Product::factory()->create(['stock_produk' => 2]);
+
+    $this->actingAs($customer)
+        ->withSession(['cart' => [$product->id_produk => 1]])
+        ->get(route('user.checkout.create'))
+        ->assertOk()
+        ->assertSee('E-Wallet')
+        ->assertSee('Tunai')
+        ->assertSee('Bank')
+        ->assertSee('ShopeePay')
+        ->assertSee('BRI')
+        ->assertSee('BCA');
 });
 
 test('checkout rejects a quantity that exceeds stock without creating an order', function () {

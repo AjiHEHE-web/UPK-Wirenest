@@ -116,7 +116,6 @@
             <div class="mt-5 flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <p class="store-eyebrow">Detail pesanan</p>
-                    <h1 class="store-title mt-2 break-all text-3xl sm:text-4xl">{{ $order->id_pesanan }}</h1>
                     <p class="mt-2 text-sm text-stone-500">{{ $order->tanggal_pemesanan?->format('d M Y, H:i') ?? 'Tanggal tidak tersedia' }}</p>
                 </div>
                 <span class="rounded-full bg-botanical-50 px-4 py-2 text-sm font-semibold capitalize text-botanical-800">{{ $statusLabels[$order->status_pesanan] ?? $order->status_pesanan }}</span>
@@ -193,7 +192,6 @@
                                 <span @class(['rounded-full px-3 py-1 text-xs font-semibold capitalize', 'bg-amber-50 text-amber-800' => $payment->status_pembayaran === 'pending', 'bg-botanical-50 text-botanical-800' => $payment->status_pembayaran === 'paid', 'bg-rose-50 text-rose-800' => in_array($payment->status_pembayaran, ['failed', 'refunded'], true)])>{{ $payment->status_pembayaran }}</span>
                             </div>
                             <dl class="mt-4 space-y-3 text-sm">
-                                <div class="flex justify-between gap-3"><dt class="text-stone-500">ID Pembayaran</dt><dd class="break-all text-right font-medium text-ink">{{ $payment->id_pembayaran }}</dd></div>
                                 <div class="flex justify-between"><dt class="text-stone-500">Metode</dt><dd class="font-medium uppercase text-ink">{{ $payment->metode_pembayaran }}</dd></div>
                                 <div class="flex justify-between"><dt class="text-stone-500">Jumlah</dt><dd class="font-semibold text-ink">Rp {{ number_format((float) $payment->jumlah, 2, ',', '.') }}</dd></div>
                             </dl>

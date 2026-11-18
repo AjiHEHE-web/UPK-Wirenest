@@ -29,7 +29,8 @@ class CheckoutController extends Controller
             'page' => 'create',
             'items' => $items,
             'total' => $cart->fromMinorUnits($cart->totalCents($items)),
-            'methods' => ['dana' => 'DANA', 'gopay' => 'GoPay', 'bank' => 'Transfer Bank'],
+            'walletMethods' => ['gopay' => 'GoPay', 'dana' => 'DANA', 'shopee_pay' => 'ShopeePay'],
+            'bankMethods' => ['bri' => 'BRI', 'bca' => 'BCA'],
         ]);
     }
 
@@ -38,7 +39,7 @@ class CheckoutController extends Controller
         $validated = $request->validate([
             'alamat_pengiriman' => ['required', 'string', 'max:5000'],
             'catatan' => ['nullable', 'string', 'max:2000'],
-            'metode_pembayaran' => ['required', 'in:dana,gopay,bank'],
+            'metode_pembayaran' => ['required', 'in:dana,gopay,bank,shopee_pay,bri,bca,tunai'],
         ]);
 
         $quantities = $cart->quantities();

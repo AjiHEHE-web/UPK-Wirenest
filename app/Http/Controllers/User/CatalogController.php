@@ -62,9 +62,11 @@ class CatalogController extends Controller
             'relatedProducts' => Product::query()
                 ->select('id_produk', 'id_kategori', 'name_produk', 'harga_produk', 'stock_produk', 'image', 'created_at')
                 ->with('category:id_kategori,name')
-                ->where('id_kategori', $product->id_kategori)
                 ->where('stock_produk', '>', 0)
                 ->whereKeyNot($product->getKey())
+                ->orderByRaw('CASE WHEN id_kategori = ? THEN 0 ELSE 1 END', [$product->id_kategori])
+                ->orderByDesc('created_at')
+                ->orderBy('id_produk')
                 ->limit(4)
                 ->get(),
         ]);

@@ -2,6 +2,29 @@ const cartNotice = document.querySelector('[data-cart-notice]');
 const cartNoticeMessage = cartNotice?.querySelector('[data-cart-notice-message]');
 let cartNoticeTimer;
 
+document.addEventListener('cart:updated', (event) => {
+    const cartLink = document.querySelector('[data-cart-link]');
+    const cartCountBadge = document.querySelector('[data-cart-count]');
+    const cartStatus = document.querySelector('[data-cart-status]');
+    const cartCount = Number(event.detail?.cartCount ?? 0);
+
+    if (!(cartLink instanceof HTMLAnchorElement) || !(cartCountBadge instanceof HTMLElement)) {
+        return;
+    }
+
+    cartCountBadge.textContent = String(cartCount);
+    cartCountBadge.hidden = cartCount < 1;
+    cartCountBadge.classList.toggle('hidden', cartCount < 1);
+    cartLink.setAttribute(
+        'aria-label',
+        cartCount > 0 ? `Keranjang belanja, ${cartCount} item` : 'Keranjang belanja',
+    );
+
+    if (cartStatus instanceof HTMLElement) {
+        cartStatus.textContent = `${cartCount} item di keranjang.`;
+    }
+});
+
 const showCartNotice = (message, isError = false) => {
     if (!(cartNotice instanceof HTMLElement) || !(cartNoticeMessage instanceof HTMLElement)) {
         return;
