@@ -61,7 +61,7 @@ searchForms.forEach((form) => {
         });
     };
 
-    const updateResults = async (url, historyMode = 'replace') => {
+    const updateResults = async (url, historyMode = 'replace', syncForm = false) => {
         activeRequest?.abort();
         const requestController = new AbortController();
         activeRequest = requestController;
@@ -98,7 +98,9 @@ searchForms.forEach((form) => {
             results.innerHTML = nextResults.innerHTML;
             results.removeAttribute('aria-busy');
             refreshRelatedElements(nextDocument);
-            setFormValuesFromUrl(url);
+            if (syncForm) {
+                setFormValuesFromUrl(url);
+            }
 
             if (historyMode === 'push') {
                 window.history.pushState({}, '', url);
@@ -146,6 +148,7 @@ searchForms.forEach((form) => {
 
     form.addEventListener('input', (event) => {
         if (event.target instanceof HTMLInputElement && event.target.type === 'search') {
+            activeRequest?.abort();
             window.clearTimeout(debounceTimer);
             debounceTimer = window.setTimeout(submitSearch, 350);
         }
@@ -192,13 +195,13 @@ searchForms.forEach((form) => {
             && (url.searchParams.has('page') || link.hasAttribute('data-ajax-search-link'))
         ) {
             event.preventDefault();
-            updateResults(url.toString(), 'push');
+            updateResults(url.toString(), 'push', link.hasAttribute('data-ajax-search-link'));
         }
     });
 
     window.addEventListener('popstate', () => {
         if (window.location.pathname === new URL(form.action).pathname) {
-            updateResults(window.location.href, 'none');
+            updateResults(window.location.href, 'none', true);
         }
     });
 });

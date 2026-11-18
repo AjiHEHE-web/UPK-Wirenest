@@ -78,7 +78,7 @@ per satu untuk menemani momen yang ingin Anda kenang.</p>
             </div>
             <div class="motion-stagger mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 @forelse ($featuredProducts as $product)
-                    <x-user.product-card :product="$product" />
+                    <x-user.product-card :product="$product" :is-favorite="in_array($product->id_produk, $favoriteIds, true)" />
                 @empty
                     <p class="col-span-full rounded-[26px] bg-matcha p-8 text-center text-sm text-stone-600">Buket pilihan akan segera hadir.</p>
                 @endforelse

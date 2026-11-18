@@ -177,6 +177,81 @@ test('the cart displays current database prices and recalculates quantity totals
         ->assertSee('Rp 25.001,50');
 });
 
+test('cart quantity updates return the recalculated item and cart totals', function () {
+    $customer = User::factory()->create();
+    $product = Product::factory()->create([
+        'harga_produk' => '12500.75',
+        'stock_produk' => 5,
+    ]);
+
+    $this->actingAs($customer)
+        ->withSession(['cart' => [$product->id_produk => 1]])
+        ->get(route('user.cart.index'))
+        ->assertOk()
+        ->assertSee('data-ajax-cart-update', false)
+        ->assertSee('data-cart-line-subtotal', false)
+        ->assertSee('data-cart-total', false);
+
+    $this->patchJson(route('user.cart.update', $product), ['quantity' => 3])
+        ->assertOk()
+        ->assertJsonPath('quantity', 3)
+        ->assertJsonPath('itemSubtotal', '37502.25')
+        ->assertJsonPath('cartTotal', '37502.25')
+        ->assertJsonPath('cartCount', 3)
+        ->assertSessionHas('cart', [$product->id_produk => 3]);
+});
+
+test('customers can search their order history by order and item details', function () {
+    $customer = User::factory()->create();
+    $category = Category::factory()->create(['name' => 'Anggrek Bulan']);
+    $product = Product::factory()->for($category, 'category')->create([
+        'name_produk' => 'Mawar Kuning',
+        'deskripsi_produk' => 'Buket untuk wisuda',
+        'harga_produk' => '25000.00',
+    ]);
+    $order = Order::factory()->create([
+        'id_user' => $customer->id_user,
+        'status_pesanan' => 'processing',
+        'tanggal_pemesanan' => '2026-11-18 10:00:00',
+        'total_harga' => '25000.00',
+        'alamat_pengiriman' => 'Jalan Melati 20',
+        'catatan' => 'Kirim setelah jam makan siang',
+    ]);
+    OrderItem::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'id_produk' => $product->id_produk,
+        'harga_satuan' => '25000.00',
+        'jumlah' => 2,
+        'subtotal' => '50000.00',
+    ]);
+    Payment::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'metode_pembayaran' => 'dana',
+        'status_pembayaran' => 'pending',
+    ]);
+    $orderCode = strtoupper(substr($order->id_pesanan, 0, 8));
+
+    foreach ([
+        $orderCode,
+        '2026-11-18',
+        'processing',
+        'Jalan Melati',
+        'jam makan siang',
+        '25000',
+        'Mawar Kuning',
+        'wisuda',
+        'Anggrek Bulan',
+        '2',
+        'dana',
+        'pending',
+    ] as $search) {
+        $this->actingAs($customer)
+            ->get(route('user.orders.index', ['search' => $search]))
+            ->assertOk()
+            ->assertSee($orderCode);
+    }
+});
+
 test('storefront navigation shows a favorites icon and the current cart quantity', function () {
     $customer = User::factory()->create();
 

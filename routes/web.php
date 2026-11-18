@@ -23,7 +23,7 @@ Route::get('/', function (UserHomeController $homeController) {
         return redirect()->route('dashboard');
     }
 
-    return $homeController()->with('landingToast', 'Selamat datang di WireNest. Jelajahi buket pilihan kami.');
+    return $homeController(request())->with('landingToast', 'Selamat datang di WireNest. Jelajahi buket pilihan kami.');
 })->name('landing');
 
 Route::get('/ar/{arModel}', [ArExperienceController::class, 'show'])

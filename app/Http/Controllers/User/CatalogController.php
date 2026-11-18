@@ -19,7 +19,7 @@ class CatalogController extends Controller
         ]);
 
         $products = Product::query()
-            ->select('id_produk', 'id_kategori', 'name_produk', 'harga_produk', 'stock_produk', 'image', 'created_at')
+            ->select('id_produk', 'id_kategori', 'name_produk', 'deskripsi_produk', 'harga_produk', 'stock_produk', 'image', 'created_at')
             ->with('category:id_kategori,name')
             ->where('stock_produk', '>', 0)
             ->when($filters['search'] ?? null, function ($query, string $search): void {
@@ -32,7 +32,7 @@ class CatalogController extends Controller
             ->when($filters['category'] ?? null, fn ($query, string $categoryId) => $query->where('id_kategori', $categoryId))
             ->orderByDesc('created_at')
             ->orderBy('id_produk')
-            ->paginate(12)
+            ->paginate(8)
             ->withQueryString();
 
         $favoriteIds = $request->user()
@@ -55,20 +55,30 @@ class CatalogController extends Controller
     {
         $product->load('category');
 
+        $relatedProducts = Product::query()
+            ->select('id_produk', 'id_kategori', 'name_produk', 'deskripsi_produk', 'harga_produk', 'stock_produk', 'image', 'created_at')
+            ->with('category:id_kategori,name')
+            ->where('stock_produk', '>', 0)
+            ->whereKeyNot($product->getKey())
+            ->orderByRaw('CASE WHEN id_kategori = ? THEN 0 ELSE 1 END', [$product->id_kategori])
+            ->orderByDesc('created_at')
+            ->orderBy('id_produk')
+            ->limit(4)
+            ->get();
+
+        $favoriteIds = $request->user()
+            ? $request->user()->favoriteRecords()
+                ->whereIn('id_produk', $relatedProducts->pluck('id_produk'))
+                ->pluck('id_produk')
+                ->all()
+            : [];
+
         return view('pages.user.catalog', [
             'page' => 'show',
             'product' => $product,
             'isFavorite' => $request->user()?->favoriteRecords()->where('id_produk', $product->id_produk)->exists() ?? false,
-            'relatedProducts' => Product::query()
-                ->select('id_produk', 'id_kategori', 'name_produk', 'harga_produk', 'stock_produk', 'image', 'created_at')
-                ->with('category:id_kategori,name')
-                ->where('stock_produk', '>', 0)
-                ->whereKeyNot($product->getKey())
-                ->orderByRaw('CASE WHEN id_kategori = ? THEN 0 ELSE 1 END', [$product->id_kategori])
-                ->orderByDesc('created_at')
-                ->orderBy('id_produk')
-                ->limit(4)
-                ->get(),
+            'relatedProducts' => $relatedProducts,
+            'relatedFavoriteIds' => $favoriteIds,
         ]);
     }
 }

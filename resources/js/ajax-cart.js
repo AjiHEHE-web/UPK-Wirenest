@@ -80,3 +80,93 @@ document.querySelectorAll('form[data-ajax-cart]').forEach((form) => {
         }
     });
 });
+
+document.querySelectorAll('form[data-ajax-cart-update]').forEach((form) => {
+    const quantityInput = form.querySelector('[data-cart-quantity]');
+    const submitButton = form.querySelector('button[type="submit"]');
+    let savedQuantity = quantityInput?.value ?? '';
+    let isUpdating = false;
+
+    if (!(quantityInput instanceof HTMLInputElement)) {
+        return;
+    }
+
+    const updateQuantity = async () => {
+        if (isUpdating || quantityInput.value === savedQuantity) {
+            return;
+        }
+
+        if (!form.reportValidity()) {
+            quantityInput.value = savedQuantity;
+
+            return;
+        }
+
+        isUpdating = true;
+        const formData = new FormData(form);
+
+        if (submitButton instanceof HTMLButtonElement) {
+            submitButton.disabled = true;
+            submitButton.setAttribute('aria-busy', 'true');
+        }
+
+        quantityInput.disabled = true;
+
+        try {
+            const response = await fetch(form.action, {
+                method: form.method || 'POST',
+                body: formData,
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(result.errors?.quantity?.[0] || result.message || 'Jumlah produk gagal diperbarui.');
+            }
+
+            savedQuantity = String(result.quantity);
+            quantityInput.value = savedQuantity;
+
+            const cartItem = form.closest('[data-cart-item]');
+            const itemSubtotal = cartItem?.querySelector('[data-cart-line-subtotal]');
+            const formatter = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 });
+
+            if (itemSubtotal instanceof HTMLElement) {
+                itemSubtotal.textContent = `Rp ${formatter.format(Number(result.itemSubtotal))}`;
+            }
+
+            document.querySelectorAll('[data-cart-total]').forEach((totalElement) => {
+                totalElement.textContent = `Rp ${formatter.format(Number(result.cartTotal))}`;
+            });
+
+            const cartQuantityTotal = document.querySelector('[data-cart-quantity-total]');
+
+            if (cartQuantityTotal instanceof HTMLElement) {
+                cartQuantityTotal.textContent = `${result.cartCount} buket`;
+            }
+
+            document.dispatchEvent(new CustomEvent('cart:updated', { detail: result }));
+            showCartNotice(result.message || 'Jumlah produk diperbarui.');
+        } catch (error) {
+            quantityInput.value = savedQuantity;
+            showCartNotice(error.message || 'Tidak dapat terhubung. Periksa koneksi lalu coba lagi.', true);
+        } finally {
+            quantityInput.disabled = false;
+            isUpdating = false;
+
+            if (submitButton instanceof HTMLButtonElement) {
+                submitButton.disabled = false;
+                submitButton.removeAttribute('aria-busy');
+            }
+        }
+    };
+
+    quantityInput.addEventListener('change', updateQuantity);
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        updateQuantity();
+    });
+});

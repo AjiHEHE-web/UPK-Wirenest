@@ -10,16 +10,6 @@
                 <p class="text-sm font-medium text-botanical-100/80">{{ now()->locale('id')->translatedFormat('l, d F Y') }}</p>
                 <h2 class="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">Selamat datang, {{ auth()->user()->nama ?: auth()->user()->name }}.</h2>
                 <p class="mt-3 max-w-xl text-sm leading-6 text-white/75 sm:text-base">Pantau toko bunga Anda dan kelola pesanan dengan mudah dari satu tempat.</p>
-                <div class="mt-6 flex flex-wrap gap-3">
-                    <a href="{{ route('admin.products.create') }}" class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-botanical-900 transition hover:bg-botanical-50">
-                        @include('pages.admin.partials.icon', ['name' => 'plus', 'class' => 'h-4 w-4'])
-                        Tambah produk
-                    </a>
-                    <a href="{{ route('admin.orders.index') }}" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/25 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
-                        Lihat pesanan
-                        @include('pages.admin.partials.icon', ['name' => 'arrow', 'class' => 'h-4 w-4'])
-                    </a>
-                </div>
             </div>
             <div aria-hidden="true" class="absolute -right-10 -top-20 h-72 w-72 rounded-full border border-white/10"></div>
             <div aria-hidden="true" class="absolute -right-2 -top-12 h-56 w-56 rounded-full border border-white/10"></div>
@@ -115,86 +105,4 @@
         </section>
     </div>
 
-    <section class="mt-6 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
-            <div>
-                <h2 class="text-base font-semibold text-ink">Pesanan terbaru</h2>
-                <p class="mt-1 text-sm text-stone-500">Aktivitas pesanan terbaru dari pelanggan</p>
-            </div>
-            <a href="{{ route('admin.orders.index') }}" class="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-botanical-700 transition hover:bg-botanical-50">
-                Lihat semua
-                @include('pages.admin.partials.icon', ['name' => 'arrow', 'class' => 'h-4 w-4'])
-            </a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[700px] text-left text-sm">
-                <thead class="bg-stone-50/80 text-xs uppercase tracking-wide text-stone-500">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 font-semibold">ID Pesanan</th>
-                        <th scope="col" class="px-6 py-3 font-semibold">Pelanggan</th>
-                        <th scope="col" class="px-6 py-3 font-semibold">Tanggal</th>
-                        <th scope="col" class="px-6 py-3 font-semibold">Total</th>
-                        <th scope="col" class="px-6 py-3 font-semibold">Status</th>
-                        <th scope="col" class="px-6 py-3 text-right font-semibold">Detail</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-line">
-                    @forelse ($recentOrders as $order)
-                        <tr class="transition hover:bg-stone-50/70">
-                            <td class="whitespace-nowrap px-6 py-4 font-semibold text-ink">#{{ Str::limit($order->id_pesanan, 12, '') }}</td>
-                            <td class="px-6 py-4">
-                                <p class="font-medium text-ink">{{ $order->user?->nama ?: $order->user?->name ?: 'Pelanggan' }}</p>
-                                <p class="mt-0.5 text-xs text-stone-500">{{ $order->user?->email }}</p>
-                            </td>
-                            <td class="whitespace-nowrap px-6 py-4 text-stone-600">{{ $order->tanggal_pemesanan?->format('d M Y') ?? '—' }}</td>
-                            <td class="whitespace-nowrap px-6 py-4 font-semibold text-ink">Rp {{ number_format((float) $order->total_harga, 0, ',', '.') }}</td>
-                            <td class="px-6 py-4"><x-admin.status-badge :status="$order->status_pesanan" /></td>
-                            <td class="px-6 py-4 text-right">
-                                <a href="{{ route('admin.orders.show', $order) }}" class="inline-flex min-h-10 items-center gap-2 rounded-lg px-3 text-sm font-semibold text-botanical-700 transition hover:bg-botanical-50">
-                                    <span class="sr-only">Lihat pesanan {{ $order->id_pesanan }}</span>
-                                    @include('pages.admin.partials.icon', ['name' => 'eye', 'class' => 'h-4 w-4'])
-                                </a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="6" class="px-6 py-12 text-center text-sm text-stone-500">Belum ada pesanan untuk ditampilkan.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <section class="mt-6 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
-            <div>
-                <h2 class="text-base font-semibold text-ink">Menunggu verifikasi</h2>
-                <p class="mt-1 text-sm text-stone-500">Pembayaran yang perlu diperiksa</p>
-            </div>
-            <a href="{{ route('admin.transactions.pending') }}" class="inline-flex min-h-10 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-botanical-700 transition hover:bg-botanical-50">
-                Buka pembayaran
-                @include('pages.admin.partials.icon', ['name' => 'arrow', 'class' => 'h-4 w-4'])
-            </a>
-        </div>
-        <div class="divide-y divide-line">
-            @forelse ($pendingPayments as $payment)
-                <div class="flex flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-6">
-                    <div class="flex min-w-0 items-center gap-3">
-                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
-                            @include('pages.admin.partials.icon', ['name' => 'credit-card', 'class' => 'h-5 w-5'])
-                        </span>
-                        <div class="min-w-0">
-                            <p class="truncate text-sm font-semibold text-ink">#{{ Str::limit($payment->id_pembayaran, 12, '') }}</p>
-                            <p class="mt-0.5 truncate text-xs text-stone-500">{{ $payment->order?->user?->nama ?: $payment->order?->user?->name ?: 'Pelanggan' }} · {{ strtoupper($payment->metode_pembayaran) }}</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <span class="text-sm font-semibold text-ink">Rp {{ number_format((float) $payment->jumlah, 0, ',', '.') }}</span>
-                        <a href="{{ route('admin.transactions.pending') }}" class="inline-flex min-h-10 items-center gap-2 rounded-xl border border-line px-3 text-sm font-semibold text-ink transition hover:bg-stone-50">Periksa</a>
-                    </div>
-                </div>
-            @empty
-                <p class="px-6 py-8 text-center text-sm text-stone-500">Tidak ada pembayaran yang menunggu verifikasi.</p>
-            @endforelse
-        </div>
-    </section>
 @endsection

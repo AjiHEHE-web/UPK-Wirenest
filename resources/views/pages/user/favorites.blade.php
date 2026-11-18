@@ -15,41 +15,7 @@
             @forelse ($favorites as $favorite)
                 @if ($favorite->product && $favorite->product->stock_produk > 0)
                     @php($product = $favorite->product)
-                    <article class="store-card group hover:-translate-y-0.5 hover:border-botanical-200 hover:shadow-md">
-                        <a href="{{ route('user.catalog.show', $product) }}" class="block">
-                            <div class="aspect-[4/3] overflow-hidden bg-botanical-50">
-                                @if ($product->image)
-                                    <img src="{{ Storage::disk('public')->url($product->image) }}" alt="{{ $product->name_produk }}" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" decoding="async">
-                                @else
-                                    <div class="flex h-full items-center justify-center text-botanical-300" aria-hidden="true">
-                                        <svg class="h-14 w-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 12c-2-2-2-5 0-7 2 2 2 5 0 7Zm0 0c2-2 5-2 7 0-2 2-5 2-7 0Zm0 0c2 2 2 5 0 7-2-2-2-5 0-7Zm0 0c-2-2-5-2-7 0 2-2 5-2 7 0Z"/><circle cx="12" cy="12" r="1.4"/></svg>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="p-4">
-                                <p class="text-xs font-medium text-stone-500">{{ $product->category?->name ?? 'Rangkaian bunga' }}</p>
-                                <h2 class="mt-1 truncate font-semibold text-ink">{{ $product->name_produk }}</h2>
-                                <p class="mt-2 font-semibold text-botanical-900">Rp {{ number_format((float) $product->harga_produk, 2, ',', '.') }}</p>
-                            </div>
-                        </a>
-                        <div class="flex items-center justify-between border-t border-line px-4 py-3">
-                            <span class="text-xs text-stone-500">{{ $product->stock_produk }} tersedia</span>
-                            <div class="flex items-center gap-2">
-                                <form method="POST" action="{{ route('user.favorites.destroy', $product) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="inline-flex h-11 w-11 items-center justify-center rounded-full text-rose-700 transition hover:bg-rose-50" aria-label="Hapus {{ $product->name_produk }} dari favorit">
-                                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg>
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ route('user.cart.store', $product) }}" data-ajax-cart>
-                                    @csrf
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="store-action store-action-primary min-h-10 px-4 text-xs">Keranjang</button>
-                                </form>
-                            </div>
-                        </div>
-                    </article>
+                    <x-user.product-card :product="$product" :is-favorite="true" />
                 @else
                     <article class="rounded-2xl border border-line bg-matcha p-5">
                         <p class="font-semibold text-ink">{{ $favorite->product?->name_produk ?? 'Produk tidak tersedia' }}</p>

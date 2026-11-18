@@ -14,7 +14,10 @@
             @yield('content')
         </main>
         <footer class="border-t border-line bg-white">
-            <div class="mx-auto max-w-6xl px-4 py-5 text-xs text-stone-500 sm:px-6 lg:px-8">WireNest · Pengalaman AR untuk setiap momen.</div>
+            <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-5 text-xs text-stone-500 sm:px-6 lg:px-8">
+                <img src="{{ asset('images/wirenest-logo-themed.png') }}" alt="" class="h-9 w-9 shrink-0 rounded-full object-cover">
+                <span>WireNest · Pengalaman AR untuk setiap momen.</span>
+            </div>
         </footer>
         @stack('scripts')
     </body>

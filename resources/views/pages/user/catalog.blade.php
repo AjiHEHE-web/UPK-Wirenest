@@ -39,39 +39,7 @@
 
                 <div class="motion-stagger mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     @forelse ($products as $product)
-                        <article class="product-card group relative isolate min-h-[390px] overflow-hidden rounded-[26px] bg-botanical-900 shadow-[0_10px_28px_rgba(31,59,42,.16)] transition duration-300 sm:min-h-[420px]">
-                            <a href="{{ route('user.catalog.show', $product) }}" class="absolute inset-0 flex flex-col justify-end overflow-hidden rounded-[inherit] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-botanical-700">
-                                @if ($product->image)
-                                    <img src="{{ Storage::disk('public')->url($product->image) }}" alt="{{ $product->name_produk }}" class="product-card-photo absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out" loading="lazy" decoding="async">
-                                @else
-                                    <div class="absolute inset-0 flex items-center justify-center text-white/50"><x-application-logo class="h-20 w-20 fill-current" /></div>
-                                @endif
-                                <span class="product-card-shade absolute inset-0 bg-gradient-to-t from-[#14271b]/95 via-[#14271b]/35 to-black/10 transition-colors duration-500" aria-hidden="true"></span>
-                                <span class="absolute left-4 top-4 rounded-full border border-white/30 bg-matcha/90 px-3 py-1.5 text-[11px] font-semibold text-botanical-900 shadow-lg backdrop-blur-sm">Stok: {{ $product->stock_produk }}</span>
-                                @auth
-                                <span class="absolute right-4 top-4 z-20" onclick="event.stopPropagation()">
-                                    @if (in_array($product->id_produk, $favoriteIds, true))
-                                        <form method="POST" action="{{ route('user.favorites.destroy', $product) }}">@csrf @method('DELETE')<button type="submit" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-matcha text-rose-600 shadow-sm" aria-label="Hapus {{ $product->name_produk }} dari favorit"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg></button></form>
-                                    @else
-                                        <form method="POST" action="{{ route('user.favorites.store', $product) }}">@csrf<button type="submit" class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-matcha text-stone-500 shadow-sm transition hover:text-rose-600" aria-label="Tambahkan {{ $product->name_produk }} ke favorit"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m12 21-1.45-1.32C5.4 15.05 2 11.97 2 8.2 2 5.12 4.42 2.7 7.5 2.7c1.74 0 3.41.81 4.5 2.09a6.05 6.05 0 0 1 4.5-2.09c3.08 0 5.5 2.42 5.5 5.5 0 3.77-3.4 6.85-8.55 11.49L12 21Z"/></svg></button></form>
-                                    @endif
-                                </span>
-                                @endauth
-                                <span class="product-card-copy relative block p-5 text-white sm:p-6">
-                                    <span class="mb-2 block text-xs font-semibold uppercase tracking-[0.16em] text-white/75">{{ $product->category?->name ?? 'Buket pilihan' }}</span>
-                                    <span class="block font-display text-2xl font-semibold leading-tight sm:text-[26px]">{{ $product->name_produk }}</span>
-                                    <span class="mt-2 block text-lg font-bold">Rp {{ number_format((float) $product->harga_produk, 0, ',', '.') }}</span>
-                                    <span class="product-card-cta mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-white/35 bg-matcha/15 px-5 text-sm font-semibold text-white shadow-lg backdrop-blur-md transition duration-300 ease-out">Lihat produk</span>
-                                </span>
-                            </a>
-                            @auth
-                            <form method="POST" action="{{ route('user.cart.store', $product) }}" data-ajax-cart class="absolute bottom-5 right-5 z-20 sm:bottom-6 sm:right-6">
-                                @csrf
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/40 bg-matcha/20 text-white shadow-lg backdrop-blur-md transition hover:scale-110 hover:bg-matcha/35" aria-label="Tambah {{ $product->name_produk }} ke keranjang"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 4h2l2 12h11l2-8H6"/><circle cx="9" cy="20" r="1"/><circle cx="17" cy="20" r="1"/></svg></button>
-                            </form>
-                            @endauth
-                        </article>
+                        <x-user.product-card :product="$product" :is-favorite="in_array($product->id_produk, $favoriteIds, true)" />
                     @empty
                         <div class="col-span-full rounded-[26px] border border-dashed border-botanical-300 bg-matcha/80 px-6 py-16 text-center">
                             <h2 class="font-display text-2xl font-semibold text-[#34873a]">Buket belum ditemukan</h2>
@@ -80,7 +48,7 @@
                     @endforelse
                 </div>
                 @if ($products->hasPages())
-                    <div class="mt-8">{{ $products->links() }}</div>
+                    <div class="mt-8"><x-user.pagination :paginator="$products" /></div>
                 @endif
                 </div>
             </div>
@@ -153,7 +121,7 @@
                         </div>
                         <div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
                             @foreach ($relatedProducts as $relatedProduct)
-                                <x-user.product-card :product="$relatedProduct" />
+                                <x-user.product-card :product="$relatedProduct" :is-favorite="in_array($relatedProduct->id_produk, $relatedFavoriteIds, true)" />
                             @endforeach
                         </div>
                     </div>

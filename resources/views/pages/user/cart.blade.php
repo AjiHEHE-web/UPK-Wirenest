@@ -3,7 +3,7 @@
 @section('title', 'Keranjang belanja')
 
 @section('content')
-    <section class="bg-transparent px-4 pb-16 pt-9 sm:px-6 sm:pb-20 lg:px-8">
+    <section data-cart-page class="bg-transparent px-4 pb-16 pt-9 sm:px-6 sm:pb-20 lg:px-8">
         <div class="mx-auto max-w-7xl">
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
@@ -11,7 +11,7 @@
                     <h1 class="mt-2 font-display text-4xl font-semibold text-[#34873a] sm:text-5xl">Keranjang belanja</h1>
                 </div>
                 @if ($items->isNotEmpty())
-                    <p class="text-sm text-stone-600">Meninjau <span class="font-semibold text-botanical-800">{{ $items->sum('quantity') }} buket</span></p>
+                    <p class="text-sm text-stone-600">Meninjau <span data-cart-quantity-total class="font-semibold text-botanical-800">{{ $items->sum('quantity') }} buket</span></p>
                 @endif
             </div>
 
@@ -30,7 +30,7 @@
                         </div>
                         <div class="divide-y divide-line">
                             @foreach ($items as $item)
-                                <article class="relative grid gap-4 px-4 py-5 sm:px-6 md:grid-cols-[minmax(0,1fr)_115px_180px_125px_42px] md:items-center">
+                                <article data-cart-item class="relative grid gap-4 px-4 py-5 sm:px-6 md:grid-cols-[minmax(0,1fr)_115px_180px_125px_42px] md:items-center">
                                     <div class="flex min-w-0 items-center gap-4">
                                         <a href="{{ route('user.catalog.show', $item['product']) }}" class="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-botanical-50 sm:h-24 sm:w-24">
                                             @if ($item['product']->image)
@@ -53,17 +53,16 @@
                                     </div>
                                     <div class="flex items-center justify-between md:justify-center">
                                         <span class="text-xs text-stone-500 md:hidden">Jumlah</span>
-                                        <form method="POST" action="{{ route('user.cart.update', $item['product']) }}" class="flex items-center gap-1 rounded-full bg-[#fff8c9] p-1">
+                                        <form method="POST" action="{{ route('user.cart.update', $item['product']) }}" data-ajax-cart-update class="flex items-center gap-1 rounded-full bg-[#fff8c9] p-1">
                                             @csrf
                                             @method('PATCH')
                                             <label for="quantity-{{ $item['product']->id_produk }}" class="sr-only">Jumlah {{ $item['product']->name_produk }}</label>
-                                            <input id="quantity-{{ $item['product']->id_produk }}" name="quantity" type="number" min="1" max="99" value="{{ $item['quantity'] }}" class="h-9 w-14 rounded-full border-0 bg-transparent p-0 text-center text-sm font-semibold text-ink focus:ring-2 focus:ring-botanical-500">
-                                            <button type="submit" class="inline-flex min-h-9 items-center rounded-full px-2 text-[11px] font-semibold text-botanical-800 transition hover:bg-matcha" aria-label="Perbarui jumlah">Perbarui</button>
+                                            <input id="quantity-{{ $item['product']->id_produk }}" name="quantity" type="number" min="1" max="99" value="{{ $item['quantity'] }}" data-cart-quantity class="h-9 w-14 rounded-full border-0 bg-transparent p-0 text-center text-sm font-semibold text-ink focus:ring-2 focus:ring-botanical-500">
                                         </form>
                                     </div>
                                     <div class="flex items-center justify-between text-sm md:block md:text-right">
                                         <span class="text-xs text-stone-500 md:hidden">Subtotal</span>
-                                        <span class="font-bold text-[#34873a]">Rp {{ number_format((float) $item['subtotal'], 0, ',', '.') }}</span>
+                                        <span data-cart-line-subtotal class="font-bold text-[#34873a]">Rp {{ number_format((float) $item['subtotal'], 0, ',', '.') }}</span>
                                     </div>
                                     <form method="POST" action="{{ route('user.cart.destroy', $item['product']) }}" class="absolute right-4 top-5 md:static md:justify-self-end">
                                         @csrf
@@ -88,12 +87,12 @@
                             <svg class="h-5 w-5 text-botanical-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
                         </div>
                         <div class="mt-5 space-y-4 text-sm">
-                            <div class="flex justify-between gap-3"><span class="text-stone-600">Subtotal</span><span class="font-semibold text-ink">Rp {{ number_format((float) $total, 0, ',', '.') }}</span></div>
+                            <div class="flex justify-between gap-3"><span class="text-stone-600">Subtotal</span><span data-cart-total class="font-semibold text-ink">Rp {{ number_format((float) $total, 0, ',', '.') }}</span></div>
                             <div class="flex justify-between gap-3"><span class="text-stone-600">Pengiriman</span><span class="rounded-full bg-[#fff8c9] px-2 py-0.5 text-xs font-semibold text-[#a8942f]">Dihitung saat checkout</span></div>
                         </div>
                         <div class="mt-5 rounded-2xl bg-[#dff1d9] px-4 py-4">
                             <p class="text-[11px] font-semibold uppercase tracking-wide text-botanical-800">Total sementara</p>
-                            <p class="mt-1 text-2xl font-bold text-[#34873a]">Rp {{ number_format((float) $total, 0, ',', '.') }}</p>
+                            <p data-cart-total class="mt-1 text-2xl font-bold text-[#34873a]">Rp {{ number_format((float) $total, 0, ',', '.') }}</p>
                         </div>
                         <p class="mt-3 text-xs leading-5 text-stone-500">Total akhir dihitung kembali berdasarkan harga, stok, dan pengiriman saat checkout.</p>
                         <a href="{{ route('user.checkout.create') }}" class="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#34873a] px-5 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(65,95,72,.18)] transition hover:bg-botanical-800">Lanjut ke checkout <span aria-hidden="true">→</span></a>

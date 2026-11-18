@@ -42,13 +42,27 @@ class CartController extends Controller
         return redirect()->route('user.cart.index')->with('success', 'Produk ditambahkan ke keranjang.');
     }
 
-    public function update(Request $request, Product $product, CartService $cart): RedirectResponse
+    public function update(Request $request, Product $product, CartService $cart): RedirectResponse|JsonResponse
     {
         $validated = $request->validate([
             'quantity' => ['required', 'integer', 'min:1', 'max:99'],
         ]);
 
         $cart->update($product, (int) $validated['quantity']);
+
+        if ($request->expectsJson()) {
+            $items = $cart->rows();
+            $cartItem = $items->first(fn (array $item): bool => $item['product']->is($product));
+
+            return response()->json([
+                'message' => 'Jumlah produk diperbarui.',
+                'productId' => $product->id_produk,
+                'quantity' => $cart->quantities()[$product->id_produk],
+                'itemSubtotal' => $cartItem['subtotal'],
+                'cartTotal' => $cart->fromMinorUnits($cart->totalCents($items)),
+                'cartCount' => array_sum($cart->quantities()),
+            ]);
+        }
 
         return redirect()->route('user.cart.index')->with('success', 'Jumlah produk diperbarui.');
     }

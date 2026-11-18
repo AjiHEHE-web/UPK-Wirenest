@@ -20,9 +20,48 @@ class OrderController extends Controller
             'status' => ['nullable', Rule::in(['all', 'active', 'archived'])],
         ]);
 
-        $ordersQuery = $request->user()
-            ->orders()
-            ->when($filters['search'] ?? null, fn ($query, string $search) => $query->where('id_pesanan', 'like', '%'.$search.'%'));
+        $search = trim($filters['search'] ?? '');
+        $searchTerm = '%'.$search.'%';
+        $statusSearchTerms = [
+            'pending' => ['pending', 'menunggu'],
+            'processing' => ['processing', 'diproses'],
+            'shipped' => ['shipped', 'dikirim'],
+            'completed' => ['completed', 'selesai'],
+            'cancelled' => ['cancelled', 'dibatalkan'],
+        ];
+        $matchingStatuses = collect($statusSearchTerms)
+            ->filter(fn (array $labels, string $status): bool => collect([$status, ...$labels])
+                ->contains(fn (string $label): bool => str_contains(mb_strtolower($label), mb_strtolower($search))))
+            ->keys()
+            ->all();
+
+        $ordersQuery = $request->user()->orders()->when($search !== '', function ($query) use ($matchingStatuses, $searchTerm): void {
+            $query->where(function ($query) use ($matchingStatuses, $searchTerm): void {
+                $query->where('id_pesanan', 'like', $searchTerm)
+                    ->orWhere('tanggal_pemesanan', 'like', $searchTerm)
+                    ->orWhere('status_pesanan', 'like', $searchTerm)
+                    ->orWhereIn('status_pesanan', $matchingStatuses)
+                    ->orWhere('total_harga', 'like', $searchTerm)
+                    ->orWhere('alamat_pengiriman', 'like', $searchTerm)
+                    ->orWhere('catatan', 'like', $searchTerm)
+                    ->orWhereHas('items', function ($query) use ($searchTerm): void {
+                        $query->where('jumlah', 'like', $searchTerm)
+                            ->orWhere('harga_satuan', 'like', $searchTerm)
+                            ->orWhere('subtotal', 'like', $searchTerm)
+                            ->orWhereHas('product', function ($query) use ($searchTerm): void {
+                                $query->where('name_produk', 'like', $searchTerm)
+                                    ->orWhere('deskripsi_produk', 'like', $searchTerm)
+                                    ->orWhereHas('category', fn ($query) => $query->where('name', 'like', $searchTerm));
+                            });
+                    })
+                    ->orWhereHas('payments', function ($query) use ($searchTerm): void {
+                        $query->where('metode_pembayaran', 'like', $searchTerm)
+                            ->orWhere('jumlah', 'like', $searchTerm)
+                            ->orWhere('status_pembayaran', 'like', $searchTerm)
+                            ->orWhere('bukti_pembayaran', 'like', $searchTerm);
+                    });
+            });
+        });
 
         $orderCounts = [
             'all' => (clone $ordersQuery)->count(),
@@ -36,7 +75,7 @@ class OrderController extends Controller
             ->when(($filters['status'] ?? null) === 'archived', fn ($query) => $query->whereIn('status_pesanan', ['completed', 'cancelled']))
             ->orderByDesc('tanggal_pemesanan')
             ->orderByDesc('created_at')
-            ->paginate(10)
+            ->paginate(4)
             ->withQueryString();
 
         return view('pages.user.orders', [

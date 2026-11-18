@@ -29,9 +29,9 @@
                 </div>
 
                 <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-                    <nav id="user-order-status-filters" data-ajax-refresh aria-label="Filter status pesanan" class="inline-flex flex-wrap gap-1 rounded-full bg-[#fff5f8] p-1.5">
+                    <nav id="user-order-status-filters" data-ajax-refresh aria-label="Filter status pesanan" class="inline-flex flex-wrap gap-1 rounded-full border border-botanical-200 bg-white p-1.5 shadow-sm">
                         @foreach (['all' => 'Semua', 'active' => 'Aktif', 'archived' => 'Selesai'] as $status => $label)
-                            <a href="{{ route('user.orders.index', array_filter(['search' => $filters['search'] ?? null, 'status' => $status === 'all' ? null : $status])) }}" @class(['inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition', 'bg-matcha text-botanical-800 shadow-sm' => ($filters['status'] ?? 'all') === $status, 'text-stone-600 hover:bg-matcha/70' => ($filters['status'] ?? 'all') !== $status]) @if (($filters['status'] ?? 'all') === $status) aria-current="page" @endif>
+                            <a href="{{ route('user.orders.index', array_filter(['search' => $filters['search'] ?? null, 'status' => $status === 'all' ? null : $status])) }}" @class(['inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition', 'bg-botanical-800 text-white shadow-sm' => ($filters['status'] ?? 'all') === $status, 'text-botanical-900 hover:bg-botanical-50' => ($filters['status'] ?? 'all') !== $status]) @if (($filters['status'] ?? 'all') === $status) aria-current="page" @endif>
                                 {{ $label }} <span class="text-xs opacity-75">{{ $orderCounts[$status] }}</span>
                             </a>
                         @endforeach
@@ -39,11 +39,10 @@
                     <span class="inline-flex items-center gap-2 text-xs text-stone-600"><svg class="h-4 w-4 text-botanical-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg> Pengiriman standar: 2–3 hari kerja</span>
                 </div>
 
-                <form method="GET" action="{{ route('user.orders.index') }}" data-ajax-search data-ajax-results="user-orders-results" class="mt-5 flex max-w-xl gap-2 rounded-full bg-matcha p-2 shadow-sm">
-                    <label for="order-search" class="sr-only">Cari berdasarkan ID pesanan</label>
-                    <input id="order-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari nomor pesanan..." class="h-10 min-w-0 flex-1 rounded-full border-0 bg-transparent px-3 text-sm focus:ring-0">
+                <form method="GET" action="{{ route('user.orders.index') }}" data-ajax-search data-ajax-results="user-orders-results" class="mt-5 flex max-w-xl gap-2 rounded-full border border-botanical-200 bg-white p-2 shadow-sm">
+                    <label for="order-search" class="sr-only">Cari pesanan, produk, alamat, atau pembayaran</label>
+                    <input id="order-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari pesanan, produk, alamat..." class="h-10 min-w-0 flex-1 rounded-full border-0 bg-transparent px-3 text-sm text-ink placeholder:text-stone-500 focus:ring-0">
                     @if (($filters['status'] ?? 'all') !== 'all')<input type="hidden" name="status" value="{{ $filters['status'] }}">@endif
-                    <button type="submit" class="inline-flex min-h-10 items-center justify-center rounded-full bg-[#34873a] px-5 text-sm font-semibold text-white transition hover:bg-botanical-800">Cari</button>
                 </form>
 
                 <div id="user-orders-results" data-ajax-results aria-live="polite">
@@ -53,7 +52,7 @@
                             $payment = $order->payments->sortByDesc('created_at')->first();
                             $firstItem = $order->items->first();
                         @endphp
-                        <article class="rounded-[26px] bg-matcha p-4 shadow-[0_8px_24px_rgba(47,75,55,.06)] sm:p-6">
+                        <article class="rounded-[26px] border border-botanical-200 bg-white p-4 shadow-[0_12px_30px_rgba(28,73,33,.12)] sm:p-6">
                             <div class="flex flex-wrap items-center justify-between gap-3">
                                 <div class="flex flex-wrap items-center gap-2 text-sm">
                                     <span class="rounded-full bg-[#fdf0f4] px-3 py-1.5 font-semibold text-botanical-800">#{{ strtoupper(substr($order->id_pesanan, 0, 8)) }}</span>
@@ -88,7 +87,7 @@
                             </div>
                         </article>
                     @empty
-                        <div class="rounded-[26px] bg-matcha px-6 py-16 text-center shadow-sm">
+                        <div class="rounded-[26px] border border-botanical-200 bg-white px-6 py-16 text-center shadow-[0_12px_30px_rgba(28,73,33,.12)]">
                             <h2 class="font-display text-2xl font-semibold text-[#34873a]">Belum ada pesanan di sini</h2>
                             <p class="mt-2 text-sm text-stone-600">Pesanan Anda akan tampil di sini setelah checkout.</p>
                             <a href="{{ route('user.catalog.index') }}" class="mt-6 inline-flex min-h-11 items-center justify-center rounded-full bg-[#34873a] px-6 text-sm font-semibold text-white">Mulai belanja</a>
@@ -96,7 +95,7 @@
                     @endforelse
                 </div>
 
-                @if ($orders->hasPages())<div class="mt-7">{{ $orders->links() }}</div>@endif
+                @if ($orders->hasPages())<div class="mt-7"><x-user.pagination :paginator="$orders" /></div>@endif
                 </div>
 
                 <div class="mt-10 flex flex-col items-start justify-between gap-5 rounded-[28px] bg-[#84a587] p-6 text-white sm:flex-row sm:items-center sm:px-8 sm:py-7">

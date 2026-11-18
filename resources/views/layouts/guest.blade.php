@@ -19,7 +19,7 @@
             <div class="w-full max-w-6xl">
                 <header class="mb-5 flex items-center justify-between px-1">
                     <a href="/" aria-label="WireNest, beranda" class="flex min-h-11 items-center gap-3 rounded-lg">
-                        <x-application-logo class="h-9 w-9 fill-current text-botanical-700" />
+                        <img src="{{ asset('images/wirenest-logo-themed.png') }}" alt="" class="h-9 w-9 shrink-0 rounded-full object-cover">
                         <span class="text-lg font-bold tracking-tight text-botanical-900">WireNest</span>
                     </a>
                     <span class="hidden text-[11px] font-semibold uppercase tracking-[0.2em] text-botanical-800/60 sm:block">

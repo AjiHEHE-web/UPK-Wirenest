@@ -53,7 +53,7 @@
             <div class="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-5 lg:gap-14 lg:px-8">
                 <div class="flex flex-col items-start lg:col-span-2">
                     <a href="{{ route('user.home') }}" class="inline-flex items-center gap-3 text-botanical-800" aria-label="WireNest, kembali ke beranda">
-                        <x-application-logo class="h-12 w-12 fill-current" />
+                        <img src="{{ asset('images/wirenest-logo-themed.png') }}" alt="" class="h-12 w-12 shrink-0 rounded-full object-cover">
                         <span>
                             <span class="block font-display text-xl font-semibold leading-none">WireNest</span>
                             <span class="mt-1 block text-[9px] font-medium tracking-[0.13em] text-stone-600">ARTISANAL CHENILLE STEMS</span>
