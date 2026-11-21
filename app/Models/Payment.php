@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Payment extends Model
 {
@@ -34,6 +33,10 @@ class Payment extends Model
         'paid_at',
         'id_admin_verifikator',
         'verified_at',
+        'id_pengembalian_dana',
+        'bukti_pengembalian',
+        'id_admin_pemroses',
+        'processed_at',
     ];
 
     protected function casts(): array
@@ -42,6 +45,7 @@ class Payment extends Model
             'jumlah' => 'decimal:2',
             'paid_at' => 'datetime',
             'verified_at' => 'datetime',
+            'processed_at' => 'datetime',
         ];
     }
 
@@ -64,8 +68,8 @@ class Payment extends Model
         return $this->belongsTo(User::class, 'id_admin_verifikator', 'id_user');
     }
 
-    public function refund(): HasOne
+    public function processor(): BelongsTo
     {
-        return $this->hasOne(Refund::class, 'id_pembayaran', 'id_pembayaran');
+        return $this->belongsTo(User::class, 'id_admin_pemroses', 'id_user');
     }
 }

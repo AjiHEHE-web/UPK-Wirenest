@@ -34,10 +34,10 @@
     <section class="mt-6 overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
         <form method="GET" action="{{ route('admin.orders.index') }}" data-ajax-search data-ajax-results="admin-orders-results" class="grid gap-3 border-b border-line p-4 sm:grid-cols-[1fr_220px_auto] sm:items-end sm:px-6">
             <div>
-                <label for="order-search" class="mb-1.5 block text-xs font-semibold text-stone-600">Cari pesanan atau pelanggan</label>
+                <label for="order-search" class="mb-1.5 block text-xs font-semibold text-stone-600">Cari pesanan, pelanggan, atau produk</label>
                 <div class="relative">
                     <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-stone-400">@include('pages.admin.partials.icon', ['name' => 'search', 'class' => 'h-4 w-4'])</span>
-                    <input id="order-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="ID pesanan, nama, email..." class="h-11 w-full rounded-xl border-line bg-stone-50 pl-10 text-sm focus:border-botanical-500 focus:bg-white focus:ring-botanical-500">
+                    <input id="order-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="ID pesanan, nama, username, email, atau produk..." class="h-11 w-full rounded-xl border-line bg-stone-50 pl-10 text-sm focus:border-botanical-500 focus:bg-white focus:ring-botanical-500">
                 </div>
             </div>
             <div>

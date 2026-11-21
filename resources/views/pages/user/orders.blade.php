@@ -39,9 +39,10 @@
                     <span class="inline-flex items-center gap-2 text-xs text-stone-600"><svg class="h-4 w-4 text-botanical-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg> Pengiriman standar: 2–3 hari kerja</span>
                 </div>
 
-                <form method="GET" action="{{ route('user.orders.index') }}" data-ajax-search data-ajax-results="user-orders-results" class="mt-5 flex max-w-xl gap-2 rounded-full border border-botanical-200 bg-white p-2 shadow-sm">
+                <form method="GET" action="{{ route('user.orders.index') }}" data-ajax-search data-ajax-results="user-orders-results" class="mt-5 flex w-full items-center gap-3 rounded-[26px] border border-botanical-200 bg-white p-3 shadow-[0_12px_30px_rgba(28,73,33,.12)] sm:p-4">
                     <label for="order-search" class="sr-only">Cari pesanan, produk, alamat, atau pembayaran</label>
-                    <input id="order-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari pesanan, produk, alamat..." class="h-10 min-w-0 flex-1 rounded-full border-0 bg-transparent px-3 text-sm text-ink placeholder:text-stone-500 focus:ring-0">
+                    <svg class="ml-2 h-5 w-5 shrink-0 text-botanical-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+                    <input id="order-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari pesanan, produk, alamat..." class="h-11 min-w-0 flex-1 rounded-2xl border-0 bg-botanical-50/70 px-4 text-sm text-ink placeholder:text-stone-500 focus:bg-white focus:ring-2 focus:ring-botanical-200">
                     @if (($filters['status'] ?? 'all') !== 'all')<input type="hidden" name="status" value="{{ $filters['status'] }}">@endif
                 </form>
 
@@ -83,7 +84,7 @@
                                     <p class="mt-1 text-xl font-bold text-[#34873a]">Rp {{ number_format((float) $order->total_harga, 0, ',', '.') }}</p>
                                     @if ($payment)<p class="mt-1 text-xs text-stone-500">Pembayaran {{ ucfirst($payment->status_pembayaran) }}</p>@endif
                                 </div>
-                                <a href="{{ route('user.orders.show', $order) }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#f9e5ec] px-5 text-sm font-semibold text-[#3a2a31] transition hover:bg-[#f4d9e2]">Lihat detail <span aria-hidden="true">→</span></a>
+                                <a href="{{ route('user.orders.show', $order) }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#34873a] px-5 text-sm font-semibold text-white transition hover:bg-botanical-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-botanical-700">Lihat detail <span aria-hidden="true">→</span></a>
                             </div>
                         </article>
                     @empty

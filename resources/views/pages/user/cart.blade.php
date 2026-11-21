@@ -88,13 +88,12 @@
                         </div>
                         <div class="mt-5 space-y-4 text-sm">
                             <div class="flex justify-between gap-3"><span class="text-stone-600">Subtotal</span><span data-cart-total class="font-semibold text-ink">Rp {{ number_format((float) $total, 0, ',', '.') }}</span></div>
-                            <div class="flex justify-between gap-3"><span class="text-stone-600">Pengiriman</span><span class="rounded-full bg-[#fff8c9] px-2 py-0.5 text-xs font-semibold text-[#a8942f]">Dihitung saat checkout</span></div>
                         </div>
                         <div class="mt-5 rounded-2xl bg-[#dff1d9] px-4 py-4">
                             <p class="text-[11px] font-semibold uppercase tracking-wide text-botanical-800">Total sementara</p>
                             <p data-cart-total class="mt-1 text-2xl font-bold text-[#34873a]">Rp {{ number_format((float) $total, 0, ',', '.') }}</p>
                         </div>
-                        <p class="mt-3 text-xs leading-5 text-stone-500">Total akhir dihitung kembali berdasarkan harga, stok, dan pengiriman saat checkout.</p>
+                        <p class="mt-3 text-xs leading-5 text-stone-500">Total akhir dihitung kembali berdasarkan harga dan stok saat checkout.</p>
                         <a href="{{ route('user.checkout.create') }}" class="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#34873a] px-5 text-sm font-semibold text-white shadow-[0_6px_16px_rgba(65,95,72,.18)] transition hover:bg-botanical-800">Lanjut ke checkout <span aria-hidden="true">→</span></a>
                         <a href="{{ route('user.catalog.index') }}" class="mt-3 inline-flex min-h-11 w-full items-center justify-center text-sm font-semibold text-stone-600 transition hover:text-botanical-800">← Lanjut belanja</a>
                         <div class="mt-5 flex justify-center gap-5 border-t border-line pt-4 text-[11px] font-medium text-stone-500"><span>✓ Dikemas aman</span><span>✦ Tahan lama</span></div>

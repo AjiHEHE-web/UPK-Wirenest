@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
-use App\Models\Refund;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,14 +24,15 @@ class RefundController extends Controller
             ->with(['order.user'])
             ->paidWithApprovedProof()
             ->whereHas('order', fn ($query) => $query->where('status_pesanan', 'cancelled'))
-            ->whereDoesntHave('refund')
+            ->whereNull('bukti_pengembalian')
             ->latest('paid_at')
             ->latest('id_pembayaran')
             ->paginate(10, ['*'], 'pending_page')
             ->withQueryString();
 
-        $completedRefunds = Refund::query()
-            ->with(['payment.order.user', 'processor'])
+        $completedRefunds = Payment::query()
+            ->with(['order.user', 'processor'])
+            ->whereNotNull('bukti_pengembalian')
             ->latest('processed_at')
             ->paginate(10, ['*'], 'completed_page')
             ->withQueryString();
@@ -73,7 +73,7 @@ class RefundController extends Controller
                         ->whereKey($lockedPayment->getKey())
                         ->exists()
                     || $order->status_pesanan !== 'cancelled'
-                    || $lockedPayment->refund()->exists()
+                    || $lockedPayment->bukti_pengembalian !== null
                 ) {
                     throw ValidationException::withMessages([
                         'bukti_pengembalian' => 'Pembayaran ini tidak memenuhi syarat untuk diproses sebagai pengembalian dana.',
@@ -82,17 +82,13 @@ class RefundController extends Controller
 
                 $processedAt = now();
 
-                Refund::query()->create([
+                $lockedPayment->update([
                     'id_pengembalian_dana' => (string) Str::uuid(),
-                    'id_pembayaran' => $lockedPayment->id_pembayaran,
-                    'jumlah' => $lockedPayment->jumlah,
                     'bukti_pengembalian' => $proofPath,
                     'id_admin_pemroses' => $request->user()->id_user,
                     'processed_at' => $processedAt,
+                    'status_pembayaran' => 'refunded',
                 ]);
-
-                $lockedPayment->status_pembayaran = 'refunded';
-                $lockedPayment->save();
             });
         } catch (Throwable $exception) {
             Storage::disk('local')->delete($proofPath);
@@ -103,10 +99,11 @@ class RefundController extends Controller
         return back()->with('success', 'Pengembalian dana berhasil dicatat.');
     }
 
-    public function proof(Refund $refund): StreamedResponse
+    public function proof(Payment $payment): StreamedResponse
     {
-        abort_unless(Storage::disk('local')->exists($refund->bukti_pengembalian), 404);
+        abort_unless(is_string($payment->bukti_pengembalian), 404);
+        abort_unless(Storage::disk('local')->exists($payment->bukti_pengembalian), 404);
 
-        return Storage::disk('local')->response($refund->bukti_pengembalian);
+        return Storage::disk('local')->response($payment->bukti_pengembalian);
     }
 }

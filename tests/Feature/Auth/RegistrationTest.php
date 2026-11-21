@@ -30,8 +30,9 @@ test('new users can register', function () {
         'password_confirmation' => 'password',
     ]);
 
-    $this->assertAuthenticated();
-    $response->assertRedirect(route('user.home', absolute: false));
+    $this->assertGuest();
+    $response->assertRedirect(route('login', absolute: false))
+        ->assertSessionHas('status', 'Registrasi berhasil. Silakan masuk dengan akun Anda.');
 });
 
 test('registration requires phone number and address', function () {

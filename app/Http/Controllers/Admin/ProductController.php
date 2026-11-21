@@ -127,19 +127,29 @@ class ProductController extends Controller
 
     public function destroy(Product $product): RedirectResponse
     {
-        if ($product->orderItems()->exists() || DB::table('favorites')->where('id_produk', $product->id_produk)->exists()) {
-            return back()->with('error', 'Produk yang sudah digunakan pada pesanan atau favorit tidak dapat dihapus.');
+        $hasIncompleteOrders = $product->orderItems()
+            ->whereHas('order', fn ($query) => $query->where('status_pesanan', '!=', 'completed'))
+            ->exists();
+
+        if ($hasIncompleteOrders || DB::table('favorites')->where('id_produk', $product->id_produk)->exists()) {
+            return back()->with('error', 'Produk hanya dapat dihapus setelah semua pesanan selesai dan tidak lagi disimpan sebagai favorit.');
         }
 
         $image = $product->image;
         $arModelPath = $product->arModel?->image_ar;
-        $product->delete();
+        $hasCompletedOrders = $product->orderItems()->exists();
 
-        if ($image !== null) {
+        if ($hasCompletedOrders) {
+            $product->delete();
+        } else {
+            $product->forceDelete();
+        }
+
+        if (! $hasCompletedOrders && $image !== null) {
             Storage::disk('public')->delete($image);
         }
 
-        if ($arModelPath !== null) {
+        if ($arModelPath !== null && ! $hasCompletedOrders) {
             Storage::disk('public')->delete($arModelPath);
         }
 

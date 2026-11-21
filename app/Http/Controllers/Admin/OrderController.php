@@ -37,8 +37,15 @@ class OrderController extends Controller
                     $query->where('id_pesanan', 'like', '%'.$search.'%')
                         ->orWhereHas('user', function ($userQuery) use ($search): void {
                             $userQuery->where('nama', 'like', '%'.$search.'%')
-                                ->orWhere('name', 'like', '%'.$search.'%')
+                                ->orWhere('username', 'like', '%'.$search.'%')
                                 ->orWhere('email', 'like', '%'.$search.'%');
+                        })
+                        ->orWhereHas('items.product', function ($productQuery) use ($search): void {
+                            $productQuery->where('id_produk', 'like', '%'.$search.'%')
+                                ->orWhere('name_produk', 'like', '%'.$search.'%')
+                                ->orWhere('deskripsi_produk', 'like', '%'.$search.'%')
+                                ->orWhere('harga_produk', 'like', '%'.$search.'%')
+                                ->orWhereHas('category', fn ($categoryQuery) => $categoryQuery->where('name', 'like', '%'.$search.'%'));
                         });
                 });
             })

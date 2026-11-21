@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +19,27 @@ test('regular users cannot open the admin dashboard', function () {
     $this->actingAs($user)
         ->get(route('admin.dashboard'))
         ->assertForbidden();
+});
+
+test('admins can search orders by product details', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['role' => 'admin'])->save();
+    $customer = User::factory()->create();
+    $product = Product::factory()->create([
+        'name_produk' => 'Buket Matahari Ceria',
+        'deskripsi_produk' => 'Rangkaian untuk hadiah kelulusan.',
+    ]);
+    $order = Order::factory()->create(['id_user' => $customer->id_user]);
+    OrderItem::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'id_produk' => $product->id_produk,
+    ]);
+    $product->delete();
+
+    $this->actingAs($admin)
+        ->get(route('admin.orders.index', ['search' => 'Matahari Ceria']))
+        ->assertOk()
+        ->assertSee(substr($order->id_pesanan, 0, 12));
 });
 
 test('admins can log in with their username and are sent to the admin dashboard', function () {
@@ -358,6 +381,100 @@ test('admins cannot delete products saved as customer favorites', function () {
         ->assertSessionHas('error');
 
     $this->assertDatabaseHas('products', ['id_produk' => 'product-1']);
+});
+
+test('admins can delete products after all referencing orders are completed', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['role' => 'admin'])->save();
+    $customer = User::factory()->create();
+
+    DB::table('kategori')->insert([
+        'id_kategori' => 'category-1',
+        'name' => 'Buket',
+    ]);
+
+    DB::table('products')->insert([
+        'id_produk' => 'product-1',
+        'id_kategori' => 'category-1',
+        'name_produk' => 'Buket Selesai',
+        'harga_produk' => 100000,
+        'stock_produk' => 4,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    DB::table('pesanan')->insert([
+        'id_pesanan' => 'order-1',
+        'id_user' => $customer->id_user,
+        'tanggal_pemesanan' => now(),
+        'total_harga' => 100000,
+        'status_pesanan' => 'completed',
+        'created_at' => now(),
+    ]);
+
+    DB::table('detail_pesanan')->insert([
+        'id_detail_pesanan' => 'order-item-1',
+        'id_pesanan' => 'order-1',
+        'id_produk' => 'product-1',
+        'harga_satuan' => 100000,
+        'jumlah' => 1,
+        'subtotal' => 100000,
+    ]);
+
+    $this->actingAs($admin)
+        ->delete(route('admin.products.destroy', 'product-1'))
+        ->assertRedirect(route('admin.products.index'));
+
+    $this->assertSoftDeleted('products', ['id_produk' => 'product-1']);
+    $this->assertDatabaseHas('detail_pesanan', ['id_produk' => 'product-1']);
+    expect(OrderItem::query()->firstOrFail()->product->name_produk)->toBe('Buket Selesai');
+});
+
+test('admins cannot delete products while a referencing order is incomplete', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['role' => 'admin'])->save();
+    $customer = User::factory()->create();
+
+    DB::table('kategori')->insert([
+        'id_kategori' => 'category-1',
+        'name' => 'Buket',
+    ]);
+
+    DB::table('products')->insert([
+        'id_produk' => 'product-1',
+        'id_kategori' => 'category-1',
+        'name_produk' => 'Buket Aktif',
+        'harga_produk' => 100000,
+        'stock_produk' => 4,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    DB::table('pesanan')->insert([
+        'id_pesanan' => 'order-1',
+        'id_user' => $customer->id_user,
+        'tanggal_pemesanan' => now(),
+        'total_harga' => 100000,
+        'status_pesanan' => 'shipped',
+        'created_at' => now(),
+    ]);
+
+    DB::table('detail_pesanan')->insert([
+        'id_detail_pesanan' => 'order-item-1',
+        'id_pesanan' => 'order-1',
+        'id_produk' => 'product-1',
+        'harga_satuan' => 100000,
+        'jumlah' => 1,
+        'subtotal' => 100000,
+    ]);
+
+    $this->actingAs($admin)
+        ->from(route('admin.products.show', 'product-1'))
+        ->delete(route('admin.products.destroy', 'product-1'))
+        ->assertRedirect(route('admin.products.show', 'product-1'))
+        ->assertSessionHas('error');
+
+    $this->assertDatabaseHas('products', ['id_produk' => 'product-1', 'deleted_at' => null]);
 });
 
 test('admins cannot skip order processing steps', function () {

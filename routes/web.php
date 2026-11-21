@@ -85,7 +85,7 @@ Route::prefix('admin')
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
         Route::get('/refunds', [AdminRefundController::class, 'index'])->name('refunds.index');
         Route::post('/refunds/{payment}', [AdminRefundController::class, 'store'])->name('refunds.store');
-        Route::get('/refunds/{refund}/proof', [AdminRefundController::class, 'proof'])->name('refunds.proof');
+        Route::get('/refunds/{payment}/proof', [AdminRefundController::class, 'proof'])->name('refunds.proof');
         Route::get('/transactions', [AdminTransactionController::class, 'pending'])->name('transactions.pending');
         Route::post('/transactions/{payment}/verify', [AdminTransactionController::class, 'verify'])->name('transactions.verify');
         Route::get('/transactions/history', [AdminTransactionController::class, 'history'])->name('transactions.history');

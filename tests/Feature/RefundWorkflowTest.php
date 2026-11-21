@@ -4,7 +4,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 test('admins see only cancelled and approved payments with uploaded proof in the refund queue', function () {
@@ -107,7 +107,7 @@ test('admins can record a manual refund without overwriting the original payment
         ])
         ->assertRedirect();
 
-    $this->assertDatabaseHas('pengembalian_dana', [
+    $this->assertDatabaseHas('pembayaran', [
         'id_pembayaran' => $payment->id_pembayaran,
         'jumlah' => '125000.00',
         'id_admin_pemroses' => $admin->id_user,
@@ -122,9 +122,8 @@ test('admins can record a manual refund without overwriting the original payment
         'paid_at' => $verifiedAt,
     ]);
 
-    $refund = DB::table('pengembalian_dana')
-        ->where('id_pembayaran', $payment->id_pembayaran)
-        ->first();
+    $refund = Payment::query()->whereKey($payment->id_pembayaran)->firstOrFail();
+    expect($refund->bukti_pengembalian)->not->toBeNull();
 
     Storage::disk('local')->assertExists($refund->bukti_pengembalian);
     $this->get('/admin/refunds')
@@ -136,8 +135,8 @@ test('admins can record a manual refund without overwriting the original payment
         'bukti_pengembalian' => UploadedFile::fake()->image('duplicate-refund.png'),
     ])->assertSessionHasErrors('bukti_pengembalian');
 
-    $this->assertDatabaseCount('pengembalian_dana', 1);
-    $this->get("/admin/refunds/{$refund->id_pengembalian_dana}/proof")->assertOk();
+    $this->assertDatabaseCount('pembayaran', 1);
+    $this->get("/admin/refunds/{$refund->id_pembayaran}/proof")->assertOk();
 });
 
 test('admins cannot refund a cancelled payment before an admin approves it', function () {
@@ -166,8 +165,9 @@ test('admins cannot refund a cancelled payment before an admin approves it', fun
         ])
         ->assertSessionHasErrors('bukti_pengembalian');
 
-    $this->assertDatabaseMissing('pengembalian_dana', [
+    $this->assertDatabaseMissing('pembayaran', [
         'id_pembayaran' => $payment->id_pembayaran,
+        'bukti_pengembalian' => 'unexpected-proof.jpg',
     ]);
     $this->assertDatabaseHas('pembayaran', [
         'id_pembayaran' => $payment->id_pembayaran,
@@ -193,7 +193,7 @@ test('refund proof must be an allowed image or PDF file', function () {
         ])
         ->assertSessionHasErrors('bukti_pengembalian');
 
-    $this->assertDatabaseCount('pengembalian_dana', 0);
+    $this->assertDatabaseCount('pembayaran', 1);
 });
 
 test('admins cannot refund failed payments, active orders, or cancelled orders without customer proof', function () {
@@ -236,4 +236,21 @@ test('admins cannot refund failed payments, active orders, or cancelled orders w
     $this->post("/admin/refunds/{$missingProofPayment->id_pembayaran}", [
         'bukti_pengembalian' => UploadedFile::fake()->image('refund.png'),
     ])->assertSessionHasErrors('bukti_pengembalian');
+});
+
+test('database schema contains only application tables from the diagram', function () {
+    expect(count(glob(database_path('migrations/*.php'))))->toBe(8);
+
+    foreach (['users', 'kategori', 'products', 'favorites', 'pesanan', 'detail_pesanan', 'pembayaran', 'model_ar'] as $table) {
+        expect(Schema::hasTable($table))->toBeTrue();
+    }
+
+    expect(Schema::hasTable('pengembalian_dana'))->toBeFalse();
+    expect(Schema::hasTable('sessions'))->toBeFalse();
+    expect(Schema::hasTable('cache'))->toBeFalse();
+    expect(Schema::hasTable('cache_locks'))->toBeFalse();
+    expect(Schema::hasTable('jobs'))->toBeFalse();
+    expect(Schema::hasTable('job_batches'))->toBeFalse();
+    expect(Schema::hasTable('failed_jobs'))->toBeFalse();
+    expect(Schema::hasTable('password_reset_tokens'))->toBeFalse();
 });

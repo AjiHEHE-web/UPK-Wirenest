@@ -207,7 +207,7 @@ test('customers can search their order history by order and item details', funct
     $product = Product::factory()->for($category, 'category')->create([
         'name_produk' => 'Mawar Kuning',
         'deskripsi_produk' => 'Buket untuk wisuda',
-        'harga_produk' => '25000.00',
+        'harga_produk' => '30000.00',
     ]);
     $order = Order::factory()->create([
         'id_user' => $customer->id_user,
@@ -224,6 +224,7 @@ test('customers can search their order history by order and item details', funct
         'jumlah' => 2,
         'subtotal' => '50000.00',
     ]);
+    $product->delete();
     Payment::factory()->create([
         'id_pesanan' => $order->id_pesanan,
         'metode_pembayaran' => 'dana',
@@ -241,6 +242,8 @@ test('customers can search their order history by order and item details', funct
         'Mawar Kuning',
         'wisuda',
         'Anggrek Bulan',
+        $product->id_produk,
+        '30000',
         '2',
         'dana',
         'pending',

@@ -84,6 +84,6 @@ class User extends Authenticatable
 
     public function processedRefunds(): HasMany
     {
-        return $this->hasMany(Refund::class, 'id_admin_pemroses', 'id_user');
+        return $this->hasMany(Payment::class, 'id_admin_pemroses', 'id_user');
     }
 }

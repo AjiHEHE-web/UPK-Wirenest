@@ -107,11 +107,11 @@
                         <tr class="transition hover:bg-stone-50/70">
                             <td class="whitespace-nowrap px-6 py-4">
                                 <p class="font-semibold text-ink">#{{ Str::limit($refund->id_pembayaran, 12, '') }}</p>
-                                <p class="mt-1 text-xs text-stone-500">Pesanan #{{ Str::limit($refund->payment?->id_pesanan, 12, '') }}</p>
+                                <p class="mt-1 text-xs text-stone-500">Pesanan #{{ Str::limit($refund->id_pesanan, 12, '') }}</p>
                             </td>
                             <td class="px-6 py-4">
-                                <p class="font-medium text-ink">{{ $refund->payment?->order?->user?->nama ?: $refund->payment?->order?->user?->name ?: 'Pelanggan' }}</p>
-                                <p class="mt-0.5 text-xs text-stone-500">{{ $refund->payment?->order?->user?->email }}</p>
+                                <p class="font-medium text-ink">{{ $refund->order?->user?->nama ?: $refund->order?->user?->name ?: 'Pelanggan' }}</p>
+                                <p class="mt-0.5 text-xs text-stone-500">{{ $refund->order?->user?->email }}</p>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4 font-semibold text-ink">Rp {{ number_format((float) $refund->jumlah, 0, ',', '.') }}</td>
                             <td class="whitespace-nowrap px-6 py-4 text-stone-600">{{ $refund->processed_at?->format('d M Y, H:i') ?? '—' }}</td>

@@ -49,8 +49,10 @@ class OrderController extends Controller
                             ->orWhere('harga_satuan', 'like', $searchTerm)
                             ->orWhere('subtotal', 'like', $searchTerm)
                             ->orWhereHas('product', function ($query) use ($searchTerm): void {
-                                $query->where('name_produk', 'like', $searchTerm)
+                                $query->where('id_produk', 'like', $searchTerm)
+                                    ->orWhere('name_produk', 'like', $searchTerm)
                                     ->orWhere('deskripsi_produk', 'like', $searchTerm)
+                                    ->orWhere('harga_produk', 'like', $searchTerm)
                                     ->orWhereHas('category', fn ($query) => $query->where('name', 'like', $searchTerm));
                             });
                     })

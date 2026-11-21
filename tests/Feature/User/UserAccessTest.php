@@ -3,7 +3,7 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-test('registered customers can create an account and land on the user home page', function () {
+test('registered customers must log in before opening the user home page', function () {
     $response = $this->post(route('register'), [
         'name' => 'Mawar User',
         'username' => 'mawar-user',
@@ -14,8 +14,8 @@ test('registered customers can create an account and land on the user home page'
         'password_confirmation' => 'secure-password',
     ]);
 
-    $response->assertRedirect(route('user.home', absolute: false));
-    $this->assertAuthenticated();
+    $response->assertRedirect(route('login', absolute: false));
+    $this->assertGuest();
     $this->assertDatabaseHas('users', [
         'email' => 'mawar@example.test',
         'username' => 'mawar-user',
@@ -25,6 +25,13 @@ test('registered customers can create an account and land on the user home page'
         'role' => 'user',
     ]);
     expect(Hash::check('secure-password', User::query()->where('email', 'mawar@example.test')->value('password')))->toBeTrue();
+
+    $this->post(route('login'), [
+        'email' => 'mawar@example.test',
+        'password' => 'secure-password',
+    ])->assertRedirect(route('user.home', absolute: false));
+
+    $this->assertAuthenticated();
 });
 
 test('customers can open the user home page but admins cannot', function () {
