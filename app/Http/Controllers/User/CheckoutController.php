@@ -39,7 +39,7 @@ class CheckoutController extends Controller
         $validated = $request->validate([
             'alamat_pengiriman' => ['required', 'string', 'max:5000'],
             'catatan' => ['nullable', 'string', 'max:2000'],
-            'metode_pembayaran' => ['required', 'in:dana,gopay,bank,shopee_pay,bri,bca,tunai'],
+            'metode_pembayaran' => ['required', 'in:dana,gopay,bank,shopee_pay,bri,bca'],
         ]);
 
         $quantities = $cart->quantities();

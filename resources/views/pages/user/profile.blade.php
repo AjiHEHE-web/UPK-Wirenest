@@ -18,7 +18,7 @@
                             @if ($user->profil_user)
                                 <img src="{{ Storage::disk('public')->url($user->profil_user) }}" alt="Foto profil {{ $user->nama ?: $user->name }}" class="h-full w-full rounded-full object-cover">
                             @else
-                                <div class="flex h-full w-full items-center justify-center rounded-full bg-[#e2f1df] text-botanical-700"><x-application-logo class="h-12 w-12 fill-current" /></div>
+                                <div class="flex h-full w-full items-center justify-center rounded-full bg-[#e2f1df]"><x-application-logo class="h-8 w-12" /></div>
                             @endif
                             <span class="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-[#34873a] text-white"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3"/></svg></span>
                         </div>

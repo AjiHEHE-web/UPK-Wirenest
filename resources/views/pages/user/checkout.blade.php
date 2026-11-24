@@ -26,7 +26,7 @@
                 </section>
                 <section class="rounded-2xl border border-white/80 bg-[#eff6f0] p-3.5 shadow-sm sm:p-4">
                     <h2 class="mb-2 text-[10px] font-normal text-[#45654e]">Pilih metode pembayaran yang akan digunakan</h2>
-                    @php($selectedMethod = old('metode_pembayaran', 'tunai'))
+                    @php($selectedMethod = old('metode_pembayaran', 'dana'))
                     <div class="grid gap-1.5">
                         <details @if (in_array($selectedMethod, array_keys($walletMethods), true)) open @endif class="group rounded-xl bg-[#d7e9dc]">
                             <summary class="flex min-h-9 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-2.5 py-1 text-xs font-semibold text-[#244d3c] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-botanical-600">
@@ -42,10 +42,6 @@
                                 @endforeach
                             </div>
                         </details>
-                        <label class="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-xl bg-[#d7e9dc] px-2.5 py-1 text-xs font-semibold text-[#244d3c] transition hover:bg-[#cfe4d4] has-[:checked]:ring-1 has-[:checked]:ring-inset has-[:checked]:ring-botanical-600">
-                            <span class="flex items-center gap-3"><svg aria-hidden="true" class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5h.01M17.5 14.5h.01" stroke-linecap="round"/></svg>Tunai</span>
-                            <input type="radio" name="metode_pembayaran" value="tunai" @checked($selectedMethod === 'tunai') required class="border-stone-300 text-botanical-700 focus:ring-botanical-500">
-                        </label>
                         <details @if (in_array($selectedMethod, array_keys($bankMethods), true)) open @endif class="group rounded-xl bg-[#d7e9dc]">
                             <summary class="flex min-h-9 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-2.5 py-1 text-xs font-semibold text-[#244d3c] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-botanical-600">
                                 <span class="flex items-center gap-3"><svg aria-hidden="true" class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-5 9 5H3ZM5 19h14M4 21h16M7 10v8m5-8v8m5-8v8"/></svg>Bank</span>

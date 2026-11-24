@@ -6,8 +6,8 @@
             @if ($product->image)
                 <img src="{{ Storage::disk('public')->url($product->image) }}" alt="{{ $product->name_produk }}" class="h-full w-full object-cover transition-transform duration-300 ease-out" loading="lazy" decoding="async">
             @else
-                <div class="flex h-full items-center justify-center text-botanical-300" aria-hidden="true">
-                    <svg class="h-16 w-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 12c-2-2-2-5 0-7 2 2 2 5 0 7Zm0 0c2-2 5-2 7 0-2 2-5 2-7 0Zm0 0c2 2 2 5 0 7-2-2-2-5 0-7Zm0 0c-2-2-5-2-7 0 2-2 5-2 7 0Z"/><circle cx="12" cy="12" r="1.4"/></svg>
+                <div class="flex h-full items-center justify-center" aria-hidden="true">
+                    <img src="{{ asset('images/wirenest-logo.png') }}" alt="" class="h-24 w-36 object-contain">
                 </div>
             @endif
         </a>

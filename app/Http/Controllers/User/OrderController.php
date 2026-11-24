@@ -28,6 +28,7 @@ class OrderController extends Controller
             'shipped' => ['shipped', 'dikirim'],
             'completed' => ['completed', 'selesai'],
             'cancelled' => ['cancelled', 'dibatalkan'],
+            'rejected' => ['rejected', 'ditolak'],
         ];
         $matchingStatuses = collect($statusSearchTerms)
             ->filter(fn (array $labels, string $status): bool => collect([$status, ...$labels])
@@ -68,13 +69,13 @@ class OrderController extends Controller
         $orderCounts = [
             'all' => (clone $ordersQuery)->count(),
             'active' => (clone $ordersQuery)->whereIn('status_pesanan', ['pending', 'processing', 'shipped'])->count(),
-            'archived' => (clone $ordersQuery)->whereIn('status_pesanan', ['completed', 'cancelled'])->count(),
+            'archived' => (clone $ordersQuery)->whereIn('status_pesanan', ['completed', 'cancelled', 'rejected'])->count(),
         ];
 
         $orders = (clone $ordersQuery)
             ->with(['payments', 'items.product.category'])
             ->when(($filters['status'] ?? 'all') === 'active', fn ($query) => $query->whereIn('status_pesanan', ['pending', 'processing', 'shipped']))
-            ->when(($filters['status'] ?? null) === 'archived', fn ($query) => $query->whereIn('status_pesanan', ['completed', 'cancelled']))
+            ->when(($filters['status'] ?? null) === 'archived', fn ($query) => $query->whereIn('status_pesanan', ['completed', 'cancelled', 'rejected']))
             ->orderByDesc('tanggal_pemesanan')
             ->orderByDesc('created_at')
             ->paginate(4)
@@ -111,9 +112,15 @@ class OrderController extends Controller
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            if (! in_array($lockedOrder->status_pesanan, ['pending', 'processing'], true)) {
+            if ($lockedOrder->status_pesanan !== 'pending') {
                 throw ValidationException::withMessages([
-                    'order' => 'Pesanan hanya dapat dibatalkan sebelum dikirim.',
+                    'order' => 'Pesanan hanya dapat dibatalkan sebelum diproses.',
+                ]);
+            }
+
+            if ($lockedOrder->payments()->whereNotNull('image_bukti')->where('image_bukti', '!=', '')->exists()) {
+                throw ValidationException::withMessages([
+                    'order' => 'Pesanan tidak dapat dibatalkan setelah bukti pembayaran diunggah.',
                 ]);
             }
 
@@ -123,7 +130,7 @@ class OrderController extends Controller
 
         return redirect()
             ->route('user.orders.show', $order)
-            ->with('success', 'Pesanan berhasil dibatalkan. Jika pembayaran telah disetujui dan bukti telah diunggah, Admin akan memproses pengembalian dana.');
+            ->with('success', 'Pesanan berhasil dibatalkan.');
     }
 
     public function confirmReceived(Request $request, Order $order): RedirectResponse

@@ -116,14 +116,6 @@
                             <iconify-icon icon="lucide:credit-card" class="block h-7 w-7 shrink-0 text-[26px]" aria-hidden="true"></iconify-icon>
                             <span x-show="!sidebarCollapsed" class="leading-7">Konfirmasi Pembayaran</span>
                         </a>
-                        <a href="{{ route('admin.refunds.index') }}" aria-label="Pengembalian Dana" @class([
-                            'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition duration-200',
-                            'bg-white/15 font-semibold text-white' => request()->routeIs('admin.refunds.*'),
-                            'text-white/70 hover:bg-white/10 hover:text-white' => ! request()->routeIs('admin.refunds.*'),
-                        ]) :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''" @if(request()->routeIs('admin.refunds.*')) aria-current="page" @endif>
-                            <iconify-icon icon="lucide:banknote" class="block h-7 w-7 shrink-0 text-[26px]" aria-hidden="true"></iconify-icon>
-                            <span x-show="!sidebarCollapsed" class="leading-7">Pengembalian Dana</span>
-                        </a>
                     </div>
                 </div>
             </nav>

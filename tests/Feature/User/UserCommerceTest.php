@@ -318,9 +318,9 @@ test('checkout accepts every displayed payment method', function (string $method
     $this->assertDatabaseHas('pembayaran', [
         'metode_pembayaran' => $method,
     ]);
-})->with(['dana', 'gopay', 'shopee_pay', 'bri', 'bca', 'tunai']);
+})->with(['dana', 'gopay', 'shopee_pay', 'bri', 'bca']);
 
-test('checkout presents payment methods grouped by wallet, cash, and bank', function () {
+test('checkout presents wallet and bank payment methods', function () {
     $customer = User::factory()->create();
     $product = Product::factory()->create(['stock_produk' => 2]);
 
@@ -329,7 +329,7 @@ test('checkout presents payment methods grouped by wallet, cash, and bank', func
         ->get(route('user.checkout.create'))
         ->assertOk()
         ->assertSee('E-Wallet')
-        ->assertSee('Tunai')
+        ->assertDontSee('Tunai')
         ->assertSee('Bank')
         ->assertSee('ShopeePay')
         ->assertSee('BRI')
@@ -421,6 +421,12 @@ test('customers can cancel pending orders and release reserved stock', function 
         'id_produk' => $product->id_produk,
         'jumlah' => 2,
     ]);
+    Payment::factory()->create(['id_pesanan' => $order->id_pesanan]);
+
+    $this->actingAs($customer)
+        ->get(route('user.orders.show', $order))
+        ->assertOk()
+        ->assertSee('Batalkan pesanan');
 
     $this->actingAs($customer)
         ->patch(route('user.orders.cancel', $order))
@@ -431,12 +437,12 @@ test('customers can cancel pending orders and release reserved stock', function 
         ->and($product->fresh()->stock_produk)->toBe(5);
 });
 
-test('customers can cancel an unshipped paid order in processing and release reserved stock', function () {
+test('customers cannot cancel an order after uploading payment proof', function () {
     $customer = User::factory()->create();
     $product = Product::factory()->create(['stock_produk' => 3]);
     $order = Order::factory()->create([
         'id_user' => $customer->id_user,
-        'status_pesanan' => 'processing',
+        'status_pesanan' => 'pending',
         'stock_reserved' => true,
     ]);
     OrderItem::factory()->create([
@@ -446,18 +452,32 @@ test('customers can cancel an unshipped paid order in processing and release res
     ]);
     Payment::factory()->create([
         'id_pesanan' => $order->id_pesanan,
-        'status_pembayaran' => 'paid',
-        'bukti_pembayaran' => 'accept',
+        'status_pembayaran' => 'pending',
+        'bukti_pembayaran' => null,
         'image_bukti' => 'payments/customer-proof.jpg',
     ]);
 
     $this->actingAs($customer)
         ->patch(route('user.orders.cancel', $order))
-        ->assertRedirect(route('user.orders.show', $order));
+        ->assertSessionHasErrors('order');
 
-    expect($order->fresh()->status_pesanan)->toBe('cancelled')
-        ->and($order->fresh()->stock_reserved)->toBeFalse()
-        ->and($product->fresh()->stock_produk)->toBe(5);
+    expect($order->fresh()->status_pesanan)->toBe('pending')
+        ->and($order->fresh()->stock_reserved)->toBeTrue()
+        ->and($product->fresh()->stock_produk)->toBe(3);
+});
+
+test('customers do not see a cancel action after uploading payment proof', function () {
+    $customer = User::factory()->create();
+    $order = Order::factory()->create(['id_user' => $customer->id_user]);
+    Payment::factory()->create([
+        'id_pesanan' => $order->id_pesanan,
+        'image_bukti' => 'payments/customer-proof.jpg',
+    ]);
+
+    $this->actingAs($customer)
+        ->get(route('user.orders.show', $order))
+        ->assertOk()
+        ->assertDontSee('Batalkan pesanan');
 });
 
 test('customers cannot cancel an order after it has shipped', function () {

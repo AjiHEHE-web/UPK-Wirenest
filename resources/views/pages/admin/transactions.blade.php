@@ -127,7 +127,7 @@
                 <label for="transaction-status" class="mb-1.5 block text-xs font-semibold text-stone-600">Status</label>
                 <select id="transaction-status" name="status" class="h-11 w-full rounded-xl border-line bg-white text-sm focus:border-botanical-500 focus:ring-botanical-500">
                     <option value="">Semua</option>
-                    @foreach (['paid' => 'Berhasil', 'failed' => 'Ditolak', 'refunded' => 'Dikembalikan'] as $value => $label)
+                    @foreach (['paid' => 'Berhasil', 'failed' => 'Ditolak'] as $value => $label)
                         <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
                     @endforeach
                 </select>

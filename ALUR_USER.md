@@ -12,7 +12,7 @@ User yang sudah login dapat:
 - Mengelola pesanan/keranjang.
 - Melakukan transaksi dan mengonfirmasi pembelian.
 - Melihat serta mencari riwayat pembelian.
-- Membatalkan pesanan sebelum dikirim dan mengonfirmasi penerimaan barang.
+- Membatalkan pesanan sebelum bukti pembayaran diunggah dan mengonfirmasi penerimaan barang.
 - Melihat dan memperbarui profil.
 - Logout.
 
@@ -57,7 +57,6 @@ flowchart TD
     L --> Z[Show History Pembelian]
     L --> AA[Search History Pembelian]
     L --> AB[Batalkan sebelum dikirim]
-    AB --> AH[Admin memproses refund jika memenuhi syarat]
     L --> AC[Konfirmasi barang diterima]
     N --> AD[Show Profile]
     N --> AE[Update Profile]
@@ -123,11 +122,11 @@ flowchart TD
 2. Sistem menampilkan pesanan milik user yang sedang login.
 3. User dapat mencari riwayat berdasarkan nomor pesanan atau informasi yang relevan.
 4. User membuka detail pesanan untuk melihat item, total, status pesanan, dan status pembayaran.
-5. User dapat membatalkan pesanan selama statusnya belum `shipped` (yaitu `pending` atau `processing`).
-6. Pembayaran yang telah disetujui Admin untuk pesanan yang dibatalkan sebelum dikirim dapat diproses pengembaliannya oleh Admin.
+5. User dapat membatalkan pesanan hanya saat statusnya `pending` dan sebelum mengunggah bukti pembayaran.
+6. Setelah bukti pembayaran diunggah, user tidak dapat membatalkan pesanan.
 7. Setelah pesanan berstatus `shipped` dan barang diterima, user menekan tombol konfirmasi penerimaan agar status menjadi `completed`.
 
-Status pesanan: `pending` (default), `processing`, `shipped`, `completed`, dan `cancelled` untuk pesanan yang dibatalkan user sebelum dikirim. Status `completed` hanya dapat diubah oleh konfirmasi penerimaan dari user setelah pesanan dikirim.
+Status pesanan: `pending` (default), `processing`, `shipped`, `completed`, `cancelled` (dibatalkan sebelum bukti pembayaran diunggah), dan `rejected` (pembayaran ditolak Admin). Status `completed` hanya dapat diubah oleh konfirmasi penerimaan dari user setelah pesanan dikirim.
 
 **Tabel:** `pesanan`, `detail_pesanan`, `pembayaran`, `products`.  
 **Aturan keamanan:** query riwayat harus dibatasi dengan `pesanan.id_user` milik user yang login.
@@ -189,4 +188,4 @@ erDiagram
 - Harga dan subtotal dihitung backend.
 - Batasi akses data berdasarkan user yang sedang login.
 - Gunakan middleware autentikasi dan role.
-- Schema belum menyediakan tabel alamat pengiriman, cart, cancel request, atau refund terpisah. Fitur tersebut perlu memakai aturan/status yang ada atau penambahan tabel/kolom jika dibutuhkan.
+- Schema belum menyediakan tabel alamat pengiriman, cart, atau cancel request terpisah. Fitur tersebut perlu memakai aturan/status yang ada atau penambahan tabel/kolom jika dibutuhkan.

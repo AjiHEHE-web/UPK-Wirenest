@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\ArModelController as AdminArModelController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
-use App\Http\Controllers\Admin\RefundController as AdminRefundController;
 use App\Http\Controllers\Admin\TransactionController as AdminTransactionController;
 use App\Http\Controllers\ArExperienceController;
 use App\Http\Controllers\ProfileController;
@@ -83,9 +82,6 @@ Route::prefix('admin')
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
-        Route::get('/refunds', [AdminRefundController::class, 'index'])->name('refunds.index');
-        Route::post('/refunds/{payment}', [AdminRefundController::class, 'store'])->name('refunds.store');
-        Route::get('/refunds/{payment}/proof', [AdminRefundController::class, 'proof'])->name('refunds.proof');
         Route::get('/transactions', [AdminTransactionController::class, 'pending'])->name('transactions.pending');
         Route::post('/transactions/{payment}/verify', [AdminTransactionController::class, 'verify'])->name('transactions.verify');
         Route::get('/transactions/history', [AdminTransactionController::class, 'history'])->name('transactions.history');

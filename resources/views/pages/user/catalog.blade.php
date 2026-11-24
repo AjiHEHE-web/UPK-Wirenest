@@ -63,7 +63,7 @@
                             @if ($product->image)
                                 <img src="{{ Storage::disk('public')->url($product->image) }}" alt="{{ $product->name_produk }}" class="h-full w-full object-cover" loading="eager" fetchpriority="high" decoding="async">
                             @else
-                                <div class="flex h-full items-center justify-center text-botanical-300"><x-application-logo class="h-40 w-40 fill-current" /></div>
+                                <div class="flex h-full items-center justify-center"><x-application-logo class="h-40 w-60" /></div>
                             @endif
                         </div>
                     </div>

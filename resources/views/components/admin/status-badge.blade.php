@@ -8,8 +8,8 @@
         'completed' => 'bg-botanical-50 text-botanical-800 ring-botanical-200',
         'paid' => 'bg-botanical-50 text-botanical-800 ring-botanical-200',
         'failed' => 'bg-rose-50 text-rose-800 ring-rose-200',
-        'refunded' => 'bg-stone-100 text-stone-700 ring-stone-200',
         'cancelled' => 'bg-stone-100 text-stone-700 ring-stone-200',
+        'rejected' => 'bg-rose-50 text-rose-800 ring-rose-200',
     ];
     $labels = [
         'pending' => 'Pending',
@@ -18,8 +18,8 @@
         'completed' => 'Selesai',
         'paid' => 'Dibayar',
         'failed' => 'Ditolak',
-        'refunded' => 'Dikembalikan',
         'cancelled' => 'Dibatalkan',
+        'rejected' => 'Ditolak',
     ];
 @endphp
 

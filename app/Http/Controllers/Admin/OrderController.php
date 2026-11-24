@@ -13,7 +13,7 @@ use Illuminate\Validation\ValidationException;
 
 class OrderController extends Controller
 {
-    private const STATUSES = ['pending', 'processing', 'shipped', 'completed', 'cancelled'];
+    private const STATUSES = ['pending', 'processing', 'shipped', 'completed', 'cancelled', 'rejected'];
 
     private const TRANSITIONS = [
         'pending' => ['processing'],
@@ -21,6 +21,7 @@ class OrderController extends Controller
         'shipped' => [],
         'completed' => [],
         'cancelled' => [],
+        'rejected' => [],
     ];
 
     public function index(Request $request): View

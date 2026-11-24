@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <img src="{{ asset('images/wirenest-logo-themed.png') }}" alt="" class="block h-9 w-9 shrink-0 rounded-full object-cover">
+                        <img src="{{ asset('images/wirenest-logo.png') }}" alt="WireNest" class="block h-8 w-12 shrink-0 object-contain">
                     </a>
                 </div>
 

@@ -795,10 +795,11 @@ test('admins cannot accept a payment whose stored amount differs from the order 
     ]);
 });
 
-test('admins can reject a pending payment without advancing its order', function () {
+test('admins reject the order and release reserved stock when they reject its payment', function () {
     $admin = User::factory()->create();
     $admin->forceFill(['role' => 'admin'])->save();
     $customer = User::factory()->create();
+    $product = Product::factory()->create(['stock_produk' => 2]);
 
     DB::table('pesanan')->insert([
         'id_pesanan' => 'order-1',
@@ -806,7 +807,14 @@ test('admins can reject a pending payment without advancing its order', function
         'tanggal_pemesanan' => now(),
         'total_harga' => 150000,
         'status_pesanan' => 'pending',
+        'stock_reserved' => true,
         'created_at' => now(),
+    ]);
+
+    OrderItem::factory()->create([
+        'id_pesanan' => 'order-1',
+        'id_produk' => $product->id_produk,
+        'jumlah' => 2,
     ]);
 
     DB::table('pembayaran')->insert([
@@ -834,8 +842,20 @@ test('admins can reject a pending payment without advancing its order', function
 
     $this->assertDatabaseHas('pesanan', [
         'id_pesanan' => 'order-1',
-        'status_pesanan' => 'pending',
+        'status_pesanan' => 'rejected',
+        'stock_reserved' => false,
     ]);
+
+    expect($product->fresh()->stock_produk)->toBe(4);
+
+    $this->get(route('admin.orders.index', ['status' => 'rejected']))
+        ->assertOk()
+        ->assertSee('Ditolak');
+
+    $this->actingAs($customer)
+        ->get(route('user.orders.index', ['status' => 'archived']))
+        ->assertOk()
+        ->assertSee('Ditolak');
 });
 
 test('admins can view a printable receipt for paid transactions', function () {

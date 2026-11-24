@@ -28,7 +28,14 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        if ($request->user()->role === 'admin') {
+        $isAdmin = $request->user()->role === 'admin';
+        $intendedPath = (string) parse_url($request->session()->get('url.intended', ''), PHP_URL_PATH);
+
+        if (($isAdmin && str_starts_with($intendedPath, '/user')) || (! $isAdmin && str_starts_with($intendedPath, '/admin'))) {
+            $request->session()->forget('url.intended');
+        }
+
+        if ($isAdmin) {
             return redirect()->intended(route('admin.dashboard', absolute: false));
         }
 
@@ -46,6 +53,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect()->route('landing');
     }
 }

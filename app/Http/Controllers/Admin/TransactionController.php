@@ -20,7 +20,7 @@ class TransactionController extends Controller
         $payments = Payment::query()
             ->with(['order.user'])
             ->where('status_pembayaran', 'pending')
-            ->whereHas('order', fn ($query) => $query->where('status_pesanan', '!=', 'cancelled'))
+            ->whereHas('order', fn ($query) => $query->whereNotIn('status_pesanan', ['cancelled', 'rejected']))
             ->latest('created_at')
             ->latest('id_pembayaran')
             ->paginate(10);
@@ -66,9 +66,9 @@ class TransactionController extends Controller
                 ]);
             }
 
-            if ($order->status_pesanan === 'cancelled') {
+            if (in_array($order->status_pesanan, ['cancelled', 'rejected'], true)) {
                 throw ValidationException::withMessages([
-                    'decision' => 'Pembayaran untuk pesanan yang dibatalkan tidak dapat diverifikasi.',
+                    'decision' => 'Pembayaran untuk pesanan yang sudah ditutup tidak dapat diverifikasi.',
                 ]);
             }
 
@@ -80,6 +80,9 @@ class TransactionController extends Controller
 
             if ($validated['decision'] === 'accept') {
                 $lockedPayment->paid_at = $verifiedAt;
+            } else {
+                $order->status_pesanan = 'rejected';
+                $order->save();
             }
 
             $lockedPayment->save();
@@ -89,7 +92,7 @@ class TransactionController extends Controller
             'success',
             $validated['decision'] === 'accept'
                 ? 'Pembayaran berhasil disetujui. Pesanan menunggu untuk diproses.'
-                : 'Pembayaran ditolak.',
+                : 'Pembayaran dan pesanan berhasil ditolak.',
         );
     }
 
@@ -97,14 +100,14 @@ class TransactionController extends Controller
     {
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:100'],
-            'status' => ['nullable', 'in:paid,failed,refunded'],
+            'status' => ['nullable', 'in:paid,failed'],
             'date_from' => ['nullable', 'date'],
             'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
         ]);
 
         $payments = Payment::query()
             ->with(['order.user', 'verifier'])
-            ->whereIn('status_pembayaran', ['paid', 'failed', 'refunded'])
+            ->whereIn('status_pembayaran', ['paid', 'failed'])
             ->when($filters['search'] ?? null, function ($query, string $search): void {
                 $query->where(function ($query) use ($search): void {
                     $query->where('id_pembayaran', 'like', '%'.$search.'%')

@@ -14,7 +14,6 @@ Admin dapat:
 - Mencetak struk.
 - Melihat riwayat transaksi.
 - Memperbarui progres pesanan setelah pembayaran disetujui; Admin tidak dapat membatalkan atau menyelesaikan pesanan.
-- Memproses pengembalian dana untuk pembayaran yang memenuhi syarat.
 - Logout.
 
 Admin harus login dan memiliki `users.role = admin`. User biasa tidak boleh mengakses fitur Admin.
@@ -122,7 +121,8 @@ Dashboard menampilkan ringkasan data operasional, misalnya:
 4. Backend mengubah `pembayaran.bukti_pembayaran` menjadi `accept` atau `decline`.
 5. Backend memperbarui `status_pembayaran` sesuai hasil verifikasi.
 6. Backend menyimpan `id_admin_verifikator` dan `verified_at`.
-7. Jika pembayaran diterima, `paid_at` diisi. Status pesanan tetap `pending` sampai Admin memprosesnya.
+7. Jika pembayaran diterima, `paid_at` diisi dan pesanan tetap `pending` sampai Admin memprosesnya.
+8. Jika pembayaran ditolak, status pembayaran menjadi `failed`, status pesanan menjadi `rejected`, dan stok yang dicadangkan dikembalikan.
 
 **Tabel:** `pembayaran`, `pesanan`, `detail_pesanan`, `users`.
 
@@ -159,18 +159,13 @@ Status pesanan:
 - `processing`
 - `shipped`
 - `completed`
-- `cancelled` (khusus pembatalan oleh user sebelum pesanan dikirim)
+- `rejected` (pembayaran ditolak oleh Admin)
+- `cancelled` (dibatalkan pembeli sebelum bukti pembayaran diunggah)
+- `cancelled` (khusus pembatalan oleh user sebelum bukti pembayaran diunggah)
 
 **Tabel:** `pesanan`, `detail_pesanan`, `products`, `users`, `pembayaran`.
 
-### 4.8 Pengembalian Dana
-1. Pesanan yang dibatalkan user sebelum dikirim masuk ke antrean pengembalian jika pembayaran telah disetujui Admin dan bukti pembayaran tersedia.
-2. Admin mencatat pengembalian setelah transfer balik berhasil dan mengunggah bukti pengembalian.
-3. Pembayaran yang belum disetujui atau pesanan yang tidak dibatalkan tidak dapat diproses.
-
-**Tabel:** `pesanan`, `pembayaran`, `pengembalian_dana`, `users`.
-
-### 4.9 Logout
+### 4.8 Logout
 1. Admin memilih Logout.
 2. Backend menghapus/invalidate sesi atau token.
 3. Admin diarahkan ke Login.
@@ -189,7 +184,6 @@ Status pesanan:
 | Riwayat Transaksi | `pembayaran`, `pesanan` | Riwayat pembayaran/pesanan |
 | Show Pesanan | `pesanan`, `detail_pesanan`, `users` | Daftar dan detail pesanan |
 | Update Pesanan | `pesanan`, `pembayaran` | `pending` → `processing` → `shipped`; selesai dikonfirmasi user |
-| Pengembalian Dana | `pengembalian_dana`, `pembayaran`, `pesanan` | Hanya pesanan dibatalkan yang pembayarannya disetujui |
 | Logout | Session/token | Mengakhiri sesi |
 
 ## 6. Relasi Database
@@ -213,4 +207,4 @@ erDiagram
 - Gunakan transaksi database untuk proses verifikasi pembayaran dan perubahan status yang saling terkait.
 - Catat `id_admin_verifikator` dan `verified_at` saat verifikasi pembayaran.
 - Terapkan aturan transisi status pesanan agar status tidak berubah sembarangan.
-- Schema belum memiliki tabel khusus log aktivitas Admin, pengiriman, atau refund. Jika dibutuhkan, tambahkan tabel/kolom sesuai kebutuhan.
+- Schema belum memiliki tabel khusus log aktivitas Admin atau pengiriman. Jika dibutuhkan, tambahkan tabel/kolom sesuai kebutuhan.

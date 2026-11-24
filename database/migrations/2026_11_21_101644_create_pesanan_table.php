@@ -15,7 +15,7 @@ return new class extends Migration
                 $table->string('id_user', 36);
                 $table->timestamp('tanggal_pemesanan')->nullable();
                 $table->decimal('total_harga', 12, 2);
-                $table->enum('status_pesanan', ['pending', 'processing', 'shipped', 'completed', 'cancelled'])->default('pending');
+                $table->enum('status_pesanan', ['pending', 'processing', 'shipped', 'completed', 'cancelled', 'rejected'])->default('pending');
                 $table->timestamp('confirmed_at')->nullable();
                 $table->text('alamat_pengiriman')->nullable();
                 $table->text('catatan')->nullable();
@@ -48,7 +48,7 @@ return new class extends Migration
         DB::table('pesanan')->where('status_pesanan', 'confirmed')->update(['status_pesanan' => 'pending']);
 
         Schema::table('pesanan', function (Blueprint $table): void {
-            $table->enum('status_pesanan', ['pending', 'processing', 'shipped', 'completed', 'cancelled'])->default('pending')->change();
+            $table->enum('status_pesanan', ['pending', 'processing', 'shipped', 'completed', 'cancelled', 'rejected'])->default('pending')->change();
         });
     }
 

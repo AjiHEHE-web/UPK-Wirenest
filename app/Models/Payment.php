@@ -33,10 +33,6 @@ class Payment extends Model
         'paid_at',
         'id_admin_verifikator',
         'verified_at',
-        'id_pengembalian_dana',
-        'bukti_pengembalian',
-        'id_admin_pemroses',
-        'processed_at',
     ];
 
     protected function casts(): array
@@ -45,7 +41,6 @@ class Payment extends Model
             'jumlah' => 'decimal:2',
             'paid_at' => 'datetime',
             'verified_at' => 'datetime',
-            'processed_at' => 'datetime',
         ];
     }
 
@@ -66,10 +61,5 @@ class Payment extends Model
     public function verifier(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id_admin_verifikator', 'id_user');
-    }
-
-    public function processor(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'id_admin_pemroses', 'id_user');
     }
 }

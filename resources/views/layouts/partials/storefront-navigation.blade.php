@@ -3,9 +3,8 @@
     <header x-bind:class="scrolled ? 'max-w-5xl' : 'max-w-7xl'" class="sticky top-0 z-30 mx-auto w-full px-3 pt-3 transition-all duration-300 ease-out sm:px-5">
         <nav x-bind:class="scrolled ? 'min-h-[60px] px-3 sm:px-5' : 'min-h-[76px] px-4 sm:px-6 lg:px-8'" class="flex items-center justify-between gap-3 rounded-full border border-white/80 bg-matcha/85 shadow-[0_10px_30px_rgba(40,70,50,.12)] backdrop-blur-xl transition-all duration-300 ease-out" aria-label="Navigasi utama">
             <a href="{{ route('user.home') }}" class="flex shrink-0 items-center gap-3 transition-all duration-300" aria-label="WireNest, kembali ke beranda">
-                <img src="{{ asset('images/wirenest-logo-themed.png') }}" alt="" x-bind:class="scrolled ? 'h-9 w-9' : 'h-11 w-11'" class="shrink-0 rounded-full object-cover transition-all duration-300">
+                <img src="{{ asset('images/wirenest-logo.png') }}" alt="" x-bind:class="scrolled ? 'h-8 w-12' : 'h-10 w-16'" class="shrink-0 object-contain transition-all duration-300">
                 <span>
-                    <span class="block font-display text-xl font-semibold leading-none text-botanical-900">WireNest</span>
                     <span class="mt-1 block text-[9px] font-medium tracking-[0.13em] text-stone-600">ARTISANAL CHENILLE STEMS</span>
                 </span>
             </a>
@@ -58,8 +57,7 @@
     <header class="sticky top-0 z-30 border-b border-botanical-950 bg-botanical-900 text-white">
         <nav class="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8" aria-label="Navigasi admin">
             <a href="{{ route('admin.dashboard') }}" class="flex min-h-11 items-center gap-3 font-semibold" aria-label="Dashboard admin">
-                <img src="{{ asset('images/wirenest-logo-themed.png') }}" alt="" class="h-9 w-9 shrink-0 rounded-full object-cover">
-                <span>WireNest <span class="font-normal text-white/65">Admin</span></span>
+                <span class="font-normal text-white/65">Admin</span>
             </a>
             <div class="flex items-center gap-2 sm:gap-5">
                 <a href="{{ route('admin.dashboard') }}" class="hidden min-h-11 items-center text-sm font-medium text-white/80 transition hover:text-white sm:flex">Dashboard</a>
@@ -75,9 +73,8 @@
     <header class="sticky top-0 z-30 mx-auto w-full max-w-7xl px-3 pt-3 transition-all duration-300 sm:px-5">
         <nav class="flex min-h-[76px] items-center justify-between gap-3 rounded-full border border-white/80 bg-matcha/85 px-4 shadow-[0_10px_30px_rgba(40,70,50,.12)] backdrop-blur-xl transition-all duration-300 sm:px-6 lg:px-8" aria-label="Navigasi utama">
             <a href="{{ route('landing') }}" aria-label="WireNest, kembali ke beranda" class="flex min-h-11 shrink-0 items-center gap-3 rounded-lg">
-                <img src="{{ asset('images/wirenest-logo-themed.png') }}" alt="" class="h-11 w-11 shrink-0 rounded-full object-cover">
+                <img src="{{ asset('images/wirenest-logo.png') }}" alt="" class="h-10 w-16 shrink-0 object-contain">
                 <span>
-                    <span class="block font-display text-xl font-semibold leading-none text-botanical-900">WireNest</span>
                     <span class="mt-1 hidden text-[9px] font-medium tracking-[0.13em] text-stone-600 sm:block">ARTISANAL CHENILLE STEMS</span>
                 </span>
             </a>

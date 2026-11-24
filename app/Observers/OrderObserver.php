@@ -11,7 +11,7 @@ class OrderObserver
     {
         if (
             ! $order->wasChanged('status_pesanan')
-            || $order->status_pesanan !== 'cancelled'
+            || ! in_array($order->status_pesanan, ['cancelled', 'rejected'], true)
             || ! $order->stock_reserved
         ) {
             return;

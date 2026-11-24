@@ -36,7 +36,7 @@
                                             @if ($item['product']->image)
                                                 <img src="{{ Storage::disk('public')->url($item['product']->image) }}" alt="{{ $item['product']->name_produk }}" class="h-full w-full object-cover" loading="lazy" decoding="async">
                                             @else
-                                                <span class="flex h-full items-center justify-center text-botanical-300"><x-application-logo class="h-9 w-9 fill-current" /></span>
+                                                <span class="flex h-full items-center justify-center"><x-application-logo class="h-10 w-14" /></span>
                                             @endif
                                         </a>
                                         <div class="min-w-0">

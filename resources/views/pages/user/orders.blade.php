@@ -10,6 +10,7 @@
             'shipped' => 'Dikirim',
             'completed' => 'Selesai',
             'cancelled' => 'Dibatalkan',
+            'rejected' => 'Ditolak',
         ];
     @endphp
 
@@ -60,7 +61,7 @@
                                     <span class="text-[#d4a6b4]" aria-hidden="true">•</span>
                                     <span class="inline-flex items-center gap-1.5 text-xs text-stone-500"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/></svg>{{ $order->tanggal_pemesanan?->format('d M Y') ?? 'Tanggal tidak tersedia' }}</span>
                                 </div>
-                                <span @class(['inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold', 'bg-[#fff3c9] text-[#785e00]' => in_array($order->status_pesanan, ['pending', 'processing'], true), 'bg-[#e6f3e2] text-botanical-800' => in_array($order->status_pesanan, ['shipped', 'completed'], true), 'bg-[#f9e5ec] text-rose-800' => $order->status_pesanan === 'cancelled'])><span class="h-2 w-2 rounded-full bg-current"></span>{{ $statusLabels[$order->status_pesanan] ?? $order->status_pesanan }}</span>
+                                <span @class(['inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold', 'bg-[#fff3c9] text-[#785e00]' => in_array($order->status_pesanan, ['pending', 'processing'], true), 'bg-[#e6f3e2] text-botanical-800' => in_array($order->status_pesanan, ['shipped', 'completed'], true), 'bg-[#f9e5ec] text-rose-800' => in_array($order->status_pesanan, ['cancelled', 'rejected'], true)])><span class="h-2 w-2 rounded-full bg-current"></span>{{ $statusLabels[$order->status_pesanan] ?? $order->status_pesanan }}</span>
                             </div>
 
                             <div class="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_160px_150px] md:items-center">
@@ -69,7 +70,7 @@
                                         @if ($firstItem?->product?->image)
                                             <img src="{{ Storage::disk('public')->url($firstItem->product->image) }}" alt="{{ $firstItem->product->name_produk }}" class="h-full w-full object-cover" loading="lazy" decoding="async">
                                         @else
-                                            <div class="flex h-full items-center justify-center text-botanical-300"><x-application-logo class="h-9 w-9 fill-current" /></div>
+                                            <div class="flex h-full items-center justify-center"><x-application-logo class="h-10 w-14" /></div>
                                         @endif
                                         @if ($order->items->count() > 1)<span class="absolute bottom-1 right-1 rounded-full bg-matcha/95 px-2 py-0.5 text-[10px] font-semibold text-stone-600">+{{ $order->items->count() - 1 }} lagi</span>@endif
                                     </div>
@@ -159,7 +160,7 @@
                         @endif
                     </section>
 
-                    @if (in_array($order->status_pesanan, ['pending', 'processing'], true))
+                    @if ($order->status_pesanan === 'pending' && ! $order->payments->contains(fn ($payment) => filled($payment->image_bukti)))
                         <div class="space-y-2">
                             <form method="POST" action="{{ route('user.orders.cancel', $order) }}" onsubmit="return confirm('Batalkan pesanan ini?')">
                                 @csrf
@@ -189,7 +190,7 @@
                         <section class="rounded-xl border border-line bg-matcha p-5 shadow-sm">
                             <div class="flex items-start justify-between gap-3">
                                 <h2 class="font-display text-xl font-medium text-botanical-950">Pembayaran</h2>
-                                <span @class(['rounded-full px-3 py-1 text-xs font-semibold capitalize', 'bg-amber-50 text-amber-800' => $payment->status_pembayaran === 'pending', 'bg-botanical-50 text-botanical-800' => $payment->status_pembayaran === 'paid', 'bg-rose-50 text-rose-800' => in_array($payment->status_pembayaran, ['failed', 'refunded'], true)])>{{ $payment->status_pembayaran }}</span>
+                                <span @class(['rounded-full px-3 py-1 text-xs font-semibold capitalize', 'bg-amber-50 text-amber-800' => $payment->status_pembayaran === 'pending', 'bg-botanical-50 text-botanical-800' => $payment->status_pembayaran === 'paid', 'bg-rose-50 text-rose-800' => $payment->status_pembayaran === 'failed'])>{{ $payment->status_pembayaran }}</span>
                             </div>
                             <dl class="mt-4 space-y-3 text-sm">
                                 <div class="flex justify-between"><dt class="text-stone-500">Metode</dt><dd class="font-medium uppercase text-ink">{{ $payment->metode_pembayaran }}</dd></div>

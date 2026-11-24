@@ -23,6 +23,7 @@
         'shipped' => 'Dikirim',
         'completed' => 'Selesai',
         'cancelled' => 'Dibatalkan',
+        'rejected' => 'Ditolak',
     ];
 @endphp
 
