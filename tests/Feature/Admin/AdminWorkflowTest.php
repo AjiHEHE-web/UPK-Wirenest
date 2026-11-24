@@ -239,6 +239,42 @@ test('admins see dashboard statistics from stored records', function () {
         ->assertSee('Rp 150.000');
 });
 
+test('admins see current month revenue grouped by week on the dashboard', function () {
+    $admin = User::factory()->create();
+    $admin->forceFill(['role' => 'admin'])->save();
+
+    Payment::factory()->create([
+        'status_pembayaran' => 'paid',
+        'paid_at' => now()->startOfMonth()->addDays(2),
+        'jumlah' => 120000,
+    ]);
+    Payment::factory()->create([
+        'status_pembayaran' => 'paid',
+        'paid_at' => now()->startOfMonth()->addDays(9),
+        'jumlah' => 50000,
+    ]);
+    Payment::factory()->create([
+        'status_pembayaran' => 'paid',
+        'paid_at' => now()->startOfMonth()->subDay(),
+        'jumlah' => 90000,
+    ]);
+    Payment::factory()->create([
+        'status_pembayaran' => 'pending',
+        'paid_at' => now()->startOfMonth()->addDays(16),
+        'jumlah' => 70000,
+    ]);
+
+    $response = $this->actingAs($admin)->get(route('admin.dashboard'));
+
+    $response->assertOk()
+        ->assertViewHas('revenueChart', function ($revenueChart): bool {
+            expect($revenueChart->pluck('amount')->all())
+                ->toBe([120000.0, 50000.0, 0.0, 0.0, 0.0]);
+
+            return true;
+        });
+});
+
 test('admins can create a product with a validated image', function () {
     Storage::fake('public');
 

@@ -28,6 +28,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>@yield('title', 'Dashboard') · E-Commerce Bunga</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js" defer></script>
     </head>
     <body x-data="{ sidebarOpen: false, sidebarCollapsed: false }" x-on:keydown.escape.window="sidebarOpen = false">
         <a href="#main-content" class="sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:not-sr-only focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:text-ink">Lewati ke konten utama</a>
@@ -40,17 +41,17 @@
         >
             <div class="flex h-20 items-center gap-3 border-b border-white/10 px-6">
                 <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-botanical-100">
-                    @include('pages.admin.partials.icon', ['name' => 'flower', 'class' => 'h-6 w-6'])
+                    <iconify-icon icon="lucide:flower" class="inline-block h-6 w-6" aria-hidden="true"></iconify-icon>
                 </span>
                 <div x-show="!sidebarCollapsed" x-transition.opacity class="min-w-0">
                     <p class="font-semibold tracking-wide">E-Commerce Bunga</p>
                     <p class="text-xs text-white/55">ADMIN PANEL</p>
                 </div>
                 <button type="button" class="ml-auto rounded-lg p-2 text-white/70 hover:bg-white/10 lg:hidden" aria-label="Tutup navigasi" x-on:click="sidebarOpen = false">
-                    @include('pages.admin.partials.icon', ['name' => 'close', 'class' => 'h-5 w-5'])
+                    <iconify-icon icon="lucide:x" class="inline-block h-5 w-5" aria-hidden="true"></iconify-icon>
                 </button>
                 <button type="button" class="ml-auto hidden rounded-lg p-2 text-white/70 transition hover:bg-white/10 hover:text-white lg:block" aria-label="Ciutkan navigasi" x-on:click="sidebarCollapsed = !sidebarCollapsed">
-                    @include('pages.admin.partials.icon', ['name' => 'panel', 'class' => 'h-5 w-5'])
+                    <iconify-icon icon="lucide:panel-left" class="inline-block h-5 w-5" aria-hidden="true"></iconify-icon>
                 </button>
             </div>
 
@@ -63,8 +64,8 @@
                         'bg-white/15 font-semibold text-white' => request()->routeIs('admin.dashboard'),
                         'text-white/70 hover:bg-white/10 hover:text-white' => ! request()->routeIs('admin.dashboard'),
                     ]) :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''" @if(request()->routeIs('admin.dashboard')) aria-current="page" @endif>
-                        @include('pages.admin.partials.icon', ['name' => 'dashboard', 'class' => 'h-5 w-5 shrink-0'])
-                        <span x-show="!sidebarCollapsed">Dashboard</span>
+                        <iconify-icon icon="lucide:layout-grid" class="block h-7 w-7 shrink-0 text-[26px]" aria-hidden="true"></iconify-icon>
+                        <span x-show="!sidebarCollapsed" class="leading-7">Dashboard</span>
                     </a>
                 </div>
 
@@ -76,16 +77,16 @@
                             'bg-white/15 font-semibold text-white' => request()->routeIs('admin.products.*'),
                             'text-white/70 hover:bg-white/10 hover:text-white' => ! request()->routeIs('admin.products.*'),
                         ]) :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''" @if(request()->routeIs('admin.products.*')) aria-current="page" @endif>
-                            @include('pages.admin.partials.icon', ['name' => 'package', 'class' => 'h-5 w-5 shrink-0'])
-                            <span x-show="!sidebarCollapsed">Manajemen Produk</span>
+                            <iconify-icon icon="lucide:box" class="block h-7 w-7 shrink-0 text-[26px]" aria-hidden="true"></iconify-icon>
+                            <span x-show="!sidebarCollapsed" class="leading-7">Manajemen Produk</span>
                         </a>
                         <a href="{{ route('admin.ar-models.index') }}" aria-label="Manajemen AR" @class([
                             'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition duration-200',
                             'bg-white/15 font-semibold text-white' => request()->routeIs('admin.ar-models.*'),
                             'text-white/70 hover:bg-white/10 hover:text-white' => ! request()->routeIs('admin.ar-models.*'),
                         ]) :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''" @if(request()->routeIs('admin.ar-models.*')) aria-current="page" @endif>
-                            @include('pages.admin.partials.icon', ['name' => 'cube', 'class' => 'h-5 w-5 shrink-0'])
-                            <span x-show="!sidebarCollapsed">Manajemen AR</span>
+                            <iconify-icon icon="lucide:box" class="block h-7 w-7 shrink-0 text-[26px]" aria-hidden="true"></iconify-icon>
+                            <span x-show="!sidebarCollapsed" class="leading-7">Manajemen AR</span>
                         </a>
                     </div>
                 </div>
@@ -98,8 +99,8 @@
                             'bg-white/15 font-semibold text-white' => request()->routeIs('admin.orders.*'),
                             'text-white/70 hover:bg-white/10 hover:text-white' => ! request()->routeIs('admin.orders.*'),
                         ]) :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''" @if(request()->routeIs('admin.orders.*')) aria-current="page" @endif>
-                            @include('pages.admin.partials.icon', ['name' => 'orders', 'class' => 'h-5 w-5 shrink-0'])
-                            <span x-show="!sidebarCollapsed">Pesanan</span>
+                            <iconify-icon icon="lucide:shopping-bag" class="block h-7 w-7 shrink-0 text-[26px]" aria-hidden="true"></iconify-icon>
+                            <span x-show="!sidebarCollapsed" class="leading-7">Pesanan</span>
                         </a>
                     </div>
                 </div>
@@ -112,16 +113,16 @@
                             'bg-white/15 font-semibold text-white' => request()->routeIs('admin.transactions.pending') || $isPendingTransactionDetails,
                             'text-white/70 hover:bg-white/10 hover:text-white' => ! request()->routeIs('admin.transactions.pending') && ! $isPendingTransactionDetails,
                         ]) :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''" @if(request()->routeIs('admin.transactions.pending')) aria-current="page" @endif>
-                            @include('pages.admin.partials.icon', ['name' => 'credit-card', 'class' => 'h-5 w-5 shrink-0'])
-                            <span x-show="!sidebarCollapsed">Konfirmasi Pembayaran</span>
+                            <iconify-icon icon="lucide:credit-card" class="block h-7 w-7 shrink-0 text-[26px]" aria-hidden="true"></iconify-icon>
+                            <span x-show="!sidebarCollapsed" class="leading-7">Konfirmasi Pembayaran</span>
                         </a>
                         <a href="{{ route('admin.refunds.index') }}" aria-label="Pengembalian Dana" @class([
                             'flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition duration-200',
                             'bg-white/15 font-semibold text-white' => request()->routeIs('admin.refunds.*'),
                             'text-white/70 hover:bg-white/10 hover:text-white' => ! request()->routeIs('admin.refunds.*'),
                         ]) :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''" @if(request()->routeIs('admin.refunds.*')) aria-current="page" @endif>
-                            @include('pages.admin.partials.icon', ['name' => 'banknote', 'class' => 'h-5 w-5 shrink-0'])
-                            <span x-show="!sidebarCollapsed">Pengembalian Dana</span>
+                            <iconify-icon icon="lucide:banknote" class="block h-7 w-7 shrink-0 text-[26px]" aria-hidden="true"></iconify-icon>
+                            <span x-show="!sidebarCollapsed" class="leading-7">Pengembalian Dana</span>
                         </a>
                     </div>
                 </div>
@@ -131,8 +132,8 @@
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-white/70 transition hover:bg-white/10 hover:text-white" :class="sidebarCollapsed ? 'lg:justify-center lg:px-0' : ''">
-                        @include('pages.admin.partials.icon', ['name' => 'logout', 'class' => 'h-5 w-5 shrink-0'])
-                        <span x-show="!sidebarCollapsed">Keluar</span>
+                        <iconify-icon icon="lucide:log-out" class="block h-7 w-7 shrink-0 text-[26px]" aria-hidden="true"></iconify-icon>
+                        <span x-show="!sidebarCollapsed" class="leading-7">Keluar</span>
                     </button>
                 </form>
             </div>
@@ -143,7 +144,7 @@
                 <div class="flex min-h-20 items-center justify-between gap-4 px-4 sm:px-7 lg:px-10">
                     <div class="flex min-w-0 items-center gap-3">
                         <button type="button" class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-line bg-white text-ink transition hover:bg-botanical-50 lg:hidden" aria-label="Buka navigasi" x-on:click="sidebarOpen = true">
-                            @include('pages.admin.partials.icon', ['name' => 'menu', 'class' => 'h-5 w-5'])
+                            <iconify-icon icon="lucide:menu" class="inline-block h-5 w-5" aria-hidden="true"></iconify-icon>
                         </button>
                         <div class="min-w-0">
                             <div class="hidden items-center gap-2 text-xs text-stone-500 sm:flex">

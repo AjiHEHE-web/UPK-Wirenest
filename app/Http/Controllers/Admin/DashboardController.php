@@ -6,27 +6,35 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
-use Carbon\CarbonPeriod;
 use Illuminate\Contracts\View\View;
 
 class DashboardController extends Controller
 {
     public function __invoke(): View
     {
-        $chartStart = now()->subDays(6)->startOfDay();
+        $monthStart = now()->startOfMonth();
+        $monthEnd = $monthStart->copy()->endOfMonth();
         $revenueByDay = Payment::query()
             ->where('status_pembayaran', 'paid')
-            ->whereDate('paid_at', '>=', $chartStart)
+            ->whereBetween('paid_at', [$monthStart, $monthEnd])
             ->selectRaw('DATE(paid_at) as day, SUM(jumlah) as total')
             ->groupBy('day')
             ->pluck('total', 'day');
 
-        $revenueChart = collect(CarbonPeriod::create($chartStart, now()->startOfDay()))
-            ->map(fn ($date): array => [
-                'label' => $date->translatedFormat('D'),
-                'date' => $date->toDateString(),
-                'amount' => (float) ($revenueByDay[$date->toDateString()] ?? 0),
-            ]);
+        $weekCount = (int) ceil($monthStart->daysInMonth / 7);
+        $revenueChart = collect(range(1, $weekCount))
+            ->map(function (int $week) use ($monthStart, $revenueByDay): array {
+                $firstDay = (($week - 1) * 7) + 1;
+                $lastDay = min($week * 7, $monthStart->daysInMonth);
+                $amount = collect(range($firstDay, $lastDay))
+                    ->sum(fn (int $day): float => (float) ($revenueByDay[$monthStart->copy()->addDays($day - 1)->toDateString()] ?? 0));
+
+                return [
+                    'label' => "Minggu {$week}",
+                    'period' => sprintf('%d–%d %s', $firstDay, $lastDay, $monthStart->translatedFormat('M')),
+                    'amount' => $amount,
+                ];
+            });
 
         return view('pages.admin.dashboard', [
             'stats' => [

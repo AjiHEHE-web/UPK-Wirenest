@@ -48,23 +48,23 @@
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h2 class="text-base font-semibold text-ink">Pendapatan transaksi</h2>
-                    <p class="mt-1 text-sm text-stone-500">Pembayaran berhasil selama 7 hari terakhir</p>
+                    <p class="mt-1 text-sm text-stone-500">Pendapatan per minggu bulan {{ now()->locale('id')->translatedFormat('F Y') }}</p>
                 </div>
-                <span class="rounded-full bg-botanical-50 px-3 py-1 text-xs font-semibold text-botanical-700">7 hari</span>
+                <span class="rounded-full bg-botanical-50 px-3 py-1 text-xs font-semibold text-botanical-700">{{ now()->locale('id')->translatedFormat('F') }}</span>
             </div>
-            <div class="mt-7 flex h-48 items-end gap-2 sm:gap-4" role="img" aria-label="Grafik pendapatan tujuh hari terakhir">
-                @foreach ($revenueChart as $day)
+            <div class="mt-7 flex h-48 items-end gap-2 sm:gap-4" role="img" aria-label="Grafik pendapatan per minggu bulan {{ now()->locale('id')->translatedFormat('F Y') }}">
+                @foreach ($revenueChart as $week)
                     @php
-                        $height = $day['amount'] > 0 ? max(8, ($day['amount'] / $chartMaximum) * 100) : 4;
+                        $height = $week['amount'] > 0 ? max(8, ($week['amount'] / $chartMaximum) * 100) : 4;
                     @endphp
                     <div class="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2">
                         <span class="max-w-full truncate text-[10px] font-medium text-stone-500 sm:text-xs">
-                            {{ $day['amount'] > 0 ? 'Rp '.number_format($day['amount'] / 1000, 0, ',', '.').'k' : '' }}
+                            {{ $week['amount'] > 0 ? 'Rp '.number_format($week['amount'] / 1000, 0, ',', '.').'k' : '' }}
                         </span>
                         <div class="flex h-32 w-full items-end rounded-t-lg bg-botanical-50">
-                            <div class="w-full rounded-t-lg bg-botanical-600 transition-all duration-300" style="height: {{ $height }}%" title="{{ $day['date'] }}: Rp {{ number_format($day['amount'], 0, ',', '.') }}"></div>
+                            <div class="w-full rounded-t-lg bg-botanical-600 transition-all duration-300" style="height: {{ $height }}%" title="{{ $week['period'] }}: Rp {{ number_format($week['amount'], 0, ',', '.') }}"></div>
                         </div>
-                        <span class="text-[11px] font-medium text-stone-500 sm:text-xs">{{ $day['label'] }}</span>
+                        <span class="text-[11px] font-medium text-stone-500 sm:text-xs">{{ $week['label'] }}</span>
                     </div>
                 @endforeach
             </div>
