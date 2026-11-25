@@ -13,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class CheckoutController extends Controller
@@ -29,8 +30,7 @@ class CheckoutController extends Controller
             'page' => 'create',
             'items' => $items,
             'total' => $cart->fromMinorUnits($cart->totalCents($items)),
-            'walletMethods' => ['gopay' => 'GoPay', 'dana' => 'DANA', 'shopee_pay' => 'ShopeePay'],
-            'bankMethods' => ['bri' => 'BRI', 'bca' => 'BCA'],
+            'walletMethods' => config('payment.wallets'),
         ]);
     }
 
@@ -39,7 +39,7 @@ class CheckoutController extends Controller
         $validated = $request->validate([
             'alamat_pengiriman' => ['required', 'string', 'max:5000'],
             'catatan' => ['nullable', 'string', 'max:2000'],
-            'metode_pembayaran' => ['required', 'in:dana,gopay,bank,shopee_pay,bri,bca'],
+            'metode_pembayaran' => ['required', Rule::in(array_keys(config('payment.wallets')))],
         ]);
 
         $quantities = $cart->quantities();

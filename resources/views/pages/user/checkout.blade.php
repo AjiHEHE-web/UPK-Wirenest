@@ -34,23 +34,9 @@
                                 <svg aria-hidden="true" class="h-4 w-4 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="none"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </summary>
                             <div class="grid gap-1 px-2 pb-2">
-                                @foreach ($walletMethods as $value => $label)
-                                    <label class="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-lg bg-white/70 px-3 py-1.5 text-xs text-ink transition hover:bg-white has-[:checked]:bg-white has-[:checked]:font-semibold">
-                                        <span>{{ $label }}</span>
-                                        <input type="radio" name="metode_pembayaran" value="{{ $value }}" @checked($selectedMethod === $value) required class="border-stone-300 text-botanical-700 focus:ring-botanical-500">
-                                    </label>
-                                @endforeach
-                            </div>
-                        </details>
-                        <details @if (in_array($selectedMethod, array_keys($bankMethods), true)) open @endif class="group rounded-xl bg-[#d7e9dc]">
-                            <summary class="flex min-h-9 cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-2.5 py-1 text-xs font-semibold text-[#244d3c] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-botanical-600">
-                                <span class="flex items-center gap-3"><svg aria-hidden="true" class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-5 9 5H3ZM5 19h14M4 21h16M7 10v8m5-8v8m5-8v8"/></svg>Bank</span>
-                                <svg aria-hidden="true" class="h-4 w-4 transition-transform group-open:rotate-180" viewBox="0 0 20 20" fill="none"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </summary>
-                            <div class="grid gap-1 px-2 pb-2">
-                                @foreach ($bankMethods as $value => $label)
-                                    <label class="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-lg bg-white/70 px-3 py-1.5 text-xs text-ink transition hover:bg-white has-[:checked]:bg-white has-[:checked]:font-semibold">
-                                        <span>{{ $label }}</span>
+                                @foreach ($walletMethods as $value => $method)
+                                    <label class="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-lg bg-white/70 px-3 py-2 text-xs text-ink transition hover:bg-white has-[:checked]:bg-white has-[:checked]:font-semibold">
+                                        <span class="flex flex-wrap items-center gap-x-2"><span>{{ $method['label'] }}</span><span class="font-normal text-stone-600">( {{ $method['number'] }} )</span></span>
                                         <input type="radio" name="metode_pembayaran" value="{{ $value }}" @checked($selectedMethod === $value) required class="border-stone-300 text-botanical-700 focus:ring-botanical-500">
                                     </label>
                                 @endforeach

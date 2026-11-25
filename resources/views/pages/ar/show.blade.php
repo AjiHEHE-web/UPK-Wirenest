@@ -30,7 +30,7 @@
                     <p data-ar-capability role="status" aria-live="polite" class="text-sm leading-5 text-stone-600">Model 3D dapat diputar langsung di halaman ini.</p>
                     <div class="flex flex-wrap gap-2">
                         @if ($modelFormat === 'glb')
-                            <button type="button" data-ar-marker-start class="inline-flex min-h-11 items-center justify-center rounded-xl bg-botanical-700 px-5 text-sm font-semibold text-white transition hover:bg-botanical-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-botanical-700">Lihat pada marker</button>
+                            <button type="button" data-ar-marker-start hidden class="inline-flex min-h-11 items-center justify-center rounded-xl bg-botanical-700 px-5 text-sm font-semibold text-white transition hover:bg-botanical-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-botanical-700">Lihat pada marker</button>
                         @else
                             <span class="inline-flex min-h-11 items-center rounded-xl bg-stone-100 px-4 text-sm text-stone-600">AR marker memerlukan berkas GLB</span>
                         @endif
@@ -49,7 +49,7 @@
                         </div>
                         <button type="button" data-ar-marker-stop hidden class="inline-flex min-h-11 items-center justify-center rounded-xl border border-line bg-white px-4 text-sm font-semibold text-stone-700 transition hover:bg-stone-100">Matikan kamera</button>
                     </div>
-                    <p data-ar-marker-status role="status" aria-live="polite" class="mt-3 text-sm text-stone-600">Tekan “Lihat pada marker” untuk mengaktifkan kamera. Izin kamera dan koneksi HTTPS diperlukan.</p>
+                    <p data-ar-marker-status role="status" aria-live="polite" class="mt-3 text-sm text-stone-600">Fitur AR marker akan tersedia setelah marker disiapkan.</p>
                     <div data-ar-marker-stage hidden class="mt-4 h-[min(65vh,560px)] min-h-[320px] overflow-hidden rounded-xl bg-stone-950"></div>
                 </section>
             @endif

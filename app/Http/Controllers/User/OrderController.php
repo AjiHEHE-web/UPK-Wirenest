@@ -4,7 +4,9 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\User\UnpaidOrderExpirationService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +19,7 @@ class OrderController extends Controller
     {
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:100'],
-            'status' => ['nullable', Rule::in(['all', 'active', 'archived'])],
+            'status' => ['nullable', Rule::in(['all', 'pending', 'processing', 'shipped', 'completed', 'cancelled', 'rejected'])],
         ]);
 
         $search = trim($filters['search'] ?? '');
@@ -66,16 +68,9 @@ class OrderController extends Controller
             });
         });
 
-        $orderCounts = [
-            'all' => (clone $ordersQuery)->count(),
-            'active' => (clone $ordersQuery)->whereIn('status_pesanan', ['pending', 'processing', 'shipped'])->count(),
-            'archived' => (clone $ordersQuery)->whereIn('status_pesanan', ['completed', 'cancelled', 'rejected'])->count(),
-        ];
-
         $orders = (clone $ordersQuery)
             ->with(['payments', 'items.product.category'])
-            ->when(($filters['status'] ?? 'all') === 'active', fn ($query) => $query->whereIn('status_pesanan', ['pending', 'processing', 'shipped']))
-            ->when(($filters['status'] ?? null) === 'archived', fn ($query) => $query->whereIn('status_pesanan', ['completed', 'cancelled', 'rejected']))
+            ->when(isset($filters['status']) && ! in_array($filters['status'], ['all'], true), fn ($query) => $query->where('status_pesanan', $filters['status']))
             ->orderByDesc('tanggal_pemesanan')
             ->orderByDesc('created_at')
             ->paginate(4)
@@ -85,7 +80,6 @@ class OrderController extends Controller
             'page' => 'index',
             'orders' => $orders,
             'filters' => $filters,
-            'orderCounts' => $orderCounts,
         ]);
     }
 
@@ -100,6 +94,24 @@ class OrderController extends Controller
         return view('pages.user.orders', [
             'page' => 'show',
             'order' => $order,
+            'walletMethods' => config('payment.wallets'),
+        ]);
+    }
+
+    public function checkPaymentDeadline(
+        Request $request,
+        Order $order,
+        UnpaidOrderExpirationService $expirationService,
+    ): JsonResponse {
+        $ownedOrder = $request->user()->orders()->whereKey($order->getKey())->firstOrFail();
+
+        $expired = $expirationService->cancelIfExpired($ownedOrder->id_pesanan);
+        $ownedOrder->refresh();
+
+        return response()->json([
+            'cancelled' => $ownedOrder->status_pesanan === 'cancelled',
+            'expired' => $expired,
+            'payment_status' => $ownedOrder->payments()->value('status_pembayaran'),
         ]);
     }
 

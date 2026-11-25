@@ -40,10 +40,10 @@
                             </p>
                         </div>
 
-                        <svg viewBox="0 0 360 360" class="absolute -bottom-5 -right-5 w-[78%] max-w-[330px] text-botanical-300/75" fill="none" aria-hidden="true">
-                            <path d="M190 356c-10-63-8-122 5-184m-3 118c-48-43-92-43-128-25 31 43 72 57 128 46m-2-75c40-47 82-57 124-44-27 44-68 65-124 60" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-                            <path d="M192 181c-35-5-51-31-34-57 29 1 46 22 34 57Zm3-8c-14-33 1-61 30-65 18 27 8 55-30 65Zm-17 11c-8-34 11-59 39-58 13 30-3 55-39 58Zm25-2c12-33 39-43 62-30-7 32-32 46-62 30Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" />
-                            <circle cx="192" cy="183" r="7" fill="#d3a56e" />
+                        <svg viewBox="0 0 360 360" class="absolute -bottom-5 -right-5 w-[78%] max-w-[330px] text-white/90" fill="none" aria-hidden="true">
+                            <path d="M220 360V220m0 117c-27-43-66-55-95-37 20 37 53 53 95 49m0-61c26-33 62-42 91-27-18 31-48 44-91 40m0-67c-19-23-43-26-61-11 17 25 37 32 61 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" />
+                            <path d="M220 220c-31-30-25-68 0-88 25 20 31 58 0 88Zm0 0c-39-7-59-37-48-68 34 6 56 33 48 68Zm0 0c-38 11-68-8-71-39 32-14 64 0 71 39Zm0 0c38 11 68-8 71-39-32-14-64 0-71 39Zm0 0c7-39 34-61 64-55 7 33-15 59-64 55Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" />
+                            <circle cx="220" cy="220" r="6" fill="#d3a56e" />
                         </svg>
                     </aside>
 

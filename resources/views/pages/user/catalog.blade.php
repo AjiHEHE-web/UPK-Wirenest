@@ -23,18 +23,15 @@
                     </div>
                     <input type="hidden" name="category" value="{{ $filters['category'] ?? '' }}" data-catalog-category>
                     <div class="mt-3 flex flex-wrap justify-center gap-2" aria-label="Pilih kategori buket">
-                        <button type="button" data-catalog-category-option="" aria-pressed="{{ empty($filters['category']) ? 'true' : 'false' }}" @class(['inline-flex min-h-9 items-center rounded-full px-4 text-sm font-medium transition', 'bg-[#356b50] text-white' => empty($filters['category']), 'bg-white text-[#356b50] hover:bg-white/80' => ! empty($filters['category'])])>All</button>
+                        <button type="button" data-catalog-category-option="" aria-pressed="{{ empty($filters['category']) ? 'true' : 'false' }}" @class(['inline-flex min-h-11 w-28 items-center justify-center whitespace-nowrap rounded-full px-3 text-sm font-medium transition', 'bg-[#356b50] text-white' => empty($filters['category']), 'bg-white text-[#356b50] hover:bg-white/80' => ! empty($filters['category'])])>Semua</button>
                         @foreach ($categories as $category)
-                            <button type="button" data-catalog-category-option="{{ $category->id_kategori }}" aria-pressed="{{ ($filters['category'] ?? '') === $category->id_kategori ? 'true' : 'false' }}" @class(['inline-flex min-h-9 items-center rounded-full px-4 text-sm font-medium transition', 'bg-[#356b50] text-white' => ($filters['category'] ?? '') === $category->id_kategori, 'bg-white text-[#356b50] hover:bg-white/80' => ($filters['category'] ?? '') !== $category->id_kategori])>{{ $category->name }}</button>
+                            <button type="button" data-catalog-category-option="{{ $category->id_kategori }}" aria-pressed="{{ ($filters['category'] ?? '') === $category->id_kategori ? 'true' : 'false' }}" @class(['inline-flex min-h-11 w-28 items-center justify-center whitespace-nowrap rounded-full px-3 text-sm font-medium transition', 'bg-[#356b50] text-white' => ($filters['category'] ?? '') === $category->id_kategori, 'bg-white text-[#356b50] hover:bg-white/80' => ($filters['category'] ?? '') !== $category->id_kategori])>{{ $category->name }}</button>
                         @endforeach
                     </div>
                 </form>
                 <div id="catalog-results" data-ajax-results aria-live="polite">
-                <div class="mt-7 flex items-center justify-between gap-4 text-sm">
+                <div class="mt-7 text-sm">
                     <p data-ajax-result-count class="text-stone-600"><span class="font-semibold text-botanical-800">{{ $products->total() }}</span> buket ditemukan</p>
-                    @if (($filters['search'] ?? false) || ($filters['category'] ?? false))
-                        <a href="{{ route('user.catalog.index') }}" data-ajax-search-link class="font-semibold text-botanical-800 underline decoration-botanical-300 underline-offset-4">Hapus filter</a>
-                    @endif
                 </div>
 
                 <div class="motion-stagger mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -76,17 +73,6 @@
                             <span @class(['rounded-full px-3 py-1.5 text-xs font-semibold', 'bg-[#f8e5eb] text-rose-800' => $product->stock_produk <= 5, 'bg-[#e2f4dd] text-botanical-800' => $product->stock_produk > 5])><span class="mr-1 inline-block h-2 w-2 rounded-full bg-current"></span> Stok {{ $product->stock_produk }} tersedia</span>
                         </div>
                         <p class="mt-5 text-sm leading-7 text-stone-600">{{ $product->deskripsi_produk ?: 'Buket chenille handmade yang dirangkai dengan penuh perhatian. Hadiah lembut dan tahan lama untuk momen yang berarti.' }}</p>
-
-                        <div class="mt-6 border-t border-line pt-5">
-                            <div class="flex items-center justify-between gap-3">
-                                <h2 class="text-sm font-semibold text-ink">Detail rangkaian</h2>
-                                <span class="text-sm text-stone-500">Chenille lembut</span>
-                            </div>
-                            <ul class="mt-3 space-y-2 text-sm text-stone-600">
-                                <li class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-botanical-600"></span> Dirangkai manual dengan teliti</li>
-                                <li class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-botanical-600"></span> Tidak memerlukan perawatan khusus</li>
-                            </ul>
-                        </div>
 
                         <div class="mt-6 flex flex-wrap items-center gap-3">
                             @guest

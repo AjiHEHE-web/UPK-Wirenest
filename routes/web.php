@@ -56,6 +56,7 @@ Route::middleware(['auth', 'user'])
 
         Route::get('/history', [UserOrderController::class, 'index'])->name('orders.index');
         Route::get('/history/{order}', [UserOrderController::class, 'show'])->name('orders.show');
+        Route::post('/history/{order}/check-payment-deadline', [UserOrderController::class, 'checkPaymentDeadline'])->name('orders.check-payment-deadline');
         Route::patch('/history/{order}/cancel', [UserOrderController::class, 'cancel'])->name('orders.cancel');
         Route::patch('/history/{order}/received', [UserOrderController::class, 'confirmReceived'])->name('orders.confirm-received');
         Route::post('/history/{order}/payment-proof', [UserPaymentProofController::class, 'store'])->name('orders.payment-proof');
@@ -77,8 +78,8 @@ Route::prefix('admin')
     ->middleware(['auth', 'admin'])
     ->group(function (): void {
         Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
-        Route::resource('ar-models', AdminArModelController::class)->except(['show']);
-        Route::resource('products', AdminProductController::class);
+        Route::resource('ar-models', AdminArModelController::class)->except(['show', 'destroy']);
+        Route::resource('products', AdminProductController::class)->except(['destroy']);
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');

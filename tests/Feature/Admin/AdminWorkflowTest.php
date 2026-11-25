@@ -357,7 +357,7 @@ test('admins can update product details without replacing the current image', fu
     ]);
 });
 
-test('admins can delete products that are not referenced by orders or favorites', function () {
+test('admins cannot delete products that are not referenced by orders or favorites', function () {
     $admin = User::factory()->create();
     $admin->forceFill(['role' => 'admin'])->save();
 
@@ -377,10 +377,13 @@ test('admins can delete products that are not referenced by orders or favorites'
     ]);
 
     $this->actingAs($admin)
-        ->delete(route('admin.products.destroy', 'product-1'))
-        ->assertRedirect(route('admin.products.index'));
+        ->get(route('admin.products.show', 'product-1'))
+        ->assertOk()
+        ->assertDontSee('Hapus');
 
-    $this->assertDatabaseMissing('products', ['id_produk' => 'product-1']);
+    $this->delete('/admin/products/product-1')->assertMethodNotAllowed();
+
+    $this->assertDatabaseHas('products', ['id_produk' => 'product-1', 'deleted_at' => null]);
 });
 
 test('admins cannot delete products saved as customer favorites', function () {
@@ -411,15 +414,13 @@ test('admins cannot delete products saved as customer favorites', function () {
     ]);
 
     $this->actingAs($admin)
-        ->from(route('admin.products.show', 'product-1'))
-        ->delete(route('admin.products.destroy', 'product-1'))
-        ->assertRedirect(route('admin.products.show', 'product-1'))
-        ->assertSessionHas('error');
+        ->delete('/admin/products/product-1')
+        ->assertMethodNotAllowed();
 
     $this->assertDatabaseHas('products', ['id_produk' => 'product-1']);
 });
 
-test('admins can delete products after all referencing orders are completed', function () {
+test('admins cannot delete products after all referencing orders are completed', function () {
     $admin = User::factory()->create();
     $admin->forceFill(['role' => 'admin'])->save();
     $customer = User::factory()->create();
@@ -458,10 +459,10 @@ test('admins can delete products after all referencing orders are completed', fu
     ]);
 
     $this->actingAs($admin)
-        ->delete(route('admin.products.destroy', 'product-1'))
-        ->assertRedirect(route('admin.products.index'));
+        ->delete('/admin/products/product-1')
+        ->assertMethodNotAllowed();
 
-    $this->assertSoftDeleted('products', ['id_produk' => 'product-1']);
+    $this->assertDatabaseHas('products', ['id_produk' => 'product-1', 'deleted_at' => null]);
     $this->assertDatabaseHas('detail_pesanan', ['id_produk' => 'product-1']);
     expect(OrderItem::query()->firstOrFail()->product->name_produk)->toBe('Buket Selesai');
 });
@@ -505,10 +506,8 @@ test('admins cannot delete products while a referencing order is incomplete', fu
     ]);
 
     $this->actingAs($admin)
-        ->from(route('admin.products.show', 'product-1'))
-        ->delete(route('admin.products.destroy', 'product-1'))
-        ->assertRedirect(route('admin.products.show', 'product-1'))
-        ->assertSessionHas('error');
+        ->delete('/admin/products/product-1')
+        ->assertMethodNotAllowed();
 
     $this->assertDatabaseHas('products', ['id_produk' => 'product-1', 'deleted_at' => null]);
 });

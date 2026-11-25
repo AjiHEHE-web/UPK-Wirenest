@@ -107,13 +107,6 @@
                                         <a href="{{ route('admin.ar-models.edit', $arModel) }}" class="inline-flex h-11 w-11 items-center justify-center rounded-lg text-stone-500 transition hover:bg-botanical-50 hover:text-botanical-700" aria-label="Edit {{ $arModel->nama_model }}">
                                             @include('pages.admin.partials.icon', ['name' => 'edit', 'class' => 'h-4 w-4'])
                                         </a>
-                                        <form method="POST" action="{{ route('admin.ar-models.destroy', $arModel) }}" onsubmit="return confirm('Hapus model AR ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="inline-flex h-11 w-11 items-center justify-center rounded-lg text-stone-500 transition hover:bg-rose-50 hover:text-rose-700" aria-label="Hapus {{ $arModel->nama_model }}">
-                                                @include('pages.admin.partials.icon', ['name' => 'trash', 'class' => 'h-4 w-4'])
-                                            </button>
-                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -132,7 +125,7 @@
                 </table>
             </div>
             @if ($arModels->hasPages())
-                <div class="border-t border-line px-5 py-4 sm:px-6">{{ $arModels->links() }}</div>
+                <div class="border-t border-line px-5 py-4 sm:px-6">{{ $arModels->links('vendor.pagination.admin') }}</div>
             @endif
             </div>
         </section>

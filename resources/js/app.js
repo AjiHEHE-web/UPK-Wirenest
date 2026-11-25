@@ -11,6 +11,10 @@ if (document.querySelector('[data-ajax-search]')) {
     import('./ajax-search.js');
 }
 
+if (document.querySelector('[data-order-expiration-poll]')) {
+    import('./order-expiration.js');
+}
+
 if (document.querySelector('[data-ar-qr-value], form[data-ajax-results="admin-ar-results"]')) {
     import('./ar-qr.js');
 }

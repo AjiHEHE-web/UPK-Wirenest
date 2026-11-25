@@ -48,11 +48,19 @@
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h2 class="text-base font-semibold text-ink">Pendapatan transaksi</h2>
-                    <p class="mt-1 text-sm text-stone-500">Pendapatan per minggu bulan {{ now()->locale('id')->translatedFormat('F Y') }}</p>
+                    <p class="mt-1 text-sm text-stone-500">Pendapatan per minggu bulan {{ $chartMonth->copy()->locale('id')->translatedFormat('F Y') }}</p>
                 </div>
-                <span class="rounded-full bg-botanical-50 px-3 py-1 text-xs font-semibold text-botanical-700">{{ now()->locale('id')->translatedFormat('F') }}</span>
+                <form method="GET" action="{{ route('admin.dashboard') }}" class="relative">
+                    <label for="revenue-month" class="sr-only">Pilih bulan grafik pendapatan</label>
+                    <select id="revenue-month" name="month" onchange="this.form.submit()" class="min-h-11 min-w-48 appearance-none rounded-full border border-line bg-white py-2 pl-4 pr-11 text-sm font-semibold text-botanical-800 shadow-sm focus:border-botanical-500 focus:outline-none focus:ring-2 focus:ring-botanical-200">
+                        @foreach ($monthOptions as $monthOption)
+                            <option value="{{ $monthOption['value'] }}" @selected($chartMonth->format('Y-m') === $monthOption['value'])>{{ $monthOption['label'] }}</option>
+                        @endforeach
+                    </select>
+                    <svg aria-hidden="true" class="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-botanical-700" viewBox="0 0 20 20" fill="none"><path d="m5 7.5 5 5 5-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </form>
             </div>
-            <div class="mt-7 flex h-48 items-end gap-2 sm:gap-4" role="img" aria-label="Grafik pendapatan per minggu bulan {{ now()->locale('id')->translatedFormat('F Y') }}">
+            <div class="mt-7 flex h-48 items-end gap-2 sm:gap-4" role="img" aria-label="Grafik pendapatan per minggu bulan {{ $chartMonth->copy()->locale('id')->translatedFormat('F Y') }}">
                 @foreach ($revenueChart as $week)
                     @php
                         $height = $week['amount'] > 0 ? max(8, ($week['amount'] / $chartMaximum) * 100) : 4;

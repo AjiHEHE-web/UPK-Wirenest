@@ -112,7 +112,7 @@
             </table>
         </div>
         @if ($products->hasPages())
-            <div class="border-t border-line px-5 py-4 sm:px-6">{{ $products->links() }}</div>
+            <div class="border-t border-line px-5 py-4 sm:px-6">{{ $products->links('vendor.pagination.admin') }}</div>
         @endif
         </div>
     </section>
@@ -318,14 +318,6 @@
                 @include('pages.admin.partials.icon', ['name' => 'edit', 'class' => 'h-4 w-4'])
                 Edit Produk
             </a>
-            <form method="POST" action="{{ route('admin.products.destroy', $product) }}" x-data @submit.prevent="if (window.confirm('Hapus produk ini?')) $el.submit()">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-200 px-4 text-sm font-semibold text-rose-700 transition hover:bg-rose-50">
-                    @include('pages.admin.partials.icon', ['name' => 'trash', 'class' => 'h-4 w-4'])
-                    Hapus
-                </button>
-            </form>
         </div>
     </div>
 
@@ -357,11 +349,11 @@
             <dl class="mt-7 grid gap-4 border-t border-line pt-6 sm:grid-cols-2">
                 <div>
                     <dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Tanggal dibuat</dt>
-                    <dd class="mt-1 text-sm font-medium text-ink">{{ $product->created_at?->format('d M Y, H:i') ?? '—' }}</dd>
+                    <dd class="mt-1 text-sm font-medium text-ink">{{ $product->created_at?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? '—' }}</dd>
                 </div>
                 <div>
                     <dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Terakhir diperbarui</dt>
-                    <dd class="mt-1 text-sm font-medium text-ink">{{ $product->updated_at?->format('d M Y, H:i') ?? '—' }}</dd>
+                    <dd class="mt-1 text-sm font-medium text-ink">{{ $product->updated_at?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? '—' }}</dd>
                 </div>
             </dl>
         </div>

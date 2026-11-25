@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\User\UnpaidOrderExpirationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PaymentProofController extends Controller
 {
-    public function store(Request $request, Order $order): RedirectResponse
+    public function store(Request $request, Order $order, UnpaidOrderExpirationService $expirationService): RedirectResponse
     {
         $validated = $request->validate([
             'payment_id' => ['required', 'string', 'exists:pembayaran,id_pembayaran'],
@@ -24,6 +25,12 @@ class PaymentProofController extends Controller
 
         $ownedOrder = $request->user()->orders()->whereKey($order->getKey())->firstOrFail();
         $payment = $ownedOrder->payments()->whereKey($validated['payment_id'])->firstOrFail();
+
+        if ($expirationService->cancelIfExpired($ownedOrder->id_pesanan)) {
+            throw ValidationException::withMessages([
+                'image_bukti' => 'Waktu unggah bukti sudah habis. Pesanan otomatis dibatalkan dan stok dikembalikan.',
+            ]);
+        }
 
         if ($payment->status_pembayaran !== 'pending' || $ownedOrder->status_pesanan !== 'pending') {
             throw ValidationException::withMessages([
@@ -44,7 +51,7 @@ class PaymentProofController extends Controller
         }
 
         try {
-            $ownedOrder = DB::transaction(function () use ($request, $order, $validated, $path): Order {
+            $uploadResult = DB::transaction(function () use ($request, $order, $validated, $path, $expirationService): array {
                 $lockedPayment = Payment::query()
                     ->whereKey($validated['payment_id'])
                     ->lockForUpdate()
@@ -57,6 +64,16 @@ class PaymentProofController extends Controller
 
                 if ($lockedPayment->id_pesanan !== $lockedOrder->id_pesanan) {
                     abort(404);
+                }
+
+                if (
+                    $lockedOrder->status_pesanan === 'pending'
+                    && $expirationService->hasExpired($lockedOrder)
+                    && ! $expirationService->hasUploadedProof($lockedOrder)
+                ) {
+                    $expirationService->cancelExpiredOrder($lockedOrder);
+
+                    return ['order' => $lockedOrder, 'expired' => true];
                 }
 
                 if (
@@ -76,7 +93,7 @@ class PaymentProofController extends Controller
 
                 $lockedPayment->update(['image_bukti' => $path]);
 
-                return $lockedOrder;
+                return ['order' => $lockedOrder, 'expired' => false];
             }, attempts: 3);
         } catch (\Throwable $exception) {
             Storage::disk('local')->delete($path);
@@ -84,8 +101,16 @@ class PaymentProofController extends Controller
             throw $exception;
         }
 
+        if ($uploadResult['expired']) {
+            Storage::disk('local')->delete($path);
+
+            throw ValidationException::withMessages([
+                'image_bukti' => 'Waktu unggah bukti sudah habis. Pesanan otomatis dibatalkan dan stok dikembalikan.',
+            ]);
+        }
+
         return redirect()
-            ->route('user.orders.show', $ownedOrder)
+            ->route('user.orders.show', $uploadResult['order'])
             ->with('success', 'Bukti pembayaran berhasil diunggah dan menunggu verifikasi Admin.');
     }
 

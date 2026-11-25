@@ -52,7 +52,7 @@
                         <tr class="align-top transition hover:bg-stone-50/70">
                             <td class="whitespace-nowrap px-6 py-4">
                                 <a href="{{ route('admin.transactions.show', $payment) }}" class="font-semibold text-botanical-700 hover:text-botanical-900">#{{ Str::limit($payment->id_pembayaran, 12, '') }}</a>
-                                <p class="mt-1 text-xs text-stone-500">{{ $payment->created_at?->format('d M Y, H:i') ?? '—' }}</p>
+                                <p class="mt-1 text-xs text-stone-500">{{ $payment->created_at?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? '—' }}</p>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
                                 <a href="{{ route('admin.orders.show', $payment->order) }}" class="font-medium text-ink hover:text-botanical-700">#{{ Str::limit($payment->id_pesanan, 12, '') }}</a>
@@ -102,7 +102,7 @@
             </table>
         </div>
         @if ($payments->hasPages())
-            <div class="border-t border-line px-5 py-4 sm:px-6">{{ $payments->links() }}</div>
+            <div class="border-t border-line px-5 py-4 sm:px-6">{{ $payments->links('vendor.pagination.admin') }}</div>
         @endif
     </section>
 @elseif ($page === 'history')
@@ -200,7 +200,7 @@
             </table>
         </div>
         @if ($payments->hasPages())
-            <div class="border-t border-line px-5 py-4 sm:px-6">{{ $payments->links() }}</div>
+                <div class="border-t border-line px-5 py-4 sm:px-6">{{ $payments->links('vendor.pagination.admin') }}</div>
         @endif
         </div>
     </section>
@@ -232,7 +232,7 @@
                 <div><dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Nama pelanggan</dt><dd class="mt-1 text-sm font-semibold text-ink">{{ $payment->order?->user?->nama ?: $payment->order?->user?->name ?: 'Pelanggan' }}</dd></div>
                 <div><dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Metode pembayaran</dt><dd class="mt-1 text-sm font-semibold uppercase text-ink">{{ $payment->metode_pembayaran }}</dd></div>
                 <div><dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Jumlah pembayaran</dt><dd class="mt-1 text-lg font-semibold text-botanical-800">Rp {{ number_format((float) $payment->jumlah, 0, ',', '.') }}</dd></div>
-                <div><dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Tanggal transaksi</dt><dd class="mt-1 text-sm text-ink">{{ ($payment->paid_at ?? $payment->verified_at ?? $payment->created_at)?->format('d M Y, H:i') ?? '—' }}</dd></div>
+                <div><dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Tanggal transaksi</dt><dd class="mt-1 text-sm text-ink">{{ ($payment->paid_at ?? $payment->verified_at ?? $payment->created_at)?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? '—' }}</dd></div>
                 <div><dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Admin verifikator</dt><dd class="mt-1 text-sm text-ink">{{ $payment->verifier?->nama ?: $payment->verifier?->name ?: 'Belum diverifikasi' }}</dd></div>
             </dl>
             <div class="pt-6">
@@ -303,7 +303,7 @@
                 <div><p class="text-xs text-stone-500">ID Pesanan</p><p class="mt-1 break-all text-sm font-semibold text-ink">{{ $payment->order?->id_pesanan }}</p></div>
                 <div><p class="text-xs text-stone-500">ID Pembayaran</p><p class="mt-1 break-all text-sm font-semibold text-ink">{{ $payment->id_pembayaran }}</p></div>
                 <div><p class="text-xs text-stone-500">Nama pelanggan</p><p class="mt-1 text-sm font-semibold text-ink">{{ $payment->order?->user?->nama ?: $payment->order?->user?->name ?: 'Pelanggan' }}</p></div>
-                <div><p class="text-xs text-stone-500">Tanggal transaksi</p><p class="mt-1 text-sm font-semibold text-ink">{{ ($payment->paid_at ?? $payment->verified_at ?? $payment->created_at)?->format('d M Y, H:i') ?? '—' }}</p></div>
+                <div><p class="text-xs text-stone-500">Tanggal transaksi</p><p class="mt-1 text-sm font-semibold text-ink">{{ ($payment->paid_at ?? $payment->verified_at ?? $payment->created_at)?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? '—' }}</p></div>
             </section>
 
             <section class="py-6">

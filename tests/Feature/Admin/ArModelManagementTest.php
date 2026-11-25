@@ -5,7 +5,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
-it('lets admins upload, replace, and remove an AR model without choosing a product', function () {
+it('lets admins upload and replace an AR model without choosing a product', function () {
     Storage::fake('public');
 
     $admin = User::factory()->create();
@@ -64,12 +64,14 @@ it('lets admins upload, replace, and remove an AR model without choosing a produ
     Storage::disk('public')->assertExists($updatedModelAr->image_ar);
     Storage::disk('public')->assertMissing($modelAr->image_ar);
 
-    $this->delete(route('admin.ar-models.destroy', $modelAr->id_model_ar))
-        ->assertRedirect(route('admin.ar-models.index'))
-        ->assertSessionHas('success', 'Model AR berhasil dihapus.');
+    $this->get(route('admin.ar-models.index'))
+        ->assertOk()
+        ->assertDontSee('Hapus Buket Mawar Baru');
 
-    $this->assertDatabaseMissing('model_ar', ['id_model_ar' => $modelAr->id_model_ar]);
-    Storage::disk('public')->assertMissing($updatedModelAr->image_ar);
+    $this->delete('/admin/ar-models/'.$modelAr->id_model_ar)->assertMethodNotAllowed();
+
+    $this->assertDatabaseHas('model_ar', ['id_model_ar' => $modelAr->id_model_ar]);
+    Storage::disk('public')->assertExists($updatedModelAr->image_ar);
 });
 
 it('rejects unsupported AR file formats without storing a model', function () {

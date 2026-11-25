@@ -5,7 +5,7 @@
 @section('content')
     @php
         $statusLabels = [
-            'pending' => 'Pending',
+            'pending' => 'Menunggu pembayaran',
             'processing' => 'Diproses',
             'shipped' => 'Dikirim',
             'completed' => 'Selesai',
@@ -30,20 +30,20 @@
                 </div>
 
                 <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-                    <nav id="user-order-status-filters" data-ajax-refresh aria-label="Filter status pesanan" class="inline-flex flex-wrap gap-1 rounded-full border border-botanical-200 bg-white p-1.5 shadow-sm">
-                        @foreach (['all' => 'Semua', 'active' => 'Aktif', 'archived' => 'Selesai'] as $status => $label)
-                            <a href="{{ route('user.orders.index', array_filter(['search' => $filters['search'] ?? null, 'status' => $status === 'all' ? null : $status])) }}" @class(['inline-flex min-h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold transition', 'bg-botanical-800 text-white shadow-sm' => ($filters['status'] ?? 'all') === $status, 'text-botanical-900 hover:bg-botanical-50' => ($filters['status'] ?? 'all') !== $status]) @if (($filters['status'] ?? 'all') === $status) aria-current="page" @endif>
-                                {{ $label }} <span class="text-xs opacity-75">{{ $orderCounts[$status] }}</span>
+                    <nav id="user-order-status-filters" data-ajax-refresh aria-label="Filter status pesanan" class="flex max-w-full flex-wrap gap-2">
+                        @foreach (['all' => 'Semua', 'pending' => $statusLabels['pending'], 'processing' => $statusLabels['processing'], 'shipped' => $statusLabels['shipped'], 'completed' => $statusLabels['completed'], 'cancelled' => $statusLabels['cancelled'], 'rejected' => $statusLabels['rejected']] as $status => $label)
+                            <a href="{{ route('user.orders.index', array_filter(['search' => $filters['search'] ?? null, 'status' => $status === 'all' ? null : $status])) }}" @class(['inline-flex min-h-11 items-center rounded-full px-5 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-botanical-700', 'bg-botanical-800 text-white shadow-sm' => ($filters['status'] ?? 'all') === $status, 'bg-white text-botanical-900 hover:bg-botanical-50' => ($filters['status'] ?? 'all') !== $status]) @if (($filters['status'] ?? 'all') === $status) aria-current="page" @endif>
+                                {{ $label }}
                             </a>
                         @endforeach
                     </nav>
                     <span class="inline-flex items-center gap-2 text-xs text-stone-600"><svg class="h-4 w-4 text-botanical-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg> Pengiriman standar: 2–3 hari kerja</span>
                 </div>
 
-                <form method="GET" action="{{ route('user.orders.index') }}" data-ajax-search data-ajax-results="user-orders-results" class="mt-5 flex w-full items-center gap-3 rounded-[26px] border border-botanical-200 bg-white p-3 shadow-[0_12px_30px_rgba(28,73,33,.12)] sm:p-4">
+                <form method="GET" action="{{ route('user.orders.index') }}" data-ajax-search data-ajax-results="user-orders-results" class="mt-5 flex min-h-14 w-full items-center gap-3 rounded-full bg-white px-5 transition focus-within:ring-2 focus-within:ring-botanical-200">
                     <label for="order-search" class="sr-only">Cari pesanan, produk, alamat, atau pembayaran</label>
-                    <svg class="ml-2 h-5 w-5 shrink-0 text-botanical-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
-                    <input id="order-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari pesanan, produk, alamat..." class="h-11 min-w-0 flex-1 rounded-2xl border-0 bg-botanical-50/70 px-4 text-sm text-ink placeholder:text-stone-500 focus:bg-white focus:ring-2 focus:ring-botanical-200">
+                    <svg class="h-5 w-5 shrink-0 text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+                    <input id="order-search" name="search" value="{{ $filters['search'] ?? '' }}" type="search" placeholder="Cari pesanan, produk, alamat..." class="h-12 min-w-0 flex-1 border-0 bg-transparent px-2 text-sm text-ink placeholder:text-stone-500 focus:ring-0">
                     @if (($filters['status'] ?? 'all') !== 'all')<input type="hidden" name="status" value="{{ $filters['status'] }}">@endif
                 </form>
 
@@ -112,15 +112,16 @@
 
         @include('pages.ar.partials.scanner-dialog')
     @else
-        <section class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+        <section @if ($order->status_pesanan === 'pending' && ! $order->payments->contains(fn ($payment) => filled($payment->image_bukti))) data-order-expiration-poll data-check-url="{{ route('user.orders.check-payment-deadline', $order) }}" @endif class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
             <a href="{{ route('user.orders.index') }}" class="text-sm font-semibold text-botanical-800 hover:underline">← Kembali ke riwayat</a>
             <div class="mt-5 flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <p class="store-eyebrow">Detail pesanan</p>
-                    <p class="mt-2 text-sm text-stone-500">{{ $order->tanggal_pemesanan?->format('d M Y, H:i') ?? 'Tanggal tidak tersedia' }}</p>
+                    <p class="mt-2 text-sm text-stone-500">{{ $order->tanggal_pemesanan?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? 'Tanggal tidak tersedia' }}</p>
                 </div>
-                <span class="rounded-full bg-botanical-50 px-4 py-2 text-sm font-semibold capitalize text-botanical-800">{{ $statusLabels[$order->status_pesanan] ?? $order->status_pesanan }}</span>
+                <span data-order-status-pill @class(['rounded-full px-4 py-2 text-sm font-semibold capitalize', 'bg-botanical-50 text-botanical-800' => ! in_array($order->status_pesanan, ['cancelled', 'rejected'], true), 'bg-rose-50 text-rose-800' => in_array($order->status_pesanan, ['cancelled', 'rejected'], true)])>{{ $statusLabels[$order->status_pesanan] ?? $order->status_pesanan }}</span>
             </div>
+            <p data-order-expired-notice hidden role="status" class="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-800"></p>
 
             <div class="mt-7 grid gap-6 lg:grid-cols-[1fr_320px]">
                 <div class="space-y-6">
@@ -162,7 +163,7 @@
 
                     @if ($order->status_pesanan === 'pending' && ! $order->payments->contains(fn ($payment) => filled($payment->image_bukti)))
                         <div class="space-y-2">
-                            <form method="POST" action="{{ route('user.orders.cancel', $order) }}" onsubmit="return confirm('Batalkan pesanan ini?')">
+                            <form data-order-cancel-form method="POST" action="{{ route('user.orders.cancel', $order) }}" onsubmit="return confirm('Batalkan pesanan ini?')">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="inline-flex min-h-11 items-center justify-center rounded-lg border border-rose-200 px-5 text-sm font-semibold text-rose-700 transition hover:bg-rose-50">Batalkan pesanan</button>
@@ -190,17 +191,20 @@
                         <section class="rounded-xl border border-line bg-matcha p-5 shadow-sm">
                             <div class="flex items-start justify-between gap-3">
                                 <h2 class="font-display text-xl font-medium text-botanical-950">Pembayaran</h2>
-                                <span @class(['rounded-full px-3 py-1 text-xs font-semibold capitalize', 'bg-amber-50 text-amber-800' => $payment->status_pembayaran === 'pending', 'bg-botanical-50 text-botanical-800' => $payment->status_pembayaran === 'paid', 'bg-rose-50 text-rose-800' => $payment->status_pembayaran === 'failed'])>{{ $payment->status_pembayaran }}</span>
+                                <span data-payment-status-pill @class(['rounded-full px-3 py-1 text-xs font-semibold capitalize', 'bg-amber-50 text-amber-800' => $payment->status_pembayaran === 'pending', 'bg-botanical-50 text-botanical-800' => $payment->status_pembayaran === 'paid', 'bg-rose-50 text-rose-800' => $payment->status_pembayaran === 'failed'])>{{ $payment->status_pembayaran }}</span>
                             </div>
                             <dl class="mt-4 space-y-3 text-sm">
-                                <div class="flex justify-between"><dt class="text-stone-500">Metode</dt><dd class="font-medium uppercase text-ink">{{ $payment->metode_pembayaran }}</dd></div>
+                                <div class="flex justify-between"><dt class="text-stone-500">Metode</dt><dd class="font-medium text-ink">{{ $walletMethods[$payment->metode_pembayaran]['label'] ?? strtoupper($payment->metode_pembayaran) }}</dd></div>
+                                @if (isset($walletMethods[$payment->metode_pembayaran]['number']))
+                                    <div class="flex justify-between gap-3"><dt class="text-stone-500">Nomor tujuan</dt><dd class="font-semibold text-ink">{{ $walletMethods[$payment->metode_pembayaran]['number'] }}</dd></div>
+                                @endif
                                 <div class="flex justify-between"><dt class="text-stone-500">Jumlah</dt><dd class="font-semibold text-ink">Rp {{ number_format((float) $payment->jumlah, 2, ',', '.') }}</dd></div>
                             </dl>
                             @if ($payment->image_bukti)
                                 <a href="{{ route('user.orders.payment-proof.show', [$order, $payment]) }}" target="_blank" rel="noopener" class="mt-4 inline-flex min-h-10 items-center text-sm font-semibold text-botanical-800 hover:underline">Lihat bukti pembayaran</a>
                             @endif
                             @if ($payment->image_bukti === null && $payment->status_pembayaran === 'pending' && $order->status_pesanan === 'pending')
-                                <form method="POST" action="{{ route('user.orders.payment-proof', $order) }}" enctype="multipart/form-data" class="mt-5 rounded-lg border border-botanical-100 bg-[#f3f1e8] p-4">
+                                <form data-payment-proof-form method="POST" action="{{ route('user.orders.payment-proof', $order) }}" enctype="multipart/form-data" class="mt-5 rounded-lg border border-botanical-100 bg-[#f3f1e8] p-4">
                                     @csrf
                                     <input type="hidden" name="payment_id" value="{{ $payment->id_pembayaran }}">
                                     <label for="image-bukti-{{ $payment->id_pembayaran }}" class="mb-2 block text-sm font-semibold text-ink">Unggah bukti transfer</label>
@@ -210,7 +214,7 @@
                                 </form>
                             @endif
                             @if ($payment->status_pembayaran === 'paid')
-                                <p class="mt-4 border-t border-line pt-4 text-xs text-stone-500">Pembayaran diterima {{ $payment->paid_at?->format('d M Y, H:i') ?? '' }}</p>
+                                <p class="mt-4 border-t border-line pt-4 text-xs text-stone-500">Pembayaran diterima {{ $payment->paid_at?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? '' }}</p>
                             @endif
                         </section>
                     @endforeach

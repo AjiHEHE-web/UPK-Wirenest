@@ -27,7 +27,7 @@ class ArModelController extends Controller
             })
             ->orderByDesc('created_at')
             ->orderByDesc('id_model_ar')
-            ->paginate(10)
+            ->paginate(5)
             ->withQueryString();
 
         return view('pages.admin.ar-models', [
@@ -118,16 +118,5 @@ class ArModelController extends Controller
         return redirect()
             ->route('admin.ar-models.index')
             ->with('success', 'Model AR berhasil diperbarui.');
-    }
-
-    public function destroy(ArModel $arModel): RedirectResponse
-    {
-        $path = $arModel->image_ar;
-        $arModel->delete();
-        Storage::disk('public')->delete($path);
-
-        return redirect()
-            ->route('admin.ar-models.index')
-            ->with('success', 'Model AR berhasil dihapus.');
     }
 }

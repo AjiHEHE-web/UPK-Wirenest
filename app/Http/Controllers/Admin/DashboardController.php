@@ -7,12 +7,58 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(Request $request): View
     {
-        $monthStart = now()->startOfMonth();
+        $filters = $request->validate([
+            'month' => ['nullable', Rule::date()->format('Y-m')],
+        ]);
+        $currentMonth = now()->startOfMonth();
+        $monthStart = isset($filters['month'])
+            ? Carbon::createFromFormat('!Y-m', $filters['month'])
+            : $currentMonth->copy();
+
+        if ($monthStart->greaterThan($currentMonth)) {
+            $monthStart = $currentMonth->copy();
+        }
+
+        $firstPaidAt = Payment::query()
+            ->where('status_pembayaran', 'paid')
+            ->whereNotNull('paid_at')
+            ->min('paid_at');
+        $firstRevenueMonth = $firstPaidAt
+            ? Carbon::parse($firstPaidAt)->startOfMonth()
+            : $currentMonth->copy();
+        $monthRangeStart = $currentMonth->copy()->subMonths(11);
+
+        if ($firstRevenueMonth->lessThan($monthRangeStart)) {
+            $monthRangeStart = $firstRevenueMonth;
+        }
+
+        $monthOptions = collect();
+        $optionMonth = $currentMonth->copy();
+
+        while ($optionMonth->greaterThanOrEqualTo($monthRangeStart)) {
+            $monthOptions->push([
+                'value' => $optionMonth->format('Y-m'),
+                'label' => $optionMonth->copy()->locale('id')->translatedFormat('F Y'),
+            ]);
+            $optionMonth->subMonth();
+        }
+
+        if (! $monthOptions->contains('value', $monthStart->format('Y-m'))) {
+            $monthOptions->push([
+                'value' => $monthStart->format('Y-m'),
+                'label' => $monthStart->copy()->locale('id')->translatedFormat('F Y'),
+            ]);
+            $monthOptions = $monthOptions->sortByDesc('value')->values();
+        }
+
         $monthEnd = $monthStart->copy()->endOfMonth();
         $revenueByDay = Payment::query()
             ->where('status_pembayaran', 'paid')
@@ -65,6 +111,8 @@ class DashboardController extends Controller
                 ->get(),
             'revenueChart' => $revenueChart,
             'chartMaximum' => max(1, (float) $revenueChart->max('amount')),
+            'chartMonth' => $monthStart,
+            'monthOptions' => $monthOptions,
         ]);
     }
 }

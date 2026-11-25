@@ -83,7 +83,7 @@
                                 <p class="font-medium text-ink">{{ $order->user?->nama ?: $order->user?->name ?: 'Pelanggan' }}</p>
                                 <p class="mt-0.5 text-xs text-stone-500">{{ $order->user?->email }}</p>
                             </td>
-                            <td class="whitespace-nowrap px-6 py-4 text-stone-600">{{ $order->tanggal_pemesanan?->format('d M Y, H:i') ?? '—' }}</td>
+                            <td class="whitespace-nowrap px-6 py-4 text-stone-600">{{ $order->tanggal_pemesanan?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? '—' }}</td>
                             <td class="whitespace-nowrap px-6 py-4 font-semibold text-ink">Rp {{ number_format((float) $order->total_harga, 0, ',', '.') }}</td>
                             <td class="px-6 py-4"><x-admin.status-badge :status="$order->status_pesanan" /></td>
                             <td class="px-6 py-4">
@@ -107,7 +107,7 @@
             </table>
         </div>
         @if ($orders->hasPages())
-            <div class="border-t border-line px-5 py-4 sm:px-6">{{ $orders->links() }}</div>
+            <div class="border-t border-line px-5 py-4 sm:px-6">{{ $orders->links('vendor.pagination.admin') }}</div>
         @endif
         </div>
     </section>
@@ -172,7 +172,7 @@
                     </div>
                     <div>
                         <dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Tanggal pemesanan</dt>
-                        <dd class="mt-1 text-sm text-ink">{{ $order->tanggal_pemesanan?->format('d M Y, H:i') ?? '—' }}</dd>
+                        <dd class="mt-1 text-sm text-ink">{{ $order->tanggal_pemesanan?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? '—' }}</dd>
                     </div>
                     <div>
                         <dt class="text-xs font-medium uppercase tracking-wide text-stone-500">Pembayaran</dt>
@@ -224,7 +224,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-6">
                     <div class="min-w-0">
                         <a href="{{ route('admin.transactions.show', $payment) }}" class="break-all text-sm font-semibold text-botanical-700 hover:text-botanical-900">{{ $payment->id_pembayaran }}</a>
-                        <p class="mt-1 text-xs text-stone-500">{{ strtoupper($payment->metode_pembayaran) }} · {{ $payment->created_at?->format('d M Y, H:i') ?? '—' }}</p>
+                        <p class="mt-1 text-xs text-stone-500">{{ strtoupper($payment->metode_pembayaran) }} · {{ $payment->created_at?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? '—' }}</p>
                     </div>
                     <div class="flex items-center gap-3">
                         <span class="text-sm font-semibold text-ink">Rp {{ number_format((float) $payment->jumlah, 0, ',', '.') }}</span>
