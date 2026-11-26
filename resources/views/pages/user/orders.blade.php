@@ -53,15 +53,20 @@
                         @php
                             $payment = $order->payments->sortByDesc('created_at')->first();
                             $firstItem = $order->items->first();
+                            $hasUploadedProof = $order->payments->contains(fn ($payment) => filled($payment->image_bukti));
+                            $paymentDeadline = ($order->created_at ?? $order->tanggal_pemesanan)?->copy()->addHours(\App\Models\Order::PAYMENT_PROOF_DEADLINE_HOURS);
                         @endphp
-                        <article class="rounded-[26px] border border-botanical-200 bg-white p-4 shadow-[0_12px_30px_rgba(28,73,33,.12)] sm:p-6">
+                        <article @if ($order->status_pesanan === 'pending' && ! $hasUploadedProof) data-order-expiration-poll data-check-url="{{ route('user.orders.check-payment-deadline', $order) }}" @if ($paymentDeadline) data-deadline-timestamp="{{ $paymentDeadline->getTimestamp() * 1000 }}" @endif @endif class="rounded-[26px] border border-botanical-200 bg-white p-4 shadow-[0_12px_30px_rgba(28,73,33,.12)] sm:p-6">
                             <div class="flex flex-wrap items-center justify-between gap-3">
                                 <div class="flex flex-wrap items-center gap-2 text-sm">
                                     <span class="rounded-full bg-[#fdf0f4] px-3 py-1.5 font-semibold text-botanical-800">#{{ strtoupper(substr($order->id_pesanan, 0, 8)) }}</span>
                                     <span class="text-[#d4a6b4]" aria-hidden="true">•</span>
-                                    <span class="inline-flex items-center gap-1.5 text-xs text-stone-500"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/></svg>{{ $order->tanggal_pemesanan?->format('d M Y') ?? 'Tanggal tidak tersedia' }}</span>
+                                    <span class="inline-flex items-center gap-1.5 text-xs text-stone-500"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4m8-4v4M4 10h16"/></svg>{{ $order->tanggal_pemesanan?->copy()->timezone(config('app.display_timezone'))->format('d M Y') ?? 'Tanggal tidak tersedia' }}</span>
+                                    @if ($order->status_pesanan === 'pending' && ! $hasUploadedProof && $paymentDeadline)
+                                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800">Pesanan akan dibatalkan otomatis jika bukti pembayaran tidak dikirim.<time data-order-deadline-countdown class="font-mono tabular-nums">--:--:--</time></span>
+                                    @endif
                                 </div>
-                                <span @class(['inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold', 'bg-[#fff3c9] text-[#785e00]' => in_array($order->status_pesanan, ['pending', 'processing'], true), 'bg-[#e6f3e2] text-botanical-800' => in_array($order->status_pesanan, ['shipped', 'completed'], true), 'bg-[#f9e5ec] text-rose-800' => in_array($order->status_pesanan, ['cancelled', 'rejected'], true)])><span class="h-2 w-2 rounded-full bg-current"></span>{{ $statusLabels[$order->status_pesanan] ?? $order->status_pesanan }}</span>
+                                <span data-order-status-pill @class(['inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold', 'bg-[#fff3c9] text-[#785e00]' => in_array($order->status_pesanan, ['pending', 'processing'], true), 'bg-[#e6f3e2] text-botanical-800' => in_array($order->status_pesanan, ['shipped', 'completed'], true), 'bg-[#f9e5ec] text-rose-800' => in_array($order->status_pesanan, ['cancelled', 'rejected'], true)])><span class="h-2 w-2 rounded-full bg-current"></span>{{ $statusLabels[$order->status_pesanan] ?? $order->status_pesanan }}</span>
                             </div>
 
                             <div class="mt-4 grid gap-4 md:grid-cols-[minmax(0,1fr)_160px_150px] md:items-center">
@@ -83,7 +88,7 @@
                                 <div class="md:text-right">
                                     <p class="text-xs text-stone-500">Total pesanan</p>
                                     <p class="mt-1 text-xl font-bold text-[#34873a]">Rp {{ number_format((float) $order->total_harga, 0, ',', '.') }}</p>
-                                    @if ($payment)<p class="mt-1 text-xs text-stone-500">Pembayaran {{ ucfirst($payment->status_pembayaran) }}</p>@endif
+                                    @if ($payment)<p class="mt-1 text-xs text-stone-500">Pembayaran <span data-payment-status-pill>{{ ucfirst($payment->status_pembayaran) }}</span></p>@endif
                                 </div>
                                 <a href="{{ route('user.orders.show', $order) }}" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#34873a] px-5 text-sm font-semibold text-white transition hover:bg-botanical-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-botanical-700">Lihat detail <span aria-hidden="true">→</span></a>
                             </div>
@@ -112,12 +117,24 @@
 
         @include('pages.ar.partials.scanner-dialog')
     @else
-        <section @if ($order->status_pesanan === 'pending' && ! $order->payments->contains(fn ($payment) => filled($payment->image_bukti))) data-order-expiration-poll data-check-url="{{ route('user.orders.check-payment-deadline', $order) }}" @endif class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+        @php
+            $hasUploadedProof = $order->payments->contains(fn ($payment) => filled($payment->image_bukti));
+            $paymentDeadline = ($order->created_at ?? $order->tanggal_pemesanan)?->copy()->addHours(\App\Models\Order::PAYMENT_PROOF_DEADLINE_HOURS);
+        @endphp
+        <section @if ($order->status_pesanan === 'pending' && ! $hasUploadedProof) data-order-expiration-poll data-check-url="{{ route('user.orders.check-payment-deadline', $order) }}" data-deadline-timestamp="{{ $paymentDeadline?->getTimestamp() * 1000 }}" @endif class="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
             <a href="{{ route('user.orders.index') }}" class="text-sm font-semibold text-botanical-800 hover:underline">← Kembali ke riwayat</a>
             <div class="mt-5 flex flex-wrap items-start justify-between gap-4">
                 <div>
-                    <p class="store-eyebrow">Detail pesanan</p>
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <p class="store-eyebrow">Detail pesanan</p>
+                        @if ($order->status_pesanan === 'pending' && ! $hasUploadedProof && $paymentDeadline)
+                            <p class="text-xs font-semibold text-amber-800">Sisa waktu: <time data-order-deadline-countdown class="font-mono tabular-nums">--:--:--</time></p>
+                        @endif
+                    </div>
                     <p class="mt-2 text-sm text-stone-500">{{ $order->tanggal_pemesanan?->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') ?? 'Tanggal tidak tersedia' }}</p>
+                    @if ($order->status_pesanan === 'pending' && ! $hasUploadedProof)
+                        <p class="mt-1 text-xs text-amber-800 font-bold">Pesanan akan dibatalkan otomatis jika bukti pembayaran tidak dikirim.</p>
+                    @endif
                 </div>
                 <span data-order-status-pill @class(['rounded-full px-4 py-2 text-sm font-semibold capitalize', 'bg-botanical-50 text-botanical-800' => ! in_array($order->status_pesanan, ['cancelled', 'rejected'], true), 'bg-rose-50 text-rose-800' => in_array($order->status_pesanan, ['cancelled', 'rejected'], true)])>{{ $statusLabels[$order->status_pesanan] ?? $order->status_pesanan }}</span>
             </div>

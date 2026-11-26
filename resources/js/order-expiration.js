@@ -1,9 +1,30 @@
-const expirationPanel = document.querySelector('[data-order-expiration-poll]');
+const expirationPanels = document.querySelectorAll('[data-order-expiration-poll]');
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
-if (expirationPanel instanceof HTMLElement && csrfToken) {
+if (csrfToken) {
+    expirationPanels.forEach((expirationPanel) => {
+        if (!(expirationPanel instanceof HTMLElement)) {
+            return;
+        }
+
     let isChecking = false;
     let timeoutId;
+    let countdownInterval;
+    const deadlineTimestamp = Number(expirationPanel.dataset.deadlineTimestamp);
+    const countdownDisplay = expirationPanel.querySelector('[data-order-deadline-countdown]');
+
+    const updateCountdown = () => {
+        if (!countdownDisplay || ! Number.isFinite(deadlineTimestamp)) {
+            return;
+        }
+
+        const remainingSeconds = Math.max(0, Math.ceil((deadlineTimestamp - Date.now()) / 1000));
+        const hours = String(Math.floor(remainingSeconds / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((remainingSeconds % 3600) / 60)).padStart(2, '0');
+        const seconds = String(remainingSeconds % 60).padStart(2, '0');
+
+        countdownDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+    };
 
     const updateExpiredOrder = (state) => {
         const orderStatus = expirationPanel.querySelector('[data-order-status-pill]');
@@ -12,12 +33,19 @@ if (expirationPanel instanceof HTMLElement && csrfToken) {
 
         if (orderStatus) {
             orderStatus.textContent = 'Dibatalkan';
-            orderStatus.classList.remove('bg-botanical-50', 'text-botanical-800');
+            orderStatus.classList.remove(
+                'bg-botanical-50',
+                'text-botanical-800',
+                'bg-[#fff3c9]',
+                'text-[#785e00]',
+                'bg-[#e6f3e2]',
+                'bg-[#f9e5ec]',
+            );
             orderStatus.classList.add('bg-rose-50', 'text-rose-800');
         }
 
         if (paymentStatus && state.payment_status === 'failed') {
-            paymentStatus.textContent = 'failed';
+            paymentStatus.textContent = 'Failed';
             paymentStatus.classList.remove('bg-amber-50', 'text-amber-800');
             paymentStatus.classList.add('bg-rose-50', 'text-rose-800');
         }
@@ -32,6 +60,7 @@ if (expirationPanel instanceof HTMLElement && csrfToken) {
             notice.hidden = false;
         }
 
+        window.clearInterval(countdownInterval);
         expirationPanel.removeAttribute('data-order-expiration-poll');
     };
 
@@ -73,6 +102,12 @@ if (expirationPanel instanceof HTMLElement && csrfToken) {
         }
     };
 
-    window.addEventListener('pagehide', () => window.clearTimeout(timeoutId), { once: true });
+    updateCountdown();
+    countdownInterval = window.setInterval(updateCountdown, 1000);
+    window.addEventListener('pagehide', () => {
+        window.clearTimeout(timeoutId);
+        window.clearInterval(countdownInterval);
+    }, { once: true });
     void checkPaymentDeadline();
+    });
 }

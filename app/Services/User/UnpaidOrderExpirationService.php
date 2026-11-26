@@ -33,7 +33,7 @@ class UnpaidOrderExpirationService
     public function expirePendingOrders(): int
     {
         $expiredCount = 0;
-        $cutoff = now()->subMinute();
+        $cutoff = now()->subHours(Order::PAYMENT_PROOF_DEADLINE_HOURS);
 
         Order::query()
             ->where('status_pesanan', 'pending')
@@ -61,7 +61,8 @@ class UnpaidOrderExpirationService
     {
         $createdAt = $order->created_at ?? $order->tanggal_pemesanan;
 
-        return $createdAt !== null && $createdAt->isBefore(now()->subMinute());
+        return $createdAt !== null
+            && $createdAt->isBefore(now()->subHours(Order::PAYMENT_PROOF_DEADLINE_HOURS));
     }
 
     public function hasUploadedProof(Order $order): bool

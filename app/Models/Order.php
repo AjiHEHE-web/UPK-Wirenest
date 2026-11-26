@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
+    public const PAYMENT_PROOF_DEADLINE_HOURS = 24;
+
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
 
